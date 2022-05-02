@@ -1,15 +1,9 @@
 package service
 
 import (
-	"context"
 	"database/sql"
-	"fmt"
 	"github.com/kevinmichaelchen/api-dispatch/internal/idl/coop/drivers/dispatch/v1beta1"
-	"github.com/kevinmichaelchen/api-dispatch/internal/models"
 	"github.com/uber/h3-go"
-	"github.com/volatiletech/null/v8"
-	"github.com/volatiletech/sqlboiler/v4/boil"
-	"github.com/volatiletech/sqlboiler/v4/queries"
 	"github.com/volatiletech/sqlboiler/v4/types"
 	"log"
 )
@@ -42,79 +36,6 @@ func cellNeighbors(l *v1beta1.LatLng, res int) types.StringArray {
 		out = append(out, h3.ToString(idx))
 	}
 	return out
-}
-
-func (s *Service) Ingest(ctx context.Context, r *v1beta1.IngestRequest) (*v1beta1.IngestResponse, error) {
-	for _, l := range r.GetLocations() {
-		dl := models.DriverLocation{
-			CreatedAt:      l.GetTimestamp().AsTime(),
-			DriverID:       l.GetDriverId(),
-			Latitude:       l.GetLatLng().GetLatitude(),
-			Longitude:      l.GetLatLng().GetLongitude(),
-			R7Cell:         null.StringFrom(getCell(l.GetLatLng(), 7)),
-			R8Cell:         null.StringFrom(getCell(l.GetLatLng(), 8)),
-			R9Cell:         null.StringFrom(getCell(l.GetLatLng(), 9)),
-			R10Cell:        null.StringFrom(getCell(l.GetLatLng(), 10)),
-			R7K1Neighbors:  cellNeighbors(l.GetLatLng(), 7),
-			R8K1Neighbors:  cellNeighbors(l.GetLatLng(), 8),
-			R9K1Neighbors:  cellNeighbors(l.GetLatLng(), 9),
-			R10K1Neighbors: cellNeighbors(l.GetLatLng(), 10),
-		}
-		err := dl.Insert(ctx, s.db, boil.Infer())
-		if err != nil {
-			return nil, fmt.Errorf("failed to insert location for driver: %s", l.GetDriverId())
-		}
-	}
-	return &v1beta1.IngestResponse{}, nil
-}
-
-func (s *Service) Dispatch(ctx context.Context, r *v1beta1.DispatchRequest) (*v1beta1.DispatchResponse, error) {
-	//r7K1Neighbors := cellNeighbors(r.GetLocation(), 7)
-	//r8K1Neighbors := cellNeighbors(r.GetLocation(), 8)
-	//r9K1Neighbors := cellNeighbors(r.GetLocation(), 9)
-	//r10K1Neighbors := cellNeighbors(r.GetLocation(), 10)
-
-	// Get cells
-	cell7 := getCell(r.GetLocation(), 7)
-	cell8 := getCell(r.GetLocation(), 8)
-	cell9 := getCell(r.GetLocation(), 9)
-	cell10 := getCell(r.GetLocation(), 10)
-
-	s.logger.Printf("Received request for trip location: (%v, %v)\n", r.GetLocation().GetLatitude(), r.GetLocation().GetLongitude())
-	s.logger.Println("Res 7 Cell =", cell7)
-	s.logger.Println("Res 8 Cell =", cell8)
-	s.logger.Println("Res 9 Cell =", cell9)
-	s.logger.Println("Res 10 Cell =", cell10)
-
-	var results []*v1beta1.SearchResult
-	var obj models.DriverLocationSlice
-	err := queries.Raw(`
-SELECT driver_id, latitude, longitude
-FROM driver_location 
-WHERE 
-  $1 = ANY (r7_k1_neighbors)
-  OR $2 = ANY (r8_k1_neighbors)
-  OR $3 = ANY (r9_k1_neighbors)
-  OR $4 = ANY (r10_k1_neighbors)
-`, cell7, cell8, cell9, cell10).Bind(ctx, s.db, &obj)
-	if err != nil {
-		return nil, err
-	}
-	for _, e := range obj {
-		results = append(results, &v1beta1.SearchResult{
-			DriverId: e.DriverID,
-			DistanceMiles: distance(r.GetLocation(), &v1beta1.LatLng{
-				Latitude:  e.Latitude,
-				Longitude: e.Longitude,
-			}),
-			// TODO do N separate queries, one for each resolution
-			// this field should be the highest in which driver appears as a neighbor
-			Resolution: 7,
-		})
-	}
-	return &v1beta1.DispatchResponse{
-		Results: results,
-	}, nil
 }
 
 func distance(l1, l2 *v1beta1.LatLng) float64 {
