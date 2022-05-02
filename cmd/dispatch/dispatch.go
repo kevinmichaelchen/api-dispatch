@@ -9,6 +9,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/protobuf/encoding/protojson"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"io/ioutil"
 	"log"
@@ -21,15 +22,7 @@ var rootCmd = &cobra.Command{
 	Long: `Dispatch is a tool to make gRPC requests built with
                 love by The Drivers Coop.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		log.Println("Initializing gRPC connection...")
-		var err error
-		conn, err = grpc.Dial("localhost:8080",
-			grpc.WithTransportCredentials(insecure.NewCredentials()),
-		)
-		if err != nil {
-			log.Fatalf("failed to dial gRPC connection: %v", err)
-		}
-		log.Println("Initialized gRPC connection.")
+
 	},
 }
 
@@ -45,6 +38,16 @@ func init() {
 	dispatchCmd.Flags().Float64VarP(&longitude, "longitude", "", -73.9514453, "Longitude of pickup location")
 
 	ingestCmd.Flags().StringVarP(&ingestPath, "file", "", "seed.json", "path of JSON import file")
+
+	log.Println("Initializing gRPC connection...")
+	var err error
+	conn, err = grpc.Dial("localhost:8080",
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
+	if err != nil {
+		log.Fatalf("failed to dial gRPC connection: %v", err)
+	}
+	log.Println("Initialized gRPC connection.")
 }
 
 type SeedSchema struct {
@@ -98,6 +101,13 @@ var ingestCmd = &cobra.Command{
 
 		log.Printf("Seeding %d driver locations\n", len(locations))
 		req := &v1beta1.IngestRequest{Locations: locations}
+		s, err := marshalProto(req)
+		if err != nil {
+			log.Fatalf("Failed to marshal request: %v", err)
+		}
+		log.Println(s)
+
+		log.Println("connection", conn)
 
 		// Execute request
 		client := v1beta1.NewDispatchServiceClient(conn)
@@ -107,15 +117,23 @@ var ingestCmd = &cobra.Command{
 		}
 
 		// Print response
-		b, err = protojson.MarshalOptions{
-			Multiline: true,
-			Indent:    "  ",
-		}.Marshal(res)
+		s, err = marshalProto(res)
 		if err != nil {
 			log.Fatalf("Failed to marshal response: %v", err)
 		}
-		log.Println(string(b))
+		log.Println(s)
 	},
+}
+
+func marshalProto(m proto.Message) (string, error) {
+	b, err := protojson.MarshalOptions{
+		Multiline: true,
+		Indent:    "  ",
+	}.Marshal(m)
+	if err != nil {
+		return "", err
+	}
+	return string(b), nil
 }
 
 var dispatchCmd = &cobra.Command{
@@ -139,14 +157,11 @@ var dispatchCmd = &cobra.Command{
 		}
 
 		// Print response
-		b, err := protojson.MarshalOptions{
-			Multiline: true,
-			Indent:    "  ",
-		}.Marshal(res)
+		s, err := marshalProto(res)
 		if err != nil {
 			log.Fatalf("Failed to marshal response: %v", err)
 		}
-		log.Println(string(b))
+		log.Println(s)
 	},
 }
 
