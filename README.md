@@ -16,6 +16,7 @@ Built on:
 * [postgres](https://www.postgresql.org/) for SQL DB
 * [migrate](https://github.com/golang-migrate/migrate) for DB migrations
 * [sqlboiler](https://github.com/volatiletech/sqlboiler) for schema-generated, strongly-typed ORM
+* [xid](https://github.com/rs/xid) for random ID generation
 * [h3](https://h3geo.org/), a hexagonal hierarchical geospatial indexing system
 * [materialize](https://materialize.com/) — can we use parameterized queries? :question:
 
