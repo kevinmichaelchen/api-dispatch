@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package coop.drivers.dispatch.v1beta1;
+
+option go_package = "github.com/kevinmichaelchen/api-dispatch/internal/idl/coop/drivers/dispatch/v1beta1";
+
+import "coop/drivers/dispatch/v1beta1/latlng.proto";
+import "google/protobuf/timestamp.proto";
+
+service DispatchService {
+  // Bulk-ingest driver locations.
+  rpc Ingest(IngestRequest) returns (IngestResponse) {}
+
+  // Gets the nearest drivers to a given point.
+  rpc Dispatch(DispatchRequest) returns (DispatchResponse) {}
+}
+
+message DriverLocation {
+  string driver_id = 1;
+  google.protobuf.Timestamp timestamp = 2;
+  LatLng lat_lng = 3;
+}
+
+message IngestRequest {
+  repeated DriverLocation locations = 1;
+}
+
+message IngestResponse {}
+
+message DispatchRequest {
+  LatLng location = 1;
+}
+
+message DispatchResponse {
+  repeated string driver_ids = 1;
+}
