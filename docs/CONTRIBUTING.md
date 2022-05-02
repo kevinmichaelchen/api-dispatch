@@ -4,6 +4,11 @@ docker-compose up
 API_KEY=GOOGLE_MAPS_KEY go run main.go
 ```
 
+## Lines of code
+```bash
+tokei -e models -e idl
+```
+
 ## Dependencies
 We use the following Go dependencies:
 
