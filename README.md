@@ -180,70 +180,150 @@ above those who neighbor the pickup location in lower (coarser) resolutions.
 
 ```json
 {
-  "results": [
+  "results":  [
     {
-      "driverId": "GPT-Kana-Hashi",
-      "resolution": 9
+      "driverId":  "GPT-Christinas",
+      "driverLocation":  {
+        "latitude":  40.729212580192396,
+        "longitude":  -73.95367193640175
+      },
+      "resolution":  10,
+      "kValue":  2
     },
     {
-      "driverId": "GPT-Good-Room",
-      "resolution": 9
+      "driverId":  "GPT-Lobster-Joint",
+      "driverLocation":  {
+        "latitude":  40.73570796316877,
+        "longitude":  -73.95471296204035
+      },
+      "resolution":  9,
+      "kValue":  2
     },
     {
-      "driverId": "GPT-Christinas",
-      "resolution": 9
+      "driverId":  "GPT-Pelicana-Chicken",
+      "driverLocation":  {
+        "latitude":  40.73145299880781,
+        "longitude":  -73.95453125752603
+      },
+      "resolution":  9,
+      "kValue":  2
     },
     {
-      "driverId": "GPT-Pelicana-Chicken",
-      "resolution": 9
+      "driverId":  "GPT-Wenwen",
+      "driverLocation":  {
+        "latitude":  40.7340725164784,
+        "longitude":  -73.95478344708282
+      },
+      "resolution":  9,
+      "kValue":  2
     },
     {
-      "driverId": "GPT-St-Vitus",
-      "resolution": 8
+      "driverId":  "GPT-Esme",
+      "driverLocation":  {
+        "latitude":  40.73341597708627,
+        "longitude":  -73.95453615584985
+      },
+      "resolution":  9,
+      "kValue":  2
     },
     {
-      "driverId": "GPT-Lobster-Joint",
-      "resolution": 8
+      "driverId":  "GPT-Sweetleaf-Coffee-Roasters",
+      "driverLocation":  {
+        "latitude":  40.73470993736533,
+        "longitude":  -73.95447884704288
+      },
+      "resolution":  9,
+      "kValue":  2
     },
     {
-      "driverId": "GPT-Le-Fanfare",
-      "resolution": 8
+      "driverId":  "GPT-Good-Room",
+      "driverLocation":  {
+        "latitude":  40.727136833286565,
+        "longitude":  -73.95260914370321
+      },
+      "resolution":  9,
+      "kValue":  2
     },
     {
-      "driverId": "WBG-Chimu-Bistro",
-      "resolution": 8
+      "driverId":  "GPT-Kana-Hashi",
+      "driverLocation":  {
+        "latitude":  40.73267839045372,
+        "longitude":  -73.95498100296005
+      },
+      "resolution":  9,
+      "kValue":  2
     },
     {
-      "driverId": "GPT-Sweetleaf-Coffee-Roasters",
-      "resolution": 8
+      "driverId":  "GPT-El-Born",
+      "driverLocation":  {
+        "latitude":  40.72458479176929,
+        "longitude":  -73.95095436146362
+      },
+      "resolution":  9,
+      "kValue":  2
     },
     {
-      "driverId": "WBG-Bernies",
-      "resolution": 8
+      "driverId":  "WBG-Bernies",
+      "driverLocation":  {
+        "latitude":  40.722135621331645,
+        "longitude":  -73.95011426935746
+      },
+      "resolution":  8,
+      "kValue":  2
     },
     {
-      "driverId": "WBG-Llama-Inn",
-      "resolution": 8
+      "driverId":  "WBG-Chimu-Bistro",
+      "driverLocation":  {
+        "latitude":  40.715273706507176,
+        "longitude":  -73.95167992349239
+      },
+      "resolution":  8,
+      "kValue":  2
     },
     {
-      "driverId": "GPT-Beer-Ale",
-      "resolution": 8
+      "driverId":  "WBG-Birria-Landia",
+      "driverLocation":  {
+        "latitude":  40.71454465722973,
+        "longitude":  -73.95241070138934
+      },
+      "resolution":  8,
+      "kValue":  2
     },
     {
-      "driverId": "GPT-Wenwen",
-      "resolution": 8
+      "driverId":  "GPT-Beer-Ale",
+      "driverLocation":  {
+        "latitude":  40.737689977054565,
+        "longitude":  -73.95528488057654
+      },
+      "resolution":  8,
+      "kValue":  2
     },
     {
-      "driverId": "GPT-Esme",
-      "resolution": 8
+      "driverId":  "GPT-St-Vitus",
+      "driverLocation":  {
+        "latitude":  40.737116268235525,
+        "longitude":  -73.95425922312981
+      },
+      "resolution":  8,
+      "kValue":  2
     },
     {
-      "driverId": "GPT-El-Born",
-      "resolution": 8
+      "driverId":  "GPT-Le-Fanfare",
+      "driverLocation":  {
+        "latitude":  40.73640659952994,
+        "longitude":  -73.95616178430338
+      },
+      "resolution":  8,
+      "kValue":  2
     },
     {
-      "driverId": "WBG-Birria-Landia",
-      "resolution": 7
+      "driverId":  "WBG-Llama-Inn",
+      "driverLocation":  {
+        "latitude":  40.717046310599365,
+        "longitude":  -73.94969794585268
+      },
+      "resolution":  8,
+      "kValue":  2
     }
   ]
 }
