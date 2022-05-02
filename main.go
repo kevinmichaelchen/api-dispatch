@@ -3,6 +3,7 @@ package main
 import (
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxevent"
+	"os"
 )
 
 func main() {
@@ -25,7 +26,8 @@ func main() {
 		// fxevent.ConsoleLogger.
 		fx.WithLogger(
 			func() fxevent.Logger {
-				return fxevent.NopLogger
+				//return fxevent.NopLogger
+				return &fxevent.ConsoleLogger{W: os.Stdout}
 			},
 		),
 	)
