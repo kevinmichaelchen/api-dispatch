@@ -61,7 +61,7 @@ go install github.com/volatiletech/sqlboiler/v4@latest
 go install github.com/volatiletech/sqlboiler/v4/drivers/sqlboiler-psql@latest
 
 # Generate code
-sqlboiler psql --output internal/models
+make gen-models
 ```
 
 ### Seeding driver locations
@@ -108,6 +108,13 @@ message DispatchResponse {
 #### Request
 Here we're requesting a pickup at `(40.7110694,-73.9514453)`, an Argentinian 
 restaurant in Williamsburg.
+
+You can use the CLI:
+```bash
+go run cmd/dispatch/dispatch.go dispatch --latitude 40.7110694 --longitude -73.9514453
+```
+
+You can also use grpcurl:
 ```bash
 (
 cat << EOF
