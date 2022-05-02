@@ -105,6 +105,20 @@ message DispatchResponse {
 }
 ```
 
+#### Request
+```bash
+(
+cat << EOF
+{
+  "location": {
+    "latitude": 40.7184165,
+    "longitude": -73.9503813
+  }
+}
+EOF
+) | grpcurl -plaintext -d @ localhost:8080 coop.drivers.dispatch.v1beta1.DispatchService/Dispatch
+```
+
 ### Materialized View
 [Materialize](https://materialize.com/) will power a query that retrieves the 
 nearest drivers to a given point.
