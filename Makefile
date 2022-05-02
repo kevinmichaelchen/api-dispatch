@@ -1,7 +1,7 @@
 .PHONY: all
 all:
-	gen-proto
-	gen-models
+	$(MAKE) gen-proto
+	$(MAKE) gen-models
 
 .PHONY: gen-proto
 gen-proto:

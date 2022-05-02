@@ -25,6 +25,7 @@ import (
 
 // DriverLocation is an object representing the database table.
 type DriverLocation struct {
+	ID             string            `boil:"id" json:"id" toml:"id" yaml:"id"`
 	CreatedAt      time.Time         `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
 	DriverID       string            `boil:"driver_id" json:"driver_id" toml:"driver_id" yaml:"driver_id"`
 	Latitude       float64           `boil:"latitude" json:"latitude" toml:"latitude" yaml:"latitude"`
@@ -35,14 +36,18 @@ type DriverLocation struct {
 	R10Cell        null.String       `boil:"r10_cell" json:"r10_cell,omitempty" toml:"r10_cell" yaml:"r10_cell,omitempty"`
 	R7K1Neighbors  types.StringArray `boil:"r7_k1_neighbors" json:"r7_k1_neighbors,omitempty" toml:"r7_k1_neighbors" yaml:"r7_k1_neighbors,omitempty"`
 	R8K1Neighbors  types.StringArray `boil:"r8_k1_neighbors" json:"r8_k1_neighbors,omitempty" toml:"r8_k1_neighbors" yaml:"r8_k1_neighbors,omitempty"`
+	R8K2Neighbors  types.StringArray `boil:"r8_k2_neighbors" json:"r8_k2_neighbors,omitempty" toml:"r8_k2_neighbors" yaml:"r8_k2_neighbors,omitempty"`
 	R9K1Neighbors  types.StringArray `boil:"r9_k1_neighbors" json:"r9_k1_neighbors,omitempty" toml:"r9_k1_neighbors" yaml:"r9_k1_neighbors,omitempty"`
+	R9K2Neighbors  types.StringArray `boil:"r9_k2_neighbors" json:"r9_k2_neighbors,omitempty" toml:"r9_k2_neighbors" yaml:"r9_k2_neighbors,omitempty"`
 	R10K1Neighbors types.StringArray `boil:"r10_k1_neighbors" json:"r10_k1_neighbors,omitempty" toml:"r10_k1_neighbors" yaml:"r10_k1_neighbors,omitempty"`
+	R10K2Neighbors types.StringArray `boil:"r10_k2_neighbors" json:"r10_k2_neighbors,omitempty" toml:"r10_k2_neighbors" yaml:"r10_k2_neighbors,omitempty"`
 
 	R *driverLocationR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L driverLocationL  `boil:"-" json:"-" toml:"-" yaml:"-"`
 }
 
 var DriverLocationColumns = struct {
+	ID             string
 	CreatedAt      string
 	DriverID       string
 	Latitude       string
@@ -53,9 +58,13 @@ var DriverLocationColumns = struct {
 	R10Cell        string
 	R7K1Neighbors  string
 	R8K1Neighbors  string
+	R8K2Neighbors  string
 	R9K1Neighbors  string
+	R9K2Neighbors  string
 	R10K1Neighbors string
+	R10K2Neighbors string
 }{
+	ID:             "id",
 	CreatedAt:      "created_at",
 	DriverID:       "driver_id",
 	Latitude:       "latitude",
@@ -66,11 +75,15 @@ var DriverLocationColumns = struct {
 	R10Cell:        "r10_cell",
 	R7K1Neighbors:  "r7_k1_neighbors",
 	R8K1Neighbors:  "r8_k1_neighbors",
+	R8K2Neighbors:  "r8_k2_neighbors",
 	R9K1Neighbors:  "r9_k1_neighbors",
+	R9K2Neighbors:  "r9_k2_neighbors",
 	R10K1Neighbors: "r10_k1_neighbors",
+	R10K2Neighbors: "r10_k2_neighbors",
 }
 
 var DriverLocationTableColumns = struct {
+	ID             string
 	CreatedAt      string
 	DriverID       string
 	Latitude       string
@@ -81,9 +94,13 @@ var DriverLocationTableColumns = struct {
 	R10Cell        string
 	R7K1Neighbors  string
 	R8K1Neighbors  string
+	R8K2Neighbors  string
 	R9K1Neighbors  string
+	R9K2Neighbors  string
 	R10K1Neighbors string
+	R10K2Neighbors string
 }{
+	ID:             "driver_location.id",
 	CreatedAt:      "driver_location.created_at",
 	DriverID:       "driver_location.driver_id",
 	Latitude:       "driver_location.latitude",
@@ -94,32 +111,14 @@ var DriverLocationTableColumns = struct {
 	R10Cell:        "driver_location.r10_cell",
 	R7K1Neighbors:  "driver_location.r7_k1_neighbors",
 	R8K1Neighbors:  "driver_location.r8_k1_neighbors",
+	R8K2Neighbors:  "driver_location.r8_k2_neighbors",
 	R9K1Neighbors:  "driver_location.r9_k1_neighbors",
+	R9K2Neighbors:  "driver_location.r9_k2_neighbors",
 	R10K1Neighbors: "driver_location.r10_k1_neighbors",
+	R10K2Neighbors: "driver_location.r10_k2_neighbors",
 }
 
 // Generated where
-
-type whereHelpertime_Time struct{ field string }
-
-func (w whereHelpertime_Time) EQ(x time.Time) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.EQ, x)
-}
-func (w whereHelpertime_Time) NEQ(x time.Time) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.NEQ, x)
-}
-func (w whereHelpertime_Time) LT(x time.Time) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.LT, x)
-}
-func (w whereHelpertime_Time) LTE(x time.Time) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.LTE, x)
-}
-func (w whereHelpertime_Time) GT(x time.Time) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.GT, x)
-}
-func (w whereHelpertime_Time) GTE(x time.Time) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.GTE, x)
-}
 
 type whereHelperstring struct{ field string }
 
@@ -142,6 +141,27 @@ func (w whereHelperstring) NIN(slice []string) qm.QueryMod {
 		values = append(values, value)
 	}
 	return qm.WhereNotIn(fmt.Sprintf("%s NOT IN ?", w.field), values...)
+}
+
+type whereHelpertime_Time struct{ field string }
+
+func (w whereHelpertime_Time) EQ(x time.Time) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.EQ, x)
+}
+func (w whereHelpertime_Time) NEQ(x time.Time) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.NEQ, x)
+}
+func (w whereHelpertime_Time) LT(x time.Time) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.LT, x)
+}
+func (w whereHelpertime_Time) LTE(x time.Time) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.LTE, x)
+}
+func (w whereHelpertime_Time) GT(x time.Time) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.GT, x)
+}
+func (w whereHelpertime_Time) GTE(x time.Time) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.GTE, x)
 }
 
 type whereHelperfloat64 struct{ field string }
@@ -224,6 +244,7 @@ func (w whereHelpertypes_StringArray) IsNotNull() qm.QueryMod {
 }
 
 var DriverLocationWhere = struct {
+	ID             whereHelperstring
 	CreatedAt      whereHelpertime_Time
 	DriverID       whereHelperstring
 	Latitude       whereHelperfloat64
@@ -234,9 +255,13 @@ var DriverLocationWhere = struct {
 	R10Cell        whereHelpernull_String
 	R7K1Neighbors  whereHelpertypes_StringArray
 	R8K1Neighbors  whereHelpertypes_StringArray
+	R8K2Neighbors  whereHelpertypes_StringArray
 	R9K1Neighbors  whereHelpertypes_StringArray
+	R9K2Neighbors  whereHelpertypes_StringArray
 	R10K1Neighbors whereHelpertypes_StringArray
+	R10K2Neighbors whereHelpertypes_StringArray
 }{
+	ID:             whereHelperstring{field: "\"driver_location\".\"id\""},
 	CreatedAt:      whereHelpertime_Time{field: "\"driver_location\".\"created_at\""},
 	DriverID:       whereHelperstring{field: "\"driver_location\".\"driver_id\""},
 	Latitude:       whereHelperfloat64{field: "\"driver_location\".\"latitude\""},
@@ -247,8 +272,11 @@ var DriverLocationWhere = struct {
 	R10Cell:        whereHelpernull_String{field: "\"driver_location\".\"r10_cell\""},
 	R7K1Neighbors:  whereHelpertypes_StringArray{field: "\"driver_location\".\"r7_k1_neighbors\""},
 	R8K1Neighbors:  whereHelpertypes_StringArray{field: "\"driver_location\".\"r8_k1_neighbors\""},
+	R8K2Neighbors:  whereHelpertypes_StringArray{field: "\"driver_location\".\"r8_k2_neighbors\""},
 	R9K1Neighbors:  whereHelpertypes_StringArray{field: "\"driver_location\".\"r9_k1_neighbors\""},
+	R9K2Neighbors:  whereHelpertypes_StringArray{field: "\"driver_location\".\"r9_k2_neighbors\""},
 	R10K1Neighbors: whereHelpertypes_StringArray{field: "\"driver_location\".\"r10_k1_neighbors\""},
+	R10K2Neighbors: whereHelpertypes_StringArray{field: "\"driver_location\".\"r10_k2_neighbors\""},
 }
 
 // DriverLocationRels is where relationship names are stored.
@@ -268,10 +296,10 @@ func (*driverLocationR) NewStruct() *driverLocationR {
 type driverLocationL struct{}
 
 var (
-	driverLocationAllColumns            = []string{"created_at", "driver_id", "latitude", "longitude", "r7_cell", "r8_cell", "r9_cell", "r10_cell", "r7_k1_neighbors", "r8_k1_neighbors", "r9_k1_neighbors", "r10_k1_neighbors"}
-	driverLocationColumnsWithoutDefault = []string{"driver_id", "latitude", "longitude"}
-	driverLocationColumnsWithDefault    = []string{"created_at", "r7_cell", "r8_cell", "r9_cell", "r10_cell", "r7_k1_neighbors", "r8_k1_neighbors", "r9_k1_neighbors", "r10_k1_neighbors"}
-	driverLocationPrimaryKeyColumns     = []string{"created_at", "driver_id"}
+	driverLocationAllColumns            = []string{"id", "created_at", "driver_id", "latitude", "longitude", "r7_cell", "r8_cell", "r9_cell", "r10_cell", "r7_k1_neighbors", "r8_k1_neighbors", "r8_k2_neighbors", "r9_k1_neighbors", "r9_k2_neighbors", "r10_k1_neighbors", "r10_k2_neighbors"}
+	driverLocationColumnsWithoutDefault = []string{"id", "driver_id", "latitude", "longitude"}
+	driverLocationColumnsWithDefault    = []string{"created_at", "r7_cell", "r8_cell", "r9_cell", "r10_cell", "r7_k1_neighbors", "r8_k1_neighbors", "r8_k2_neighbors", "r9_k1_neighbors", "r9_k2_neighbors", "r10_k1_neighbors", "r10_k2_neighbors"}
+	driverLocationPrimaryKeyColumns     = []string{"id"}
 	driverLocationGeneratedColumns      = []string{}
 )
 
@@ -566,7 +594,7 @@ func DriverLocations(mods ...qm.QueryMod) driverLocationQuery {
 
 // FindDriverLocation retrieves a single record by ID with an executor.
 // If selectCols is empty Find will return all columns.
-func FindDriverLocation(ctx context.Context, exec boil.ContextExecutor, createdAt time.Time, driverID string, selectCols ...string) (*DriverLocation, error) {
+func FindDriverLocation(ctx context.Context, exec boil.ContextExecutor, iD string, selectCols ...string) (*DriverLocation, error) {
 	driverLocationObj := &DriverLocation{}
 
 	sel := "*"
@@ -574,10 +602,10 @@ func FindDriverLocation(ctx context.Context, exec boil.ContextExecutor, createdA
 		sel = strings.Join(strmangle.IdentQuoteSlice(dialect.LQ, dialect.RQ, selectCols), ",")
 	}
 	query := fmt.Sprintf(
-		"select %s from \"driver_location\" where \"created_at\"=$1 AND \"driver_id\"=$2", sel,
+		"select %s from \"driver_location\" where \"id\"=$1", sel,
 	)
 
-	q := queries.Raw(query, createdAt, driverID)
+	q := queries.Raw(query, iD)
 
 	err := q.Bind(ctx, exec, driverLocationObj)
 	if err != nil {
@@ -943,7 +971,7 @@ func (o *DriverLocation) Delete(ctx context.Context, exec boil.ContextExecutor) 
 	}
 
 	args := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(o)), driverLocationPrimaryKeyMapping)
-	sql := "DELETE FROM \"driver_location\" WHERE \"created_at\"=$1 AND \"driver_id\"=$2"
+	sql := "DELETE FROM \"driver_location\" WHERE \"id\"=$1"
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
@@ -1040,7 +1068,7 @@ func (o DriverLocationSlice) DeleteAll(ctx context.Context, exec boil.ContextExe
 // Reload refetches the object from the database
 // using the primary keys with an executor.
 func (o *DriverLocation) Reload(ctx context.Context, exec boil.ContextExecutor) error {
-	ret, err := FindDriverLocation(ctx, exec, o.CreatedAt, o.DriverID)
+	ret, err := FindDriverLocation(ctx, exec, o.ID)
 	if err != nil {
 		return err
 	}
@@ -1079,16 +1107,16 @@ func (o *DriverLocationSlice) ReloadAll(ctx context.Context, exec boil.ContextEx
 }
 
 // DriverLocationExists checks if the DriverLocation row exists.
-func DriverLocationExists(ctx context.Context, exec boil.ContextExecutor, createdAt time.Time, driverID string) (bool, error) {
+func DriverLocationExists(ctx context.Context, exec boil.ContextExecutor, iD string) (bool, error) {
 	var exists bool
-	sql := "select exists(select 1 from \"driver_location\" where \"created_at\"=$1 AND \"driver_id\"=$2 limit 1)"
+	sql := "select exists(select 1 from \"driver_location\" where \"id\"=$1 limit 1)"
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
 		fmt.Fprintln(writer, sql)
-		fmt.Fprintln(writer, createdAt, driverID)
+		fmt.Fprintln(writer, iD)
 	}
-	row := exec.QueryRowContext(ctx, sql, createdAt, driverID)
+	row := exec.QueryRowContext(ctx, sql, iD)
 
 	err := row.Scan(&exists)
 	if err != nil {

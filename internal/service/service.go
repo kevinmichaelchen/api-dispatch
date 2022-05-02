@@ -25,12 +25,12 @@ func getCell(l *v1beta1.LatLng, res int) string {
 	return h3.ToString(i)
 }
 
-func cellNeighbors(l *v1beta1.LatLng, res int) types.StringArray {
+func cellNeighbors(l *v1beta1.LatLng, res int, k int) types.StringArray {
 	i := h3.FromGeo(h3.GeoCoord{
 		Latitude:  l.GetLatitude(),
 		Longitude: l.GetLongitude(),
 	}, res)
-	indexes := h3.KRing(i, 1)
+	indexes := h3.KRing(i, k)
 	var out []string
 	for _, idx := range indexes {
 		out = append(out, h3.ToString(idx))

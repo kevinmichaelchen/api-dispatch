@@ -21,10 +21,13 @@ func (s *Service) Ingest(ctx context.Context, r *v1beta1.IngestRequest) (*v1beta
 			R8Cell:         null.StringFrom(getCell(l.GetLatLng(), 8)),
 			R9Cell:         null.StringFrom(getCell(l.GetLatLng(), 9)),
 			R10Cell:        null.StringFrom(getCell(l.GetLatLng(), 10)),
-			R7K1Neighbors:  cellNeighbors(l.GetLatLng(), 7),
-			R8K1Neighbors:  cellNeighbors(l.GetLatLng(), 8),
-			R9K1Neighbors:  cellNeighbors(l.GetLatLng(), 9),
-			R10K1Neighbors: cellNeighbors(l.GetLatLng(), 10),
+			R7K1Neighbors:  cellNeighbors(l.GetLatLng(), 7, 1),
+			R8K1Neighbors:  cellNeighbors(l.GetLatLng(), 8, 1),
+			R8K2Neighbors:  cellNeighbors(l.GetLatLng(), 8, 2),
+			R9K1Neighbors:  cellNeighbors(l.GetLatLng(), 9, 1),
+			R9K2Neighbors:  cellNeighbors(l.GetLatLng(), 9, 2),
+			R10K1Neighbors: cellNeighbors(l.GetLatLng(), 10, 1),
+			R10K2Neighbors: cellNeighbors(l.GetLatLng(), 10, 2),
 		}
 		err := dl.Insert(ctx, s.db, boil.Infer())
 		if err != nil {

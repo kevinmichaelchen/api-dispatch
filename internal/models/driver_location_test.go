@@ -149,7 +149,7 @@ func testDriverLocationsExists(t *testing.T) {
 		t.Error(err)
 	}
 
-	e, err := DriverLocationExists(ctx, tx, o.CreatedAt, o.DriverID)
+	e, err := DriverLocationExists(ctx, tx, o.ID)
 	if err != nil {
 		t.Errorf("Unable to check if DriverLocation exists: %s", err)
 	}
@@ -175,7 +175,7 @@ func testDriverLocationsFind(t *testing.T) {
 		t.Error(err)
 	}
 
-	driverLocationFound, err := FindDriverLocation(ctx, tx, o.CreatedAt, o.DriverID)
+	driverLocationFound, err := FindDriverLocation(ctx, tx, o.ID)
 	if err != nil {
 		t.Error(err)
 	}
@@ -568,7 +568,7 @@ func testDriverLocationsSelect(t *testing.T) {
 }
 
 var (
-	driverLocationDBTypes = map[string]string{`CreatedAt`: `timestamp with time zone`, `DriverID`: `text`, `Latitude`: `double precision`, `Longitude`: `double precision`, `R7Cell`: `text`, `R8Cell`: `text`, `R9Cell`: `text`, `R10Cell`: `text`, `R7K1Neighbors`: `ARRAYtext`, `R8K1Neighbors`: `ARRAYtext`, `R9K1Neighbors`: `ARRAYtext`, `R10K1Neighbors`: `ARRAYtext`}
+	driverLocationDBTypes = map[string]string{`ID`: `text`, `CreatedAt`: `timestamp with time zone`, `DriverID`: `text`, `Latitude`: `double precision`, `Longitude`: `double precision`, `R7Cell`: `text`, `R8Cell`: `text`, `R9Cell`: `text`, `R10Cell`: `text`, `R7K1Neighbors`: `ARRAYtext`, `R8K1Neighbors`: `ARRAYtext`, `R8K2Neighbors`: `ARRAYtext`, `R9K1Neighbors`: `ARRAYtext`, `R9K2Neighbors`: `ARRAYtext`, `R10K1Neighbors`: `ARRAYtext`, `R10K2Neighbors`: `ARRAYtext`}
 	_                     = bytes.MinRead
 )
 
