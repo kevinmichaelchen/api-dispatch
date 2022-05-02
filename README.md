@@ -258,15 +258,15 @@ Brooklyn is 250 km<sup>2</sup> (one cell at Resolution 5)...
 
 Williamsburg is 5 km<sup>2</sup> (one cell at Resolution 7)...
 
-| Resolution | Avg Hex Area             | Avg Hex Edge Length (km) | Number of unique indexes |
-|------------|--------------------------|--------------------------|--------------------------|
-| 5          | 252.9 km<sup>2</sup>     | 8.5 km                   | 2,016,842                |
-| 6          | 36.13 km<sup>2</sup>     | 3.2 km                   | 14,117,882               |
-| 7          | 5.16 km<sup>2</sup>      | 1.2 km                   | 98,825,162               |
-| 8          | 737 m<sup>2</sup>        | 461 m                    | 691,776,122              |
-| 9          | 105 m<sup>2</sup>        | 174 m                    | 4,842,432,842            |
-| 10         | 15 m<sup>2</sup>         | 65 m                     | 33,897,029,882           |
-| 11         | 2 m<sup>2</sup>          | 24 m                     | 237,279,209,162          |
+| Resolution | Avg Hex Area               | Avg Hex Edge Length (km) | Number of unique indexes |
+|------------|----------------------------|--------------------------|--------------------------|
+| 5          | 252.9 km<sup>2</sup>       | 8.5 km                   | 2,016,842                |
+| 6          | 36.13 km<sup>2</sup>       | 3.2 km                   | 14,117,882               |
+| 7          | 5.16 km<sup>2</sup>        | 1.2 km                   | 98,825,162               |
+| 8          | 737327.6 m<sup>2</sup>     | 461 m                    | 691,776,122              |
+| 9          | 105332.5 m<sup>2</sup>     | 174 m                    | 4,842,432,842            |
+| 10         | 15047.5 m<sup>2</sup>      | 65 m                     | 33,897,029,882           |
+| 11         | 2149.6 m<sup>2</sup>       | 24 m                     | 237,279,209,162          |
 
 ### Materialized View
 
