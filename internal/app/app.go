@@ -1,4 +1,4 @@
-package main
+package app
 
 import (
 	"context"
@@ -53,9 +53,29 @@ func NewGRPCServer(lc fx.Lifecycle, logger *log.Logger) (*grpc.Server, error) {
 	return s, nil
 }
 
-func NewDatabase() (*sql.DB, error) {
+func NewDatabase(logger *log.Logger, lc fx.Lifecycle) (*sql.DB, error) {
 	// TODO make configurable
-	return sql.Open("postgres", "postgres://postgres:postgres@localhost:5432/dispatch?sslmode=disable")
+	db, err := sql.Open("postgres", "postgres://postgres:postgres@localhost:5432/dispatch?sslmode=disable")
+	lc.Append(fx.Hook{
+		// To mitigate the impact of deadlocks in application startup and
+		// shutdown, Fx imposes a time limit on OnStart and OnStop hooks. By
+		// default, hooks have a total of 15 seconds to complete. Timeouts are
+		// passed via Go's usual context.Context.
+		OnStart: func(context.Context) error {
+			return nil
+		},
+		OnStop: func(ctx context.Context) error {
+			logger.Print("Closing DB connection.")
+			err := db.Close()
+			if err != nil {
+				logger.Printf("Failed to close DB connection: %v\n", err)
+				return err
+			}
+			logger.Println("Successfully closed DB connection")
+			return err
+		},
+	})
+	return db, err
 }
 
 func NewService(logger *log.Logger, grpcServer *grpc.Server, db *sql.DB) *service.Service {
