@@ -13,8 +13,8 @@ Built on:
 * [postgres](https://www.postgresql.org/) for SQL DB
 * [migrate](https://github.com/golang-migrate/migrate) for DB migrations
 * [sqlboiler](https://github.com/volatiletech/sqlboiler) for schema-generated, strongly-typed ORM
-* [materialize](https://materialize.com/) for fast views on "who's nearby" query
 * [h3](https://h3geo.org/), a hexagonal hierarchical geospatial indexing system
+* [materialize](https://materialize.com/) — can we use parameterized queries? :question:
 
 ## How does it work?
 ### Location Ingestion
