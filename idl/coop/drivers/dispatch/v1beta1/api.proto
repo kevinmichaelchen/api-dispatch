@@ -32,5 +32,16 @@ message DispatchRequest {
 }
 
 message DispatchResponse {
-  repeated string driver_ids = 1;
+  repeated SearchResult results = 1;
+}
+
+message SearchResult {
+  string driver_id = 1;
+  // distance from driver to pickup location
+  double distance_miles = 2;
+  // what resolution the driver was found to be a k=1 k-ring neighbor to the
+  // pickup location. if resolution is 7, that means the highest (finest)
+  // resolution in which the driver appeared in the pickup location's
+  // neighborhood was 7.
+  int32 resolution = 3;
 }

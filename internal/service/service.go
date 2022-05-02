@@ -86,10 +86,10 @@ func (s *Service) Dispatch(ctx context.Context, r *v1beta1.DispatchRequest) (*v1
 	s.logger.Println("Res 9 Cell =", cell9)
 	s.logger.Println("Res 10 Cell =", cell10)
 
-	var driverIDs []string
+	var results []*v1beta1.SearchResult
 	var obj models.DriverLocationSlice
 	err := queries.Raw(`
-SELECT driver_id 
+SELECT driver_id, latitude, longitude
 FROM driver_location 
 WHERE 
   $1 = ANY (r7_k1_neighbors)
@@ -101,9 +101,24 @@ WHERE
 		return nil, err
 	}
 	for _, e := range obj {
-		driverIDs = append(driverIDs, e.DriverID)
+		results = append(results, &v1beta1.SearchResult{
+			DriverId: e.DriverID,
+			DistanceMiles: distance(r.GetLocation(), &v1beta1.LatLng{
+				Latitude:  e.Latitude,
+				Longitude: e.Longitude,
+			}),
+			// TODO do N separate queries, one for each resolution
+			// this field should be the highest in which driver appears as a neighbor
+			Resolution: 7,
+		})
 	}
 	return &v1beta1.DispatchResponse{
-		DriverIds: driverIDs,
+		Results: results,
 	}, nil
+}
+
+func distance(l1, l2 *v1beta1.LatLng) float64 {
+	// TODO can't find this on the h3-go SDK
+	// https://h3geo.org/docs/api/misc/#pointdistm
+	return 0
 }
