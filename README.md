@@ -10,7 +10,7 @@ drivers?
 **The solution**: Combine [Google Maps](https://developers.google.com/maps/documentation/distance-matrix/distance-matrix)
 and [h3](https://h3geo.org/) (a hexagonal hierarchical geospatial indexing system).
 
-**Not considered**:
+**Not considered yet**:
 1. Driver eligibility for trip
 2. Trip payment
 3. Time until trip start time
@@ -85,6 +85,20 @@ You can use the CLI:
 
 ```bash
 go run cmd/dispatch/dispatch.go dispatch --latitude 40.73010864595388 --longitude -73.95094555260256
+```
+
+Or [grpcurl](https://github.com/fullstorydev/grpcurl):
+```bash
+(
+cat << EOF
+{
+  "location": {
+    "latitude": 40.73010864595388,
+    "longitude": -73.95094555260256
+  }
+}
+EOF
+) | grpcurl -plaintext -d @ localhost:8080 coop.drivers.dispatch.v1beta1.DispatchService/Dispatch
 ```
 
 #### Response
