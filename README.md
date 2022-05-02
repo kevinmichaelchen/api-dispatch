@@ -332,8 +332,10 @@ above those who neighbor the pickup location in lower (coarser) resolutions.
 ### H3 resolutions
 H3 supports [multiple resolutions](https://h3geo.org/docs/core-library/restable):
 
-<img src="./docs/hex.png" />
+<div style="display: flex; justify-content: space-between;">
+<img src="./docs/hex.png" style="margin-right:15px;" />
 <img src="./docs/hex-annotated.png" />
+  </div>
 
 Each finer-resolution cell is 7 times smaller than its coarser parent.
 
