@@ -130,8 +130,8 @@ dispatch=# select driver_id from driver_location ;
 ### Getting the nearest drivers
 
 #### Request
-Here we're requesting a pickup at `(40.7110694,-73.9514453)`, an Argentinian 
-restaurant in Williamsburg.
+Here we're requesting a pickup at [Key Food Supermarkets](https://goo.gl/maps/xUnzhGm2h1Hpcx6q7)
+(Greenpoint).
 
 You can use the CLI:
 ```bash
