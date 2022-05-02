@@ -79,8 +79,18 @@ func merge(r *v1beta1.DispatchRequest, in ...mergeInput) []*v1beta1.SearchResult
 			extant, exists := cache[dl.DriverID]
 			// if we've already recorded the driver appearing in a
 			// higher-resolution neighbor, skip
-			if exists && extant.Resolution >= int32(mi.res) {
-				continue
+			if exists {
+				// prefer higher-res immediate neighbors
+				if extant.Resolution > int32(mi.res) {
+					continue
+				}
+				// if they're the same res, prefer those in 1-ring over the
+				// 2-ring
+				if extant.Resolution == int32(mi.res) {
+					if extant.KValue >= int32(mi.kValue) {
+						continue
+					}
+				}
 			}
 			latLng := &v1beta1.LatLng{
 				Latitude:  dl.Latitude,
