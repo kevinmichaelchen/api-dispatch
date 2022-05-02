@@ -1,16 +1,34 @@
 # api-dispatch
 
+## Table of Contents
+
+1. [Introduction](#introduction)
+1. [The problem](#the-problem)
+1. [The solution](#the-solution)
+1. [Not considered yet](#not-considered-yet)
+1. [Project structure](#project-structure)
+1. [How does it work](#how-does-it-work)
+1. [Location Ingestion](#location-ingestion)
+1. [H3 Geospatial Indexing](#h3-geospatial-indexing)
+   1. [H3 resolutions](#h3-resolutions)
+1. [Getting the nearest drivers](#getting-the-nearest-drivers)
+   1. [Request](#request)
+   2. [Response](#response)
+
+## Introduction
 A proof-of-concept dispatch service.
 
-**The problem**: Given a known list of drivers and their geographic whereabouts,
+### The problem
+Given a known list of drivers and their geographic whereabouts,
 and given a known location for a trip pickup, how do we select the nearest
 drivers quickly and efficiently? Conversely, how do we select the best trips for
 drivers?
 
-**The solution**: Combine [Google Maps](https://developers.google.com/maps/documentation/distance-matrix/distance-matrix)
+### The solution
+Combine [Google Maps](https://developers.google.com/maps/documentation/distance-matrix/distance-matrix)
 and [h3](https://h3geo.org/) (a hexagonal hierarchical geospatial indexing system).
 
-**Not considered yet**:
+### Not considered yet
 1. Driver eligibility for trip
 2. Trip payment
 3. Time until trip start time
@@ -27,7 +45,7 @@ and [h3](https://h3geo.org/) (a hexagonal hierarchical geospatial indexing syste
 | [`./internal/service`](./internal/service) | Service layer / Business logic            |
 | [`./schema`](./schema)                     | SQL migration scripts                     |
 
-## How does it work?
+## How does it work
 
 ### Location Ingestion
 
