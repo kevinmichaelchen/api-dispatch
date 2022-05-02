@@ -89,22 +89,6 @@ EOF
 ```
 
 ### Getting the nearest drivers
-We provide a [gRPC endpoint](idl/coop/drivers/dispatch/v1beta1/api.proto) that 
-allows clients to get the nearest drivers to a specific point:
-```protobuf
-service DispatchService {
-  // Returns driver IDs of nearest drivers
-  rpc Dispatch(DispatchRequest) returns (DispatchResponse) {}
-}
-
-message DispatchRequest {
-  LatLng point = 1;
-}
-
-message DispatchResponse {
-  repeated string driver_ids = 1;
-}
-```
 
 #### Request
 Here we're requesting a pickup at `(40.7110694,-73.9514453)`, an Argentinian 
