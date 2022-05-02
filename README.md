@@ -106,6 +106,8 @@ message DispatchResponse {
 ```
 
 #### Request
+Here we're requesting a pickup at `(40.7110694,-73.9514453)`, an Argentinian 
+restaurant in Williamsburg.
 ```bash
 (
 cat << EOF
@@ -117,6 +119,24 @@ cat << EOF
 }
 EOF
 ) | grpcurl -plaintext -d @ localhost:8080 coop.drivers.dispatch.v1beta1.DispatchService/Dispatch
+```
+
+#### Response
+Because the pickup is in Williamsburg, a driver in that neighborhood appears
+ranked above a driver in Greenpoint (north of Williamsburg).
+```json
+{
+  "results": [
+    {
+      "driverId": "wburg",
+      "resolution": 8
+    },
+    {
+      "driverId": "greenpoint",
+      "resolution": 7
+    }
+  ]
+}
 ```
 
 ### Materialized View
