@@ -153,8 +153,8 @@ EOF
 ```
 
 #### Response
-Because the pickup is in Key Food Supermarkets (Greenpoint), drivers in that
-neighborhood appear above others.
+Because the pickup is in [Key Food Supermarkets](https://goo.gl/maps/xUnzhGm2h1Hpcx6q7)
+(Greenpoint), drivers in that neighborhood appear above others.
 
 Notice how drivers in neighboring hex cells at higher (finer) resolutions appear
 above those who neighbor the pickup location in lower (coarser) resolutions.
