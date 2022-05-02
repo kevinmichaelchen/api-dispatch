@@ -9,9 +9,8 @@ import (
 	"github.com/uber/h3-go"
 	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
+	"github.com/volatiletech/sqlboiler/v4/queries"
 	"github.com/volatiletech/sqlboiler/v4/types"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 	"log"
 )
 
@@ -70,5 +69,41 @@ func (s *Service) Ingest(ctx context.Context, r *v1beta1.IngestRequest) (*v1beta
 }
 
 func (s *Service) Dispatch(ctx context.Context, r *v1beta1.DispatchRequest) (*v1beta1.DispatchResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "Unimplemented")
+	//r7K1Neighbors := cellNeighbors(r.GetLocation(), 7)
+	//r8K1Neighbors := cellNeighbors(r.GetLocation(), 8)
+	//r9K1Neighbors := cellNeighbors(r.GetLocation(), 9)
+	//r10K1Neighbors := cellNeighbors(r.GetLocation(), 10)
+
+	// Get cells
+	cell7 := getCell(r.GetLocation(), 7)
+	cell8 := getCell(r.GetLocation(), 8)
+	cell9 := getCell(r.GetLocation(), 9)
+	cell10 := getCell(r.GetLocation(), 10)
+
+	s.logger.Printf("Received request for trip location: (%v, %v)\n", r.GetLocation().GetLatitude(), r.GetLocation().GetLongitude())
+	s.logger.Println("Res 7 Cell =", cell7)
+	s.logger.Println("Res 8 Cell =", cell8)
+	s.logger.Println("Res 9 Cell =", cell9)
+	s.logger.Println("Res 10 Cell =", cell10)
+
+	var driverIDs []string
+	var obj models.DriverLocationSlice
+	err := queries.Raw(`
+SELECT driver_id 
+FROM driver_location 
+WHERE 
+  $1 = ANY (r7_k1_neighbors)
+  OR $2 = ANY (r8_k1_neighbors)
+  OR $3 = ANY (r9_k1_neighbors)
+  OR $4 = ANY (r10_k1_neighbors)
+`, cell7, cell8, cell9, cell10).Bind(ctx, s.db, &obj)
+	if err != nil {
+		return nil, err
+	}
+	for _, e := range obj {
+		driverIDs = append(driverIDs, e.DriverID)
+	}
+	return &v1beta1.DispatchResponse{
+		DriverIds: driverIDs,
+	}, nil
 }

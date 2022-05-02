@@ -111,8 +111,8 @@ message DispatchResponse {
 cat << EOF
 {
   "location": {
-    "latitude": 40.7184165,
-    "longitude": -73.9503813
+    "latitude": 40.7110694,
+    "longitude": -73.9514453
   }
 }
 EOF
