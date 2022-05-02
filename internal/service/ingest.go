@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/kevinmichaelchen/api-dispatch/internal/idl/coop/drivers/dispatch/v1beta1"
 	"github.com/kevinmichaelchen/api-dispatch/internal/models"
+	"github.com/rs/xid"
 	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 )
@@ -13,6 +14,7 @@ func (s *Service) Ingest(ctx context.Context, r *v1beta1.IngestRequest) (*v1beta
 	s.logger.Println("Ingest endpoint was called.")
 	for _, l := range r.GetLocations() {
 		dl := models.DriverLocation{
+			ID:             xid.New().String(),
 			CreatedAt:      l.GetTimestamp().AsTime(),
 			DriverID:       l.GetDriverId(),
 			Latitude:       l.GetLatLng().GetLatitude(),
@@ -31,7 +33,7 @@ func (s *Service) Ingest(ctx context.Context, r *v1beta1.IngestRequest) (*v1beta
 		}
 		err := dl.Insert(ctx, s.db, boil.Infer())
 		if err != nil {
-			return nil, fmt.Errorf("failed to insert location for driver: %s", l.GetDriverId())
+			return nil, fmt.Errorf("failed to insert location for driver: %s: %v", l.GetDriverId(), err)
 		}
 	}
 	return &v1beta1.IngestResponse{}, nil
