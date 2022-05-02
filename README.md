@@ -77,7 +77,12 @@ make gen-models
 ```
 
 ### Seeding driver locations
-Using [grpcurl](https://github.com/fullstorydev/grpcurl):
+Using [`seed.json`](./seed.json):
+```bash
+go run cmd/dispatch/dispatch.go ingest --file seed.json
+```
+
+Or using [grpcurl](https://github.com/fullstorydev/grpcurl):
 ```bash
 (
 cat << EOF
@@ -87,11 +92,6 @@ cat << EOF
       "driver_id": "greenpoint",
       "timestamp": "2022-05-02T03:45:11Z",
       "lat_lng": {"latitude": 40.7302797, "longitude": -73.9487438}
-    },
-    {
-      "driver_id": "wburg",
-      "timestamp": "2022-05-02T03:45:11Z",
-      "lat_lng": {"latitude": 40.7082168, "longitude": -73.95753}
     }
   ]
 }

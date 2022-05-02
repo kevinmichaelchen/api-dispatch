@@ -10,6 +10,7 @@ import (
 )
 
 func (s *Service) Ingest(ctx context.Context, r *v1beta1.IngestRequest) (*v1beta1.IngestResponse, error) {
+	s.logger.Println("Ingest endpoint was called.")
 	for _, l := range r.GetLocations() {
 		dl := models.DriverLocation{
 			CreatedAt:      l.GetTimestamp().AsTime(),

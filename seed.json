@@ -1,0 +1,116 @@
+{
+  "locations": [
+    {
+      "driver_id": "GPT-Beer-Ale",
+      "lat_lng": {
+        "latitude": 40.737689977054565,
+        "longitude": -73.95528488057654
+      }
+    },
+    {
+      "driver_id": "GPT-St-Vitus",
+      "lat_lng": {
+        "latitude": 40.737116268235525,
+        "longitude": -73.95425922312981
+      }
+    },
+    {
+      "driver_id": "GPT-Le-Fanfare",
+      "lat_lng": {
+        "latitude": 40.73640659952994,
+        "longitude": -73.95616178430338
+      }
+    },
+    {
+      "driver_id": "GPT-Lobster-Joint",
+      "lat_lng": {
+        "latitude": 40.73570796316877,
+        "longitude": -73.95471296204035
+      }
+    },
+    {
+      "driver_id": "GPT-Sweetleaf-Coffee-Roasters",
+      "lat_lng": {
+        "latitude": 40.73470993736533,
+        "longitude": -73.95447884704288
+      }
+    },
+    {
+      "driver_id": "GPT-Wenwen",
+      "lat_lng": {
+        "latitude": 40.7340725164784,
+        "longitude": -73.95478344708282
+      }
+    },
+    {
+      "driver_id": "GPT-Esme",
+      "lat_lng": {
+        "latitude": 40.73341597708627,
+        "longitude": -73.95453615584985
+      }
+    },
+    {
+      "driver_id": "GPT-Kana-Hashi",
+      "lat_lng": {
+        "latitude": 40.73267839045372,
+        "longitude": -73.95498100296005
+      }
+    },
+    {
+      "driver_id": "GPT-Pelicana-Chicken",
+      "lat_lng": {
+        "latitude": 40.73145299880781,
+        "longitude": -73.95453125752603
+      }
+    },
+    {
+      "driver_id": "GPT-Christinas",
+      "lat_lng": {
+        "latitude": 40.729212580192396,
+        "longitude": -73.95367193640175
+      }
+    },
+    {
+      "driver_id": "GPT-Good-Room",
+      "lat_lng": {
+        "latitude": 40.727136833286565,
+        "longitude": -73.95260914370321
+      }
+    },
+    {
+      "driver_id": "GPT-El-Born",
+      "lat_lng": {
+        "latitude": 40.72458479176929,
+        "longitude": -73.95095436146362
+      }
+    },
+    {
+      "driver_id": "WBG-Bernies",
+      "lat_lng": {
+        "latitude": 40.722135621331645,
+        "longitude": -73.95011426935746
+      }
+    },
+    {
+      "driver_id": "WBG-Llama-Inn",
+      "lat_lng": {
+        "latitude": 40.717046310599365,
+        "longitude": -73.94969794585268
+      }
+    },
+    {
+      "driver_id": "WBG-Chimu-Bistro",
+      "lat_lng": {
+        "latitude": 40.715273706507176,
+        "longitude": -73.95167992349239
+      }
+    },
+    {
+      "driver_id": "WBG-Birria-Landia",
+      "lat_lng": {
+        "latitude": 40.71454465722973,
+        "longitude": -73.95241070138934
+      }
+    }
+  ]
+}
