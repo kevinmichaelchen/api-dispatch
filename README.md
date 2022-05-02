@@ -6,19 +6,8 @@ A proof-of-concept dispatch service.
 and given a known location for a trip pickup, how do we select the nearest
 drivers quickly and efficiently?
 
-## Dependencies
-
-Built on:
-
-* [go-envconfig](https://github.com/sethvargo/go-envconfig) for env configuration
-* [fx](https://github.com/uber-go/fx) for dependency injection
-* [cobra](https://github.com/spf13/cobra) for CLI
-* [postgres](https://www.postgresql.org/) for SQL DB
-* [migrate](https://github.com/golang-migrate/migrate) for DB migrations
-* [sqlboiler](https://github.com/volatiletech/sqlboiler) for schema-generated, strongly-typed ORM
-* [xid](https://github.com/rs/xid) for random ID generation
-* [h3](https://h3geo.org/), a hexagonal hierarchical geospatial indexing system
-* [materialize](https://materialize.com/) — can we use parameterized queries? :question:
+**The solution**: Combine [Google Maps](https://developers.google.com/maps/documentation/distance-matrix/distance-matrix)
+and [h3](https://h3geo.org/) (a hexagonal hierarchical geospatial indexing system).
 
 ## Project structure
 
@@ -49,99 +38,35 @@ locations are persisted to something like
 [RedisTimeSeries](https://redis.io/docs/stack/timeseries/) and periodically
 compacted into Postgres.
 
-### Schema
+### H3 Geospatial Indexing
+As location pings are ingested, we use the H3 library to figure out which hex 
+cells the driver is currently in at various resolutions, as well as k-rings
+which are essentially sets of *1*st-degree, *2*nd-degree, or _k_-degree 
+neighbors.
 
-The gRPC handler will use [H3](https://h3geo.org/) to calculate information
-about the provided geographic coordinates. We'll persist which hexagonal cells
-the driver is currently at various resolutions, as well as any neighboring
-cells. (See the SQL in the [schema](./schema) directory).
+#### H3 resolutions
+H3 supports [multiple resolutions](https://h3geo.org/docs/core-library/restable):
 
-#### Running migrations
+<div style="display: flex; justify-content: space-between;">
+<img src="./docs/hex.png" style="margin-right:15px;" />
+<img src="./docs/hex-annotated.png" />
+  </div>
 
-To run database migrations:
+Each finer-resolution cell is 7 times smaller than its coarser parent.
 
-```bash
-# Install golang-migrate
-go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
+Brooklyn is 250 km<sup>2</sup> (one cell at Resolution 5)...
 
-# Create a migration script
-migrate create -dir ./schema -ext sql init
+Williamsburg is 5 km<sup>2</sup> (one cell at Resolution 7)...
 
-# Run all migrations
-migrate -path ./schema -database postgres://postgres:postgres@localhost:5432/dispatch\?sslmode=disable up
-
-# Undo migrations
-migrate -path ./schema -database postgres://postgres:postgres@localhost:5432/dispatch\?sslmode=disable down
-```
-
-#### Generating SQLBoiler code
-
-We use [sqlboiler](https://github.com/volatiletech/sqlboiler) to auto-generate
-a strongly-typed ORM by pointing it at our current schema.
-
-```bash
-# Install sqlboiler
-go install github.com/volatiletech/sqlboiler/v4@latest
-go install github.com/volatiletech/sqlboiler/v4/drivers/sqlboiler-psql@latest
-
-# Generate code
-make gen-models
-```
-
-### Seeding driver locations
-
-Using [`seed.json`](./seed.json):
-
-```bash
-go run cmd/dispatch/dispatch.go ingest --file seed.json
-```
-
-Or using [grpcurl](https://github.com/fullstorydev/grpcurl):
-
-```bash
-(
-cat << EOF
-{
-  "locations": [
-    {
-      "driver_id": "greenpoint",
-      "timestamp": "2022-05-02T03:45:11Z",
-      "lat_lng": {"latitude": 40.7302797, "longitude": -73.9487438}
-    }
-  ]
-}
-EOF
-) | grpcurl -plaintext -d @ localhost:8080 coop.drivers.dispatch.v1beta1.DispatchService/Ingest
-```
-
-### Connecting to postgres
-
-```bash
-psql postgres://postgres:postgres@localhost:5432/dispatch
-
-dispatch=# select driver_id from driver_location ;
-           driver_id           
--------------------------------
- greenpoint
- wburg
- GPT-Beer-Ale
- GPT-St-Vitus
- GPT-Le-Fanfare
- GPT-Lobster-Joint
- GPT-Sweetleaf-Coffee-Roasters
- GPT-Wenwen
- GPT-Esme
- GPT-Kana-Hashi
- GPT-Pelicana-Chicken
- GPT-Christinas
- GPT-Good-Room
- GPT-El-Born
- WBG-Bernies
- WBG-Llama-Inn
- WBG-Chimu-Bistro
- WBG-Birria-Landia
-(18 rows)
-```
+| Resolution | Avg Hex Area               | Avg Hex Edge Length (km) | Number of unique indexes |
+|------------|----------------------------|--------------------------|--------------------------|
+| 5          | 252.9 km<sup>2</sup>       | 8.5 km                   | 2,016,842                |
+| 6          | 36.13 km<sup>2</sup>       | 3.2 km                   | 14,117,882               |
+| 7          | 5.16 km<sup>2</sup>        | 1.2 km                   | 98,825,162               |
+| 8          | 737327.6 m<sup>2</sup>     | 461 m                    | 691,776,122              |
+| 9          | 105332.5 m<sup>2</sup>     | 174 m                    | 4,842,432,842            |
+| 10         | 15047.5 m<sup>2</sup>      | 65 m                     | 33,897,029,882           |
+| 11         | 2149.6 m<sup>2</sup>       | 24 m                     | 237,279,209,162          |
 
 ### Getting the nearest drivers
 
@@ -154,21 +79,6 @@ You can use the CLI:
 
 ```bash
 go run cmd/dispatch/dispatch.go dispatch --latitude 40.73010864595388 --longitude -73.95094555260256
-```
-
-You can also use grpcurl:
-
-```bash
-(
-cat << EOF
-{
-  "location": {
-    "latitude": 40.73010864595388,
-    "longitude": -73.95094555260256
-  }
-}
-EOF
-) | grpcurl -plaintext -d @ localhost:8080 coop.drivers.dispatch.v1beta1.DispatchService/Dispatch
 ```
 
 #### Response
@@ -297,32 +207,3 @@ above those who neighbor the pickup location in lower (coarser) resolutions.
   ]
 }
 ```
-
-### H3 resolutions
-H3 supports [multiple resolutions](https://h3geo.org/docs/core-library/restable):
-
-<div style="display: flex; justify-content: space-between;">
-<img src="./docs/hex.png" style="margin-right:15px;" />
-<img src="./docs/hex-annotated.png" />
-  </div>
-
-Each finer-resolution cell is 7 times smaller than its coarser parent.
-
-Brooklyn is 250 km<sup>2</sup> (one cell at Resolution 5)...
-
-Williamsburg is 5 km<sup>2</sup> (one cell at Resolution 7)...
-
-| Resolution | Avg Hex Area               | Avg Hex Edge Length (km) | Number of unique indexes |
-|------------|----------------------------|--------------------------|--------------------------|
-| 5          | 252.9 km<sup>2</sup>       | 8.5 km                   | 2,016,842                |
-| 6          | 36.13 km<sup>2</sup>       | 3.2 km                   | 14,117,882               |
-| 7          | 5.16 km<sup>2</sup>        | 1.2 km                   | 98,825,162               |
-| 8          | 737327.6 m<sup>2</sup>     | 461 m                    | 691,776,122              |
-| 9          | 105332.5 m<sup>2</sup>     | 174 m                    | 4,842,432,842            |
-| 10         | 15047.5 m<sup>2</sup>      | 65 m                     | 33,897,029,882           |
-| 11         | 2149.6 m<sup>2</sup>       | 24 m                     | 237,279,209,162          |
-
-### Materialized View
-
-[Materialize](https://materialize.com/) will power a query that retrieves the
-nearest drivers to a given point.
