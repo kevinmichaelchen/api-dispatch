@@ -2,7 +2,8 @@ CREATE TABLE "public"."driver_location"
 (
     "created_at"       timestamptz NOT NULL DEFAULT now(),
     "driver_id"        text        NOT NULL,
-    "point" public.geography,
+    "latitude"         float       NOT NULL,
+    "longitude"        float       NOT NULL,
     "r7_cell"          text,
     "r8_cell"          text,
     "r9_cell"          text,

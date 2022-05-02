@@ -46,6 +46,22 @@ migrate create -dir ./schema -ext sql init
 
 # Run all migrations
 migrate -path ./schema -database postgres://postgres:postgres@localhost:5432/dispatch\?sslmode=disable up
+
+# Undo migrations
+migrate -path ./schema -database postgres://postgres:postgres@localhost:5432/dispatch\?sslmode=disable down
+```
+
+#### Generating SQLBoiler code
+We use [sqlboiler](https://github.com/volatiletech/sqlboiler) to auto-generate
+a strongly-typed ORM by pointing it at our current schema.
+
+```bash
+# Install sqlboiler
+go install github.com/volatiletech/sqlboiler/v4@latest
+go install github.com/volatiletech/sqlboiler/v4/drivers/sqlboiler-psql@latest
+
+# Generate code
+sqlboiler psql --output internal/models
 ```
 
 ### Seeding driver locations
