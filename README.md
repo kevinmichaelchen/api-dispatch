@@ -48,6 +48,29 @@ migrate create -dir ./schema -ext sql init
 migrate -path ./schema -database postgres://postgres:postgres@localhost:5432/dispatch\?sslmode=disable up
 ```
 
+### Seeding driver locations
+Using [grpcurl](https://github.com/fullstorydev/grpcurl):
+```bash
+(
+cat << EOF
+{
+  "locations": [
+    {
+      "driver_id": "greenpoint",
+      "timestamp": "2022-05-02T03:45:11Z",
+      "lat_lng": {"latitude": 40.7302797, "longitude": -73.9487438}
+    },
+    {
+      "driver_id": "wburg",
+      "timestamp": "2022-05-02T03:45:11Z",
+      "lat_lng": {"latitude": 40.7082168, "longitude": -73.95753}
+    }
+  ]
+}
+EOF
+) | grpcurl -plaintext -d @ localhost:8080 coop.drivers.dispatch.v1beta1.DispatchService/Ingest
+```
+
 ### Getting the nearest drivers
 We provide a [gRPC endpoint](idl/coop/drivers/dispatch/v1beta1/api.proto) that 
 allows clients to get the nearest drivers to a specific point:
