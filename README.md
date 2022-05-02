@@ -9,6 +9,7 @@ drivers quickly and efficiently?
 Built on:
 * [go-envconfig](https://github.com/sethvargo/go-envconfig) for env configuration
 * [fx](https://github.com/uber-go/fx) for dependency injection
+* [cobra](https://github.com/spf13/cobra) for CLI
 * [postgres](https://www.postgresql.org/) for SQL DB
 * [migrate](https://github.com/golang-migrate/migrate) for DB migrations
 * [sqlboiler](https://github.com/volatiletech/sqlboiler) for schema-generated, strongly-typed ORM
