@@ -4,10 +4,16 @@ A proof-of-concept dispatch service.
 
 **The problem**: Given a known list of drivers and their geographic whereabouts,
 and given a known location for a trip pickup, how do we select the nearest
-drivers quickly and efficiently?
+drivers quickly and efficiently? Conversely, how do we select the best trips for
+drivers?
 
 **The solution**: Combine [Google Maps](https://developers.google.com/maps/documentation/distance-matrix/distance-matrix)
 and [h3](https://h3geo.org/) (a hexagonal hierarchical geospatial indexing system).
+
+**Not considered**:
+1. Driver eligibility for trip
+2. Trip payment
+3. Time until trip start time
 
 ## Project structure
 
