@@ -1,12 +1,15 @@
 # api-dispatch
+
 A proof-of-concept dispatch service.
 
 **The problem**: Given a known list of drivers and their geographic whereabouts,
-and given a known location for a trip pickup, how do we select the nearest 
+and given a known location for a trip pickup, how do we select the nearest
 drivers quickly and efficiently?
 
 ## Dependencies
+
 Built on:
+
 * [go-envconfig](https://github.com/sethvargo/go-envconfig) for env configuration
 * [fx](https://github.com/uber-go/fx) for dependency injection
 * [cobra](https://github.com/spf13/cobra) for CLI
@@ -17,6 +20,7 @@ Built on:
 * [materialize](https://materialize.com/) — can we use parameterized queries? :question:
 
 ## Project structure
+
 | Directory                                  | Description                               |
 |--------------------------------------------|-------------------------------------------|
 | [`./cmd`](./cmd)                           | CLI for making gRPC requests              |
@@ -28,27 +32,33 @@ Built on:
 | [`./schema`](./schema)                     | SQL migration scripts                     |
 
 ## How does it work?
+
 ### Location Ingestion
-We expose a [gRPC endpoint](idl/coop/drivers/dispatch/v1beta1/api.proto) to 
+
+We expose a [gRPC endpoint](idl/coop/drivers/dispatch/v1beta1/api.proto) to
 ingest location pings in batch. Pings take the form of:
+
 ```
 (time, driver_id, lat, lng)
 ```
 
-**Note about scalability**: Postgres might not be the right tool for this kind 
-of time-series data, so maybe we can assume that somewhere downstream these 
+**Note about scalability**: Postgres might not be the right tool for this kind
+of time-series data, so maybe we can assume that somewhere downstream these
 locations are persisted to something like
-[RedisTimeSeries](https://redis.io/docs/stack/timeseries/) and periodically 
+[RedisTimeSeries](https://redis.io/docs/stack/timeseries/) and periodically
 compacted into Postgres.
 
 ### Schema
-The gRPC handler will use [H3](https://h3geo.org/) to calculate information 
+
+The gRPC handler will use [H3](https://h3geo.org/) to calculate information
 about the provided geographic coordinates. We'll persist which hexagonal cells
-the driver is currently at various resolutions, as well as any neighboring 
+the driver is currently at various resolutions, as well as any neighboring
 cells. (See the SQL in the [schema](./schema) directory).
 
 #### Running migrations
+
 To run database migrations:
+
 ```bash
 # Install golang-migrate
 go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
@@ -64,6 +74,7 @@ migrate -path ./schema -database postgres://postgres:postgres@localhost:5432/dis
 ```
 
 #### Generating SQLBoiler code
+
 We use [sqlboiler](https://github.com/volatiletech/sqlboiler) to auto-generate
 a strongly-typed ORM by pointing it at our current schema.
 
@@ -77,12 +88,15 @@ make gen-models
 ```
 
 ### Seeding driver locations
+
 Using [`seed.json`](./seed.json):
+
 ```bash
 go run cmd/dispatch/dispatch.go ingest --file seed.json
 ```
 
 Or using [grpcurl](https://github.com/fullstorydev/grpcurl):
+
 ```bash
 (
 cat << EOF
@@ -100,6 +114,7 @@ EOF
 ```
 
 ### Connecting to postgres
+
 ```bash
 psql postgres://postgres:postgres@localhost:5432/dispatch
 
@@ -130,15 +145,18 @@ dispatch=# select driver_id from driver_location ;
 ### Getting the nearest drivers
 
 #### Request
+
 Here we're requesting a pickup at [Key Food Supermarkets](https://goo.gl/maps/xUnzhGm2h1Hpcx6q7)
 (Greenpoint).
 
 You can use the CLI:
+
 ```bash
 go run cmd/dispatch/dispatch.go dispatch --latitude 40.73010864595388 --longitude -73.95094555260256
 ```
 
 You can also use grpcurl:
+
 ```bash
 (
 cat << EOF
@@ -153,11 +171,13 @@ EOF
 ```
 
 #### Response
+
 Because the pickup is in [Key Food Supermarkets](https://goo.gl/maps/xUnzhGm2h1Hpcx6q7)
 (Greenpoint), drivers in that neighborhood appear above others.
 
 Notice how drivers in neighboring hex cells at higher (finer) resolutions appear
 above those who neighbor the pickup location in lower (coarser) resolutions.
+
 ```json
 {
   "results": [
@@ -229,6 +249,26 @@ above those who neighbor the pickup location in lower (coarser) resolutions.
 }
 ```
 
+### H3 resolutions
+H3 supports [multiple resolutions](https://h3geo.org/docs/core-library/restable):
+
+Each finer-resolution cell is 7 times smaller than its coarser parent.
+
+Brooklyn is 250 km<sup>2</sup> (one cell at Resolution 5)...
+
+Williamsburg is 5 km<sup>2</sup> (one cell at Resolution 7)...
+
+| Resolution | Avg Hex Area              | Avg Hex Edge Length (km) | Number of unique indexes |
+|------------|---------------------------|--------------------------|--------------------------|
+| 5          | 252.9 km<sup>2</sup>      | 8.5 km                   | 2,016,842                |
+| 6          | 36.1290521 km<sup>2</sup> | 3.2 km                   | 14,117,882               |
+| 7          | 5.1612932 km<sup>2</sup>  | 1.2 km                   | 98,825,162               |
+| 8          | 737 m<sup>2</sup>         | 461 m                    | 691,776,122              |
+| 9          | 105 m<sup>2</sup>         | 174 m                    | 4,842,432,842            |
+| 10         | 15 m<sup>2</sup>          | 65 m                     | 33,897,029,882           |
+| 11         | 2 m<sup>2</sup>           | 24 m                     | 237,279,209,162          |
+
 ### Materialized View
-[Materialize](https://materialize.com/) will power a query that retrieves the 
+
+[Materialize](https://materialize.com/) will power a query that retrieves the
 nearest drivers to a given point.
