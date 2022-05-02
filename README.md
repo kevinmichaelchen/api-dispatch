@@ -99,6 +99,34 @@ EOF
 ) | grpcurl -plaintext -d @ localhost:8080 coop.drivers.dispatch.v1beta1.DispatchService/Ingest
 ```
 
+### Connecting to postgres
+```bash
+psql postgres://postgres:postgres@localhost:5432/dispatch
+
+dispatch=# select driver_id from driver_location ;
+           driver_id           
+-------------------------------
+ greenpoint
+ wburg
+ GPT-Beer-Ale
+ GPT-St-Vitus
+ GPT-Le-Fanfare
+ GPT-Lobster-Joint
+ GPT-Sweetleaf-Coffee-Roasters
+ GPT-Wenwen
+ GPT-Esme
+ GPT-Kana-Hashi
+ GPT-Pelicana-Chicken
+ GPT-Christinas
+ GPT-Good-Room
+ GPT-El-Born
+ WBG-Bernies
+ WBG-Llama-Inn
+ WBG-Chimu-Bistro
+ WBG-Birria-Landia
+(18 rows)
+```
+
 ### Getting the nearest drivers
 
 #### Request
@@ -107,7 +135,7 @@ restaurant in Williamsburg.
 
 You can use the CLI:
 ```bash
-go run cmd/dispatch/dispatch.go dispatch --latitude 40.7110694 --longitude -73.9514453
+go run cmd/dispatch/dispatch.go dispatch --latitude 40.73010864595388 --longitude -73.95094555260256
 ```
 
 You can also use grpcurl:
@@ -116,8 +144,8 @@ You can also use grpcurl:
 cat << EOF
 {
   "location": {
-    "latitude": 40.7110694,
-    "longitude": -73.9514453
+    "latitude": 40.73010864595388,
+    "longitude": -73.95094555260256
   }
 }
 EOF
@@ -125,17 +153,76 @@ EOF
 ```
 
 #### Response
-Because the pickup is in Williamsburg, a driver in that neighborhood appears
-ranked above a driver in Greenpoint (north of Williamsburg).
+Because the pickup is in Key Food Supermarkets (Greenpoint), drivers in that
+neighborhood appear above others.
+
+Notice how drivers in neighboring hex cells at higher (finer) resolutions appear
+above those who neighbor the pickup location in lower (coarser) resolutions.
 ```json
 {
   "results": [
     {
-      "driverId": "wburg",
+      "driverId": "GPT-Kana-Hashi",
+      "resolution": 9
+    },
+    {
+      "driverId": "GPT-Good-Room",
+      "resolution": 9
+    },
+    {
+      "driverId": "GPT-Christinas",
+      "resolution": 9
+    },
+    {
+      "driverId": "GPT-Pelicana-Chicken",
+      "resolution": 9
+    },
+    {
+      "driverId": "GPT-St-Vitus",
       "resolution": 8
     },
     {
-      "driverId": "greenpoint",
+      "driverId": "GPT-Lobster-Joint",
+      "resolution": 8
+    },
+    {
+      "driverId": "GPT-Le-Fanfare",
+      "resolution": 8
+    },
+    {
+      "driverId": "WBG-Chimu-Bistro",
+      "resolution": 8
+    },
+    {
+      "driverId": "GPT-Sweetleaf-Coffee-Roasters",
+      "resolution": 8
+    },
+    {
+      "driverId": "WBG-Bernies",
+      "resolution": 8
+    },
+    {
+      "driverId": "WBG-Llama-Inn",
+      "resolution": 8
+    },
+    {
+      "driverId": "GPT-Beer-Ale",
+      "resolution": 8
+    },
+    {
+      "driverId": "GPT-Wenwen",
+      "resolution": 8
+    },
+    {
+      "driverId": "GPT-Esme",
+      "resolution": 8
+    },
+    {
+      "driverId": "GPT-El-Born",
+      "resolution": 8
+    },
+    {
+      "driverId": "WBG-Birria-Landia",
       "resolution": 7
     }
   ]
