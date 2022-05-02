@@ -16,7 +16,7 @@ Built on:
 * [h3](https://h3geo.org/), a hexagonal hierarchical geospatial indexing system
 * [materialize](https://materialize.com/) — can we use parameterized queries? :question:
 
-## What's here
+## Project structure
 | Directory                                  | Description                               |
 |--------------------------------------------|-------------------------------------------|
 | [`./cmd`](./cmd)                           | CLI for making gRPC requests              |
