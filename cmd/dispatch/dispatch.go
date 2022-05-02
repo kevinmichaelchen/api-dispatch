@@ -28,12 +28,14 @@ var rootCmd = &cobra.Command{
 
 var conn *grpc.ClientConn
 var latitude, longitude float64
+var limit int32
 var ingestPath string
 
 func init() {
 	rootCmd.AddCommand(dispatchCmd)
 	rootCmd.AddCommand(ingestCmd)
 
+	dispatchCmd.Flags().Int32VarP(&limit, "limit", "", 10, "Max number of results to return")
 	dispatchCmd.Flags().Float64VarP(&latitude, "latitude", "", 40.7110694, "Latitude of pickup location")
 	dispatchCmd.Flags().Float64VarP(&longitude, "longitude", "", -73.9514453, "Longitude of pickup location")
 
@@ -144,14 +146,17 @@ var dispatchCmd = &cobra.Command{
 		fmt.Println("lat =", latitude)
 		fmt.Println("lng =", longitude)
 		// Create request
-		r := &v1beta1.DispatchRequest{Location: &v1beta1.LatLng{
-			Latitude:  latitude,
-			Longitude: longitude,
-		}}
+		req := &v1beta1.DispatchRequest{
+			Location: &v1beta1.LatLng{
+				Latitude:  latitude,
+				Longitude: longitude,
+			},
+			Limit: limit,
+		}
 
 		// Execute request
 		client := v1beta1.NewDispatchServiceClient(conn)
-		res, err := client.Dispatch(context.Background(), r)
+		res, err := client.Dispatch(context.Background(), req)
 		if err != nil {
 			log.Fatalf("gRPC request failed: %v", err)
 		}

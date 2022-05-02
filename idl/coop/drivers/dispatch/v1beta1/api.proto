@@ -29,6 +29,7 @@ message IngestResponse {}
 
 message DispatchRequest {
   LatLng location = 1;
+  int32 limit = 2;
 }
 
 message DispatchResponse {

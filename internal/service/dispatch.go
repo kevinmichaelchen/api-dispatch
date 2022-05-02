@@ -51,6 +51,10 @@ func (s *Service) Dispatch(ctx context.Context, r *v1beta1.DispatchRequest) (*v1
 		mergeInput{drivers: r10k2Cells, res: 10, kValue: 2},
 	)
 
+	if len(results) > int(r.GetLimit()) {
+		results = results[:r.GetLimit()]
+	}
+
 	// Sort by age, keeping original order or equal elements.
 	sort.SliceStable(results, func(i, j int) bool {
 		a := results[i]
