@@ -10,6 +10,7 @@ func main() {
 	app := fx.New(
 		fx.Provide(
 			NewLogger,
+			NewDatabase,
 			NewGRPCServer,
 			NewService,
 		),

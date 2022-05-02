@@ -2,9 +2,11 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"github.com/kevinmichaelchen/api-dispatch/internal/idl/coop/drivers/dispatch/v1beta1"
 	"github.com/kevinmichaelchen/api-dispatch/internal/service"
+	_ "github.com/lib/pq"
 	"go.uber.org/fx"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -51,9 +53,13 @@ func NewGRPCServer(lc fx.Lifecycle, logger *log.Logger) (*grpc.Server, error) {
 	return s, nil
 }
 
-func NewService(logger *log.Logger, grpcServer *grpc.Server) *service.Service {
-	svc := service.NewService(logger)
-	return svc
+func NewDatabase() (*sql.DB, error) {
+	// TODO make configurable
+	return sql.Open("postgres", "postgres://postgres:postgres@localhost:5432/dispatch?sslmode=disable")
+}
+
+func NewService(logger *log.Logger, grpcServer *grpc.Server, db *sql.DB) *service.Service {
+	return service.NewService(logger, db)
 }
 
 // Register mounts our HTTP handler on the mux.
