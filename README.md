@@ -332,6 +332,9 @@ above those who neighbor the pickup location in lower (coarser) resolutions.
 ### H3 resolutions
 H3 supports [multiple resolutions](https://h3geo.org/docs/core-library/restable):
 
+<img src="./docs/hex.png" />
+<img src="./docs/hex-annotated.png.png" />
+
 Each finer-resolution cell is 7 times smaller than its coarser parent.
 
 Brooklyn is 250 km<sup>2</sup> (one cell at Resolution 5)...
