@@ -5,6 +5,7 @@ package coop.drivers.dispatch.v1beta1;
 option go_package = "github.com/kevinmichaelchen/api-dispatch/internal/idl/coop/drivers/dispatch/v1beta1";
 
 import "coop/drivers/dispatch/v1beta1/latlng.proto";
+import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 
 service DispatchService {
@@ -38,15 +39,17 @@ message DispatchResponse {
 
 message SearchResult {
   string driver_id = 1;
-  // distance from driver to pickup location
-  double distance_miles = 2;
-  LatLng driver_location = 3;
+  // distance (in meters) from driver to pickup location
+  double distance_meters = 2;
+  // time it takes driver to go to pickup
+  google.protobuf.Duration duration = 3;
+  LatLng driver_location = 4;
   // what resolution the driver was found to be a k=1 k-ring neighbor to the
   // pickup location. if resolution is 7, that means the highest (finest)
   // resolution in which the driver appeared in the pickup location's
   // neighborhood was 7.
-  int32 resolution = 4;
+  int32 resolution = 5;
   // if k=1, it's an immediate (1st degree) neighbor. if k=2, it's a 2nd-degree
   // neighbor (i.e., a neighbor's neighbor).
-  int32 k_value = 5;
+  int32 k_value = 6;
 }

@@ -6,42 +6,47 @@ import (
 	"github.com/kevinmichaelchen/api-dispatch/internal/idl/coop/drivers/dispatch/v1beta1"
 	"github.com/kevinmichaelchen/api-dispatch/internal/models"
 	"github.com/volatiletech/sqlboiler/v4/queries"
+	"google.golang.org/protobuf/types/known/durationpb"
 	"sort"
 )
 
-func (s *Service) Dispatch(ctx context.Context, r *v1beta1.DispatchRequest) (*v1beta1.DispatchResponse, error) {
+const (
+	maxResults = 100
+)
+
+func (s *Service) Dispatch(ctx context.Context, req *v1beta1.DispatchRequest) (*v1beta1.DispatchResponse, error) {
 	// TODO parallelize with errgroup
-	r7k1Cells, err := s.getNearbyDriverLocations(ctx, r.GetLocation(), 7, 1)
+	r7k1Cells, err := s.getNearbyDriverLocations(ctx, req.GetLocation(), 7, 1)
 	if err != nil {
 		return nil, err
 	}
-	r8k1Cells, err := s.getNearbyDriverLocations(ctx, r.GetLocation(), 8, 1)
+	r8k1Cells, err := s.getNearbyDriverLocations(ctx, req.GetLocation(), 8, 1)
 	if err != nil {
 		return nil, err
 	}
-	r8k2Cells, err := s.getNearbyDriverLocations(ctx, r.GetLocation(), 8, 2)
+	r8k2Cells, err := s.getNearbyDriverLocations(ctx, req.GetLocation(), 8, 2)
 	if err != nil {
 		return nil, err
 	}
-	r9k1Cells, err := s.getNearbyDriverLocations(ctx, r.GetLocation(), 9, 1)
+	r9k1Cells, err := s.getNearbyDriverLocations(ctx, req.GetLocation(), 9, 1)
 	if err != nil {
 		return nil, err
 	}
-	r9k2Cells, err := s.getNearbyDriverLocations(ctx, r.GetLocation(), 9, 2)
+	r9k2Cells, err := s.getNearbyDriverLocations(ctx, req.GetLocation(), 9, 2)
 	if err != nil {
 		return nil, err
 	}
-	r10k1Cells, err := s.getNearbyDriverLocations(ctx, r.GetLocation(), 10, 1)
+	r10k1Cells, err := s.getNearbyDriverLocations(ctx, req.GetLocation(), 10, 1)
 	if err != nil {
 		return nil, err
 	}
-	r10k2Cells, err := s.getNearbyDriverLocations(ctx, r.GetLocation(), 10, 2)
+	r10k2Cells, err := s.getNearbyDriverLocations(ctx, req.GetLocation(), 10, 2)
 	if err != nil {
 		return nil, err
 	}
 
 	results := merge(
-		r,
+		req,
 		mergeInput{drivers: r7k1Cells, res: 7, kValue: 1},
 		mergeInput{drivers: r8k1Cells, res: 8, kValue: 1},
 		mergeInput{drivers: r8k2Cells, res: 8, kValue: 2},
@@ -51,8 +56,9 @@ func (s *Service) Dispatch(ctx context.Context, r *v1beta1.DispatchRequest) (*v1
 		mergeInput{drivers: r10k2Cells, res: 10, kValue: 2},
 	)
 
-	if len(results) > int(r.GetLimit()) {
-		results = results[:r.GetLimit()]
+	// Apply server-side results limit
+	if len(results) > int(maxResults) {
+		results = results[:maxResults]
 	}
 
 	// Sort by age, keeping original order or equal elements.
@@ -64,6 +70,24 @@ func (s *Service) Dispatch(ctx context.Context, r *v1beta1.DispatchRequest) (*v1
 		}
 		return a.Resolution > b.Resolution
 	})
+
+	// TODO we're just enriching results with distance/duration info, but not re-sorting them
+	for _, result := range results {
+		if s.distanceSvc != nil {
+			out, err := s.distanceSvc.BetweenPoints(ctx, result.GetDriverLocation(), req.GetLocation())
+			if err != nil {
+				return nil, err
+			}
+			result.Duration = durationpb.New(out.Duration)
+			result.DistanceMeters = float64(out.DistanceMeters)
+		}
+	}
+
+	// Apply client-side limits
+	// TODO do not let client exceed server-side max limit
+	if len(results) > int(req.GetLimit()) {
+		results = results[:req.GetLimit()]
+	}
 
 	return &v1beta1.DispatchResponse{
 		Results: results,
@@ -102,7 +126,7 @@ func merge(r *v1beta1.DispatchRequest, in ...mergeInput) []*v1beta1.SearchResult
 			}
 			cache[dl.DriverID] = &v1beta1.SearchResult{
 				DriverId:       dl.DriverID,
-				DistanceMiles:  distance(r.GetLocation(), latLng),
+				DistanceMeters: pointDistance(r.GetLocation(), latLng),
 				DriverLocation: latLng,
 				Resolution:     int32(mi.res),
 				KValue:         int32(mi.kValue),
@@ -143,18 +167,16 @@ func toSearchResults(
 	k int) map[DriverID]*v1beta1.SearchResult {
 	out := make(map[DriverID]*v1beta1.SearchResult)
 	for _, e := range in {
+		driverLocation := &v1beta1.LatLng{
+			Latitude:  e.Latitude,
+			Longitude: e.Longitude,
+		}
 		out[DriverID(e.DriverID)] = &v1beta1.SearchResult{
-			DriverId: e.DriverID,
-			DistanceMiles: distance(r.GetLocation(), &v1beta1.LatLng{
-				Latitude:  e.Latitude,
-				Longitude: e.Longitude,
-			}),
-			DriverLocation: &v1beta1.LatLng{
-				Latitude:  e.Latitude,
-				Longitude: e.Longitude,
-			},
-			Resolution: int32(res),
-			KValue:     int32(k),
+			DriverId:       e.DriverID,
+			DistanceMeters: pointDistance(r.GetLocation(), driverLocation),
+			DriverLocation: driverLocation,
+			Resolution:     int32(res),
+			KValue:         int32(k),
 		}
 	}
 	return out

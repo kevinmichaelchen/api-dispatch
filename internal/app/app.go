@@ -4,12 +4,15 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/friendsofgo/errors"
+	"github.com/kevinmichaelchen/api-dispatch/internal/distance"
 	"github.com/kevinmichaelchen/api-dispatch/internal/idl/coop/drivers/dispatch/v1beta1"
 	"github.com/kevinmichaelchen/api-dispatch/internal/service"
 	_ "github.com/lib/pq"
 	"go.uber.org/fx"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+	"googlemaps.github.io/maps"
 	"log"
 	"net"
 	"os"
@@ -78,8 +81,35 @@ func NewDatabase(logger *log.Logger, lc fx.Lifecycle) (*sql.DB, error) {
 	return db, err
 }
 
-func NewService(logger *log.Logger, grpcServer *grpc.Server, db *sql.DB) *service.Service {
-	return service.NewService(logger, db)
+type ServiceParams struct {
+	fx.In
+	Logger          *log.Logger
+	GRPCServer      *grpc.Server
+	DB              *sql.DB
+	DistanceService *distance.Service `optional:"true"`
+}
+
+func NewService(p ServiceParams) *service.Service {
+	return service.NewService(p.Logger, p.DB, p.DistanceService)
+}
+
+func NewMapsClient() (*maps.Client, error) {
+	apiKey := os.Getenv("API_KEY")
+	if apiKey == "" {
+		return nil, errors.New("missing API_KEY for Google Maps")
+	}
+	c, err := maps.NewClient(maps.WithAPIKey(apiKey))
+	if err != nil {
+		return nil, err
+	}
+	return c, nil
+}
+
+func NewDistanceService(logger *log.Logger, client *maps.Client) (*distance.Service, error) {
+	if client == nil {
+		return nil, errors.New("no maps client")
+	}
+	return distance.NewService(client), nil
 }
 
 // Register mounts our HTTP handler on the mux.

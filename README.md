@@ -183,150 +183,116 @@ above those who neighbor the pickup location in lower (coarser) resolutions.
 
 ```json
 {
-  "results":  [
+  "results": [
     {
-      "driverId":  "GPT-Christinas",
-      "driverLocation":  {
-        "latitude":  40.729212580192396,
-        "longitude":  -73.95367193640175
+      "driverId": "GPT-Christinas",
+      "distanceMeters": 484,
+      "duration": "230s",
+      "driverLocation": {
+        "latitude": 40.729212580192396,
+        "longitude": -73.95367193640175
       },
-      "resolution":  10,
-      "kValue":  2
+      "resolution": 10,
+      "kValue": 2
     },
     {
-      "driverId":  "GPT-Lobster-Joint",
-      "driverLocation":  {
-        "latitude":  40.73570796316877,
-        "longitude":  -73.95471296204035
+      "driverId": "GPT-Wenwen",
+      "distanceMeters": 1004,
+      "duration": "341s",
+      "driverLocation": {
+        "latitude": 40.7340725164784,
+        "longitude": -73.95478344708282
       },
-      "resolution":  9,
-      "kValue":  2
+      "resolution": 9,
+      "kValue": 2
     },
     {
-      "driverId":  "GPT-Pelicana-Chicken",
-      "driverLocation":  {
-        "latitude":  40.73145299880781,
-        "longitude":  -73.95453125752603
+      "driverId": "GPT-Esme",
+      "distanceMeters": 923,
+      "duration": "339s",
+      "driverLocation": {
+        "latitude": 40.73341597708627,
+        "longitude": -73.95453615584985
       },
-      "resolution":  9,
-      "kValue":  2
+      "resolution": 9,
+      "kValue": 2
     },
     {
-      "driverId":  "GPT-Wenwen",
-      "driverLocation":  {
-        "latitude":  40.7340725164784,
-        "longitude":  -73.95478344708282
+      "driverId": "GPT-El-Born",
+      "distanceMeters": 790,
+      "duration": "297s",
+      "driverLocation": {
+        "latitude": 40.72458479176929,
+        "longitude": -73.95095436146362
       },
-      "resolution":  9,
-      "kValue":  2
+      "resolution": 9,
+      "kValue": 2
     },
     {
-      "driverId":  "GPT-Esme",
-      "driverLocation":  {
-        "latitude":  40.73341597708627,
-        "longitude":  -73.95453615584985
+      "driverId": "GPT-Good-Room",
+      "distanceMeters": 481,
+      "duration": "231s",
+      "driverLocation": {
+        "latitude": 40.727136833286565,
+        "longitude": -73.95260914370321
       },
-      "resolution":  9,
-      "kValue":  2
+      "resolution": 9,
+      "kValue": 2
     },
     {
-      "driverId":  "GPT-Sweetleaf-Coffee-Roasters",
-      "driverLocation":  {
-        "latitude":  40.73470993736533,
-        "longitude":  -73.95447884704288
+      "driverId": "GPT-Kana-Hashi",
+      "distanceMeters": 831,
+      "duration": "317s",
+      "driverLocation": {
+        "latitude": 40.73267839045372,
+        "longitude": -73.95498100296005
       },
-      "resolution":  9,
-      "kValue":  2
+      "resolution": 9,
+      "kValue": 2
     },
     {
-      "driverId":  "GPT-Good-Room",
-      "driverLocation":  {
-        "latitude":  40.727136833286565,
-        "longitude":  -73.95260914370321
+      "driverId": "GPT-Lobster-Joint",
+      "distanceMeters": 1154,
+      "duration": "347s",
+      "driverLocation": {
+        "latitude": 40.73570796316877,
+        "longitude": -73.95471296204035
       },
-      "resolution":  9,
-      "kValue":  2
+      "resolution": 9,
+      "kValue": 2
     },
     {
-      "driverId":  "GPT-Kana-Hashi",
-      "driverLocation":  {
-        "latitude":  40.73267839045372,
-        "longitude":  -73.95498100296005
+      "driverId": "GPT-Sweetleaf-Coffee-Roasters",
+      "distanceMeters": 1229,
+      "duration": "370s",
+      "driverLocation": {
+        "latitude": 40.73470993736533,
+        "longitude": -73.95447884704288
       },
-      "resolution":  9,
-      "kValue":  2
+      "resolution": 9,
+      "kValue": 2
     },
     {
-      "driverId":  "GPT-El-Born",
-      "driverLocation":  {
-        "latitude":  40.72458479176929,
-        "longitude":  -73.95095436146362
+      "driverId": "GPT-Pelicana-Chicken",
+      "distanceMeters": 708,
+      "duration": "286s",
+      "driverLocation": {
+        "latitude": 40.73145299880781,
+        "longitude": -73.95453125752603
       },
-      "resolution":  9,
-      "kValue":  2
+      "resolution": 9,
+      "kValue": 2
     },
     {
-      "driverId":  "WBG-Bernies",
-      "driverLocation":  {
-        "latitude":  40.722135621331645,
-        "longitude":  -73.95011426935746
+      "driverId": "WBG-Llama-Inn",
+      "distanceMeters": 1919,
+      "duration": "463s",
+      "driverLocation": {
+        "latitude": 40.717046310599365,
+        "longitude": -73.94969794585268
       },
-      "resolution":  8,
-      "kValue":  2
-    },
-    {
-      "driverId":  "WBG-Chimu-Bistro",
-      "driverLocation":  {
-        "latitude":  40.715273706507176,
-        "longitude":  -73.95167992349239
-      },
-      "resolution":  8,
-      "kValue":  2
-    },
-    {
-      "driverId":  "WBG-Birria-Landia",
-      "driverLocation":  {
-        "latitude":  40.71454465722973,
-        "longitude":  -73.95241070138934
-      },
-      "resolution":  8,
-      "kValue":  2
-    },
-    {
-      "driverId":  "GPT-Beer-Ale",
-      "driverLocation":  {
-        "latitude":  40.737689977054565,
-        "longitude":  -73.95528488057654
-      },
-      "resolution":  8,
-      "kValue":  2
-    },
-    {
-      "driverId":  "GPT-St-Vitus",
-      "driverLocation":  {
-        "latitude":  40.737116268235525,
-        "longitude":  -73.95425922312981
-      },
-      "resolution":  8,
-      "kValue":  2
-    },
-    {
-      "driverId":  "GPT-Le-Fanfare",
-      "driverLocation":  {
-        "latitude":  40.73640659952994,
-        "longitude":  -73.95616178430338
-      },
-      "resolution":  8,
-      "kValue":  2
-    },
-    {
-      "driverId":  "WBG-Llama-Inn",
-      "driverLocation":  {
-        "latitude":  40.717046310599365,
-        "longitude":  -73.94969794585268
-      },
-      "resolution":  8,
-      "kValue":  2
+      "resolution": 8,
+      "kValue": 2
     }
   ]
 }
