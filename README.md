@@ -179,6 +179,8 @@ Because the pickup is in [Key Food Supermarkets](https://goo.gl/maps/xUnzhGm2h1H
 Notice how drivers in neighboring hex cells at higher (finer) resolutions appear
 above those who neighbor the pickup location in lower (coarser) resolutions.
 
+(See these results in [Google Maps](https://www.google.com/maps/dir/Key+Food+Supermarkets/Christina's/Lobster+Joint/Pelicana+Chicken/Wenwen,+Manhattan+Avenue,+Brooklyn,+NY/Esme,+Manhattan+Avenue,+Brooklyn,+NY/Sweetleaf+Coffee+Roasters/Good+Room/KanaHashi/El+Born,+Manhattan+Avenue,+Brooklyn,+NY/@40.7298698,-73.9590101,16z/data=!3m2!4b1!5s0x89c25946ba8690d1:0x75343887f28c8143!4m62!4m61!1m5!1m1!1s0x89c2594776e1a533:0x6e12c8b9202752d8!2m2!1d-73.9509796!2d40.7299092!1m5!1m1!1s0x89c25940d3ef382f:0x694b17e017a97e4d!2m2!1d-73.953922!2d40.7291077!1m5!1m1!1s0x89c2593e9472f533:0x50e900372535289c!2m2!1d-73.9552774!2d40.7354038!1m5!1m1!1s0x89c2593f58cb8ce7:0xa1a951245a59d32d!2m2!1d-73.9547015!2d40.7314082!1m5!1m1!1s0x89c2595f20f6ca99:0xee8ef144f9bfebaf!2m2!1d-73.9550488!2d40.7339961!1m5!1m1!1s0x89c2593f3d6abf81:0x8d77248129051b4c!2m2!1d-73.9549203!2d40.7332267!1m5!1m1!1s0x89c2593ee8a352d7:0x5bc1971dd74cfcd7!2m2!1d-73.9553735!2d40.7345144!1m5!1m1!1s0x89c25946b09ba761:0x90af8ca50b67a075!2m2!1d-73.9529121!2d40.7269376!1m5!1m1!1s0x89c2593f3f8c4f21:0x543eba709caaa83!2m2!1d-73.9548886!2d40.7326259!1m5!1m1!1s0x89c259444f48269b:0x668274ceb7e6b645!2m2!1d-73.9512545!2d40.7243531!3e0))
+
 ```json
 {
   "results":  [
