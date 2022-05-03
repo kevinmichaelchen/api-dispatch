@@ -30,8 +30,6 @@ and [h3](https://h3geo.org/) (a hexagonal hierarchical geospatial indexing syste
 
 ### Not considered yet
 1. Driver eligibility for trip
-2. Trip payment
-3. Time until trip start time
 
 ## Project structure
 
@@ -48,13 +46,21 @@ and [h3](https://h3geo.org/) (a hexagonal hierarchical geospatial indexing syste
 
 ## How does it work
 
-### Location Ingestion
+### Ingestion
 
-We expose a [gRPC endpoint](idl/coop/drivers/dispatch/v1beta1/api.proto) to
-ingest location pings in batch. Pings take the form of:
+We expose two [gRPC endpoints](idl/coop/drivers/dispatch/v1beta1/api.proto) to
+ingest:
+1. batches of driver location pings
+2. batches of trips
 
+A driver location ping takes the form:
 ```
 (time, driver_id, lat, lng)
+```
+
+A trip takes the form:
+```
+(id, scheduled_for, expected_pay, lat, lng)
 ```
 
 **Note about scalability**: Postgres might not be the right tool for this kind
@@ -64,10 +70,9 @@ locations are persisted to something like
 compacted into Postgres.
 
 ### H3 Geospatial Indexing
-As location pings are ingested, we use the H3 library to figure out which hex 
-cells the driver is currently in at various resolutions, as well as k-rings
-which are essentially sets of *1*st-degree, *2*nd-degree, or _k_-degree 
-neighbors.
+For each location ingested, we use the H3 library to determine hex cells at
+various resolutions, as well as k-rings (which are essentially sets of 
+*1*st-degree, *2*nd-degree, or _k_-degree neighbors).
 
 #### H3 resolutions
 H3 supports [multiple resolutions](https://h3geo.org/docs/core-library/restable):
@@ -103,21 +108,11 @@ Here we're requesting a pickup at [Key Food Supermarkets](https://goo.gl/maps/xU
 You can use the CLI:
 
 ```bash
-go run cmd/dispatch/dispatch.go dispatch --latitude 40.73010864595388 --longitude -73.95094555260256
-```
+# Get nearest drivers to a specified pickup (passenger) location
+go run cmd/dispatch/*.go nearest drivers --latitude 40.73010864595388 --longitude -73.95094555260256
 
-Or [grpcurl](https://github.com/fullstorydev/grpcurl):
-```bash
-(
-cat << EOF
-{
-  "location": {
-    "latitude": 40.73010864595388,
-    "longitude": -73.95094555260256
-  }
-}
-EOF
-) | grpcurl -plaintext -d @ localhost:8080 coop.drivers.dispatch.v1beta1.DispatchService/Dispatch
+# Get nearest trips to a specified driver location
+go run cmd/dispatch/*.go nearest trips --latitude 40.73010864595388 --longitude -73.95094555260256
 ```
 
 #### Response

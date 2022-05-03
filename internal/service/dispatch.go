@@ -155,6 +155,7 @@ func (s *Service) GetNearestTrips(ctx context.Context, req *v1beta1.GetNearestTr
 		}
 	}
 
+	// TODO use TimeUntilTripStart and ExpectedPayment in sorting/ranking
 	// Re-sort by duration
 	sort.SliceStable(results, func(i, j int) bool {
 		a := results[i]
