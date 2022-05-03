@@ -118,9 +118,9 @@ func mergeDrivers(location *v1beta1.LatLng, in ...mergeDriversInput) []*v1beta1.
 			cache[dl.DriverID] = &v1beta1.SearchResult{
 				Payload: &v1beta1.SearchResult_Driver{
 					Driver: &v1beta1.DriverLocation{
-						DriverId:  dl.DriverID,
-						Timestamp: timestamppb.New(dl.CreatedAt),
-						LatLng:    latLng,
+						DriverId:            dl.DriverID,
+						MostRecentHeartbeat: timestamppb.New(dl.CreatedAt),
+						CurrentLocation:     latLng,
 					},
 				},
 				DistanceMeters: pointDistance(location, latLng),

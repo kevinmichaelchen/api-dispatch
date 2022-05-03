@@ -108,8 +108,8 @@ above those who neighbor the pickup location in lower (coarser) resolutions.
       {
          "driver": {
             "driverId": "GPT-Christinas",
-            "timestamp": "0001-01-01T00:00:00Z",
-            "latLng": {
+            "mostRecentHeartbeat": "0001-01-01T00:00:00Z",
+            "currentLocation": {
                "latitude": 40.729116923462385,
                "longitude": -73.95392251222499
             }
@@ -127,8 +127,8 @@ above those who neighbor the pickup location in lower (coarser) resolutions.
       {
          "driver": {
             "driverId": "GPT-Pelicana-Chicken",
-            "timestamp": "0001-01-01T00:00:00Z",
-            "latLng": {
+            "mostRecentHeartbeat": "0001-01-01T00:00:00Z",
+            "currentLocation": {
                "latitude": 40.731416756150395,
                "longitude": -73.95470131162523
             }
@@ -146,8 +146,8 @@ above those who neighbor the pickup location in lower (coarser) resolutions.
       {
          "driver": {
             "driverId": "GPT-El-Born",
-            "timestamp": "0001-01-01T00:00:00Z",
-            "latLng": {
+            "mostRecentHeartbeat": "0001-01-01T00:00:00Z",
+            "currentLocation": {
                "latitude": 40.72436580353396,
                "longitude": -73.95124766347774
             }
@@ -165,8 +165,8 @@ above those who neighbor the pickup location in lower (coarser) resolutions.
       {
          "driver": {
             "driverId": "GPT-Good-Room",
-            "timestamp": "0001-01-01T00:00:00Z",
-            "latLng": {
+            "mostRecentHeartbeat": "0001-01-01T00:00:00Z",
+            "currentLocation": {
                "latitude": 40.726944958544514,
                "longitude": -73.95291323476157
             }
@@ -184,8 +184,8 @@ above those who neighbor the pickup location in lower (coarser) resolutions.
       {
          "driver": {
             "driverId": "GPT-Kana-Hashi",
-            "timestamp": "0001-01-01T00:00:00Z",
-            "latLng": {
+            "mostRecentHeartbeat": "0001-01-01T00:00:00Z",
+            "currentLocation": {
                "latitude": 40.732637499546215,
                "longitude": -73.95488693544799
             }
@@ -203,8 +203,8 @@ above those who neighbor the pickup location in lower (coarser) resolutions.
       {
          "driver": {
             "driverId": "GPT-Esme",
-            "timestamp": "0001-01-01T00:00:00Z",
-            "latLng": {
+            "mostRecentHeartbeat": "0001-01-01T00:00:00Z",
+            "currentLocation": {
                "latitude": 40.733235412885314,
                "longitude": -73.95491763917049
             }
@@ -222,8 +222,8 @@ above those who neighbor the pickup location in lower (coarser) resolutions.
       {
          "driver": {
             "driverId": "GPT-Wenwen",
-            "timestamp": "0001-01-01T00:00:00Z",
-            "latLng": {
+            "mostRecentHeartbeat": "0001-01-01T00:00:00Z",
+            "currentLocation": {
                "latitude": 40.7340094734467,
                "longitude": -73.95504667163209
             }
@@ -241,8 +241,8 @@ above those who neighbor the pickup location in lower (coarser) resolutions.
       {
          "driver": {
             "driverId": "GPT-Lobster-Joint",
-            "timestamp": "0001-01-01T00:00:00Z",
-            "latLng": {
+            "mostRecentHeartbeat": "0001-01-01T00:00:00Z",
+            "currentLocation": {
                "latitude": 40.73541316092886,
                "longitude": -73.95527626749518
             }
@@ -260,8 +260,8 @@ above those who neighbor the pickup location in lower (coarser) resolutions.
       {
          "driver": {
             "driverId": "WBG-Bernies",
-            "timestamp": "0001-01-01T00:00:00Z",
-            "latLng": {
+            "mostRecentHeartbeat": "0001-01-01T00:00:00Z",
+            "currentLocation": {
                "latitude": 40.721899506693795,
                "longitude": -73.95055397598824
             }
@@ -279,8 +279,8 @@ above those who neighbor the pickup location in lower (coarser) resolutions.
       {
          "driver": {
             "driverId": "GPT-Le-Fanfare",
-            "timestamp": "0001-01-01T00:00:00Z",
-            "latLng": {
+            "mostRecentHeartbeat": "0001-01-01T00:00:00Z",
+            "currentLocation": {
                "latitude": 40.73622468817931,
                "longitude": -73.95551737528102
             }

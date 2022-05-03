@@ -24,8 +24,8 @@ service DispatchService {
 
 message DriverLocation {
   string driver_id = 1;
-  google.protobuf.Timestamp timestamp = 2;
-  LatLng lat_lng = 3;
+  google.protobuf.Timestamp most_recent_heartbeat = 2;
+  LatLng current_location = 3;
 }
 
 message UpdateDriverLocationsRequest {

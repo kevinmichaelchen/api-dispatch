@@ -60,9 +60,9 @@ func ingestDrivers(cmd *cobra.Command, args []string) {
 	var locations []*v1beta1.DriverLocation
 	for _, e := range data.Locations {
 		locations = append(locations, &v1beta1.DriverLocation{
-			DriverId:  e.DriverID,
-			Timestamp: timestamppb.Now(),
-			LatLng: &v1beta1.LatLng{
+			DriverId:            e.DriverID,
+			MostRecentHeartbeat: timestamppb.Now(),
+			CurrentLocation: &v1beta1.LatLng{
 				Latitude:  e.LatLng.Latitude,
 				Longitude: e.LatLng.Longitude,
 			},
