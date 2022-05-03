@@ -11,7 +11,7 @@
    1. [Location Ingestion](#location-ingestion)
    1. [H3 Geospatial Indexing](#h3-geospatial-indexing)
       1. [H3 resolutions](#h3-resolutions)
-   1. [Getting the nearest drivers](#getting-the-nearest-drivers)
+   1. [Getting the nearest trips or drivers](#getting-the-nearest-trips-or-drivers)
       1. [Request](#request)
       2. [Response](#response)
 
@@ -98,7 +98,7 @@ Williamsburg is 5 km<sup>2</sup> (one cell at Resolution 7)...
 | 10         | 15047.5 m<sup>2</sup>      | 65 m                     | 33,897,029,882           |
 | 11         | 2149.6 m<sup>2</sup>       | 24 m                     | 237,279,209,162          |
 
-### Getting the nearest drivers
+### Getting the nearest trips or drivers
 
 #### Request
 
