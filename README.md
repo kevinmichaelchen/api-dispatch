@@ -131,117 +131,128 @@ above those who neighbor the pickup location in lower (coarser) resolutions.
 
 ```json
 {
-  "results": [
-    {
-      "driverId": "GPT-Christinas",
-      "distanceMeters": 484,
-      "duration": "230s",
-      "driverLocation": {
-        "latitude": 40.729212580192396,
-        "longitude": -73.95367193640175
+   "results": [
+      {
+         "driverId": "GPT-Christinas",
+         "distanceMeters": 471,
+         "duration": "227s",
+         "driverLocation": {
+            "latitude": 40.729116923462385,
+            "longitude": -73.95392251222499
+         },
+         "address": "853 Manhattan Ave, Brooklyn, NY 11222, USA",
+         "resolution": 10,
+         "kValue": 2
       },
-      "resolution": 10,
-      "kValue": 2
-    },
-    {
-      "driverId": "GPT-Wenwen",
-      "distanceMeters": 1004,
-      "duration": "341s",
-      "driverLocation": {
-        "latitude": 40.7340725164784,
-        "longitude": -73.95478344708282
+      {
+         "driverId": "GPT-Pelicana-Chicken",
+         "distanceMeters": 706,
+         "duration": "285s",
+         "driverLocation": {
+            "latitude": 40.731416756150395,
+            "longitude": -73.95470131162523
+         },
+         "address": "941 Manhattan Ave, Brooklyn, NY 11222, USA",
+         "resolution": 9,
+         "kValue": 2
       },
-      "resolution": 9,
-      "kValue": 2
-    },
-    {
-      "driverId": "GPT-Esme",
-      "distanceMeters": 923,
-      "duration": "339s",
-      "driverLocation": {
-        "latitude": 40.73341597708627,
-        "longitude": -73.95453615584985
+      {
+         "driverId": "GPT-El-Born",
+         "distanceMeters": 806,
+         "duration": "301s",
+         "driverLocation": {
+            "latitude": 40.72436580353396,
+            "longitude": -73.95124766347774
+         },
+         "address": "651 Manhattan Ave, Brooklyn, NY 11222, USA",
+         "resolution": 9,
+         "kValue": 2
       },
-      "resolution": 9,
-      "kValue": 2
-    },
-    {
-      "driverId": "GPT-El-Born",
-      "distanceMeters": 790,
-      "duration": "297s",
-      "driverLocation": {
-        "latitude": 40.72458479176929,
-        "longitude": -73.95095436146362
+      {
+         "driverId": "GPT-Good-Room",
+         "distanceMeters": 768,
+         "duration": "317s",
+         "driverLocation": {
+            "latitude": 40.726944958544514,
+            "longitude": -73.95291323476157
+         },
+         "address": "98 Meserole Ave, Brooklyn, NY 11222, USA",
+         "resolution": 9,
+         "kValue": 2
       },
-      "resolution": 9,
-      "kValue": 2
-    },
-    {
-      "driverId": "GPT-Good-Room",
-      "distanceMeters": 481,
-      "duration": "231s",
-      "driverLocation": {
-        "latitude": 40.727136833286565,
-        "longitude": -73.95260914370321
+      {
+         "driverId": "GPT-Kana-Hashi",
+         "distanceMeters": 843,
+         "duration": "320s",
+         "driverLocation": {
+            "latitude": 40.732637499546215,
+            "longitude": -73.95488693544799
+         },
+         "address": "981 Manhattan Ave, Brooklyn, NY 11222, USA",
+         "resolution": 9,
+         "kValue": 2
       },
-      "resolution": 9,
-      "kValue": 2
-    },
-    {
-      "driverId": "GPT-Kana-Hashi",
-      "distanceMeters": 831,
-      "duration": "317s",
-      "driverLocation": {
-        "latitude": 40.73267839045372,
-        "longitude": -73.95498100296005
+      {
+         "driverId": "GPT-Esme",
+         "distanceMeters": 911,
+         "duration": "337s",
+         "driverLocation": {
+            "latitude": 40.733235412885314,
+            "longitude": -73.95491763917049
+         },
+         "address": "999 Manhattan Ave, Brooklyn, NY 11222, USA",
+         "resolution": 9,
+         "kValue": 2
       },
-      "resolution": 9,
-      "kValue": 2
-    },
-    {
-      "driverId": "GPT-Lobster-Joint",
-      "distanceMeters": 1154,
-      "duration": "347s",
-      "driverLocation": {
-        "latitude": 40.73570796316877,
-        "longitude": -73.95471296204035
+      {
+         "driverId": "GPT-Wenwen",
+         "distanceMeters": 999,
+         "duration": "340s",
+         "driverLocation": {
+            "latitude": 40.7340094734467,
+            "longitude": -73.95504667163209
+         },
+         "address": "1029 Manhattan Ave # 1, Brooklyn, NY 11222, USA",
+         "resolution": 9,
+         "kValue": 2
       },
-      "resolution": 9,
-      "kValue": 2
-    },
-    {
-      "driverId": "GPT-Sweetleaf-Coffee-Roasters",
-      "distanceMeters": 1229,
-      "duration": "370s",
-      "driverLocation": {
-        "latitude": 40.73470993736533,
-        "longitude": -73.95447884704288
+      {
+         "driverId": "GPT-Lobster-Joint",
+         "distanceMeters": 1132,
+         "duration": "342s",
+         "driverLocation": {
+            "latitude": 40.73541316092886,
+            "longitude": -73.95527626749518
+         },
+         "address": "1073 Manhattan Ave, Brooklyn, NY 11222, USA",
+         "resolution": 9,
+         "kValue": 2
       },
-      "resolution": 9,
-      "kValue": 2
-    },
-    {
-      "driverId": "GPT-Pelicana-Chicken",
-      "distanceMeters": 708,
-      "duration": "286s",
-      "driverLocation": {
-        "latitude": 40.73145299880781,
-        "longitude": -73.95453125752603
+      {
+         "driverId": "GPT-Le-Fanfare",
+         "distanceMeters": 1223,
+         "duration": "368s",
+         "driverLocation": {
+            "latitude": 40.73622468817931,
+            "longitude": -73.95551737528102
+         },
+         "address": "1103 Manhattan Ave, Brooklyn, NY 11222, USA",
+         "resolution": 9,
+         "kValue": 2
       },
-      "resolution": 9,
-      "kValue": 2
-    },
-    {
-      "driverId": "WBG-Llama-Inn",
-      "distanceMeters": 1919,
-      "duration": "463s",
-      "driverLocation": {
-        "latitude": 40.717046310599365,
-        "longitude": -73.94969794585268
-      },
-      "resolution": 8,
-      "kValue": 2
-    }
-  ]
+      {
+         "driverId": "WBG-Bernies",
+         "distanceMeters": 1193,
+         "duration": "374s",
+         "driverLocation": {
+            "latitude": 40.721899506693795,
+            "longitude": -73.95055397598824
+         },
+         "address": "332 Driggs Ave, Brooklyn, NY 11222, USA",
+         "resolution": 8,
+         "kValue": 2
+      }
+   ],
+   "pickupAddress": "216 Greenpoint Ave, Brooklyn, NY 11222, USA"
 }
 ```
