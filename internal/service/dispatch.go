@@ -17,8 +17,8 @@ const (
 	maxResults = 100
 )
 
-func (s *Service) Dispatch(ctx context.Context, req *v1beta1.DispatchRequest) (*v1beta1.DispatchResponse, error) {
-	err := validateDispatchRequest(req)
+func (s *Service) GetNearestDrivers(ctx context.Context, req *v1beta1.GetNearestDriversRequest) (*v1beta1.GetNearestDriversResponse, error) {
+	err := validateGetNearestDriversRequest(req)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
@@ -113,7 +113,7 @@ func (s *Service) Dispatch(ctx context.Context, req *v1beta1.DispatchRequest) (*
 		results = results[:req.GetLimit()]
 	}
 
-	return &v1beta1.DispatchResponse{
+	return &v1beta1.GetNearestDriversResponse{
 		Results:       results,
 		PickupAddress: pickupAddress,
 	}, nil
@@ -125,7 +125,7 @@ type mergeInput struct {
 	kValue  int
 }
 
-func merge(r *v1beta1.DispatchRequest, in ...mergeInput) []*v1beta1.SearchResult {
+func merge(r *v1beta1.GetNearestDriversRequest, in ...mergeInput) []*v1beta1.SearchResult {
 	cache := make(map[string]*v1beta1.SearchResult)
 	for _, mi := range in {
 		for _, dl := range mi.drivers {
@@ -186,7 +186,7 @@ WHERE
 type DriverID string
 
 func toSearchResults(
-	r *v1beta1.DispatchRequest,
+	r *v1beta1.GetNearestDriversRequest,
 	in models.DriverLocationSlice,
 	res int,
 	k int) map[DriverID]*v1beta1.SearchResult {

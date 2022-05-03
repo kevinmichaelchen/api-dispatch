@@ -6,9 +6,9 @@ import (
 	"testing"
 )
 
-func Test_validateDispatchRequest(t *testing.T) {
-	buildValid := func() *v1beta1.DispatchRequest {
-		return &v1beta1.DispatchRequest{
+func Test_validateGetNearestDriversRequest(t *testing.T) {
+	buildValid := func() *v1beta1.GetNearestDriversRequest {
+		return &v1beta1.GetNearestDriversRequest{
 			Location: &v1beta1.LatLng{
 				Latitude:  40.2,
 				Longitude: -73.3,
@@ -17,7 +17,7 @@ func Test_validateDispatchRequest(t *testing.T) {
 		}
 	}
 	cases := map[string]struct {
-		build  func() *v1beta1.DispatchRequest
+		build  func() *v1beta1.GetNearestDriversRequest
 		expect func(t *testing.T, err error)
 	}{
 		"Valid": {
@@ -27,7 +27,7 @@ func Test_validateDispatchRequest(t *testing.T) {
 			},
 		},
 		//"Negative limit": {
-		//	build: func() *v1beta1.DispatchRequest {
+		//	build: func() *v1beta1.GetNearestDriversRequest {
 		//		p := buildValid()
 		//		p.Limit = -5
 		//		return p
@@ -39,7 +39,7 @@ func Test_validateDispatchRequest(t *testing.T) {
 	}
 	for testName, tc := range cases {
 		t.Run(testName, func(t *testing.T) {
-			err := validateDispatchRequest(tc.build())
+			err := validateGetNearestDriversRequest(tc.build())
 			tc.expect(t, err)
 		})
 	}

@@ -10,8 +10,7 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 
-func (s *Service) Ingest(ctx context.Context, r *v1beta1.IngestRequest) (*v1beta1.IngestResponse, error) {
-	s.logger.Println("Ingest endpoint was called.")
+func (s *Service) UpdateDriverLocations(ctx context.Context, r *v1beta1.UpdateDriverLocationsRequest) (*v1beta1.UpdateDriverLocationsResponse, error) {
 	for _, l := range r.GetLocations() {
 		dl := models.DriverLocation{
 			ID:             xid.New().String(),
@@ -36,5 +35,5 @@ func (s *Service) Ingest(ctx context.Context, r *v1beta1.IngestRequest) (*v1beta
 			return nil, fmt.Errorf("failed to insert location for driver: %s: %v", l.GetDriverId(), err)
 		}
 	}
-	return &v1beta1.IngestResponse{}, nil
+	return &v1beta1.UpdateDriverLocationsResponse{}, nil
 }

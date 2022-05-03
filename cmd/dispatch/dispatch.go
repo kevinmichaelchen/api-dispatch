@@ -102,7 +102,7 @@ var ingestCmd = &cobra.Command{
 		}
 
 		log.Printf("Seeding %d driver locations\n", len(locations))
-		req := &v1beta1.IngestRequest{Locations: locations}
+		req := &v1beta1.UpdateDriverLocationsRequest{Locations: locations}
 		s, err := marshalProto(req)
 		if err != nil {
 			log.Fatalf("Failed to marshal request: %v", err)
@@ -113,7 +113,7 @@ var ingestCmd = &cobra.Command{
 
 		// Execute request
 		client := v1beta1.NewDispatchServiceClient(conn)
-		res, err := client.Ingest(context.Background(), req)
+		res, err := client.UpdateDriverLocations(context.Background(), req)
 		if err != nil {
 			log.Fatalf("gRPC request failed: %v", err)
 		}
@@ -146,7 +146,7 @@ var dispatchCmd = &cobra.Command{
 		fmt.Println("lat =", latitude)
 		fmt.Println("lng =", longitude)
 		// Create request
-		req := &v1beta1.DispatchRequest{
+		req := &v1beta1.GetNearestDriversRequest{
 			Location: &v1beta1.LatLng{
 				Latitude:  latitude,
 				Longitude: longitude,
@@ -156,7 +156,7 @@ var dispatchCmd = &cobra.Command{
 
 		// Execute request
 		client := v1beta1.NewDispatchServiceClient(conn)
-		res, err := client.Dispatch(context.Background(), req)
+		res, err := client.GetNearestDrivers(context.Background(), req)
 		if err != nil {
 			log.Fatalf("gRPC request failed: %v", err)
 		}

@@ -6,7 +6,7 @@ import (
 	"github.com/kevinmichaelchen/api-dispatch/internal/idl/coop/drivers/dispatch/v1beta1"
 )
 
-func validateDispatchRequest(r *v1beta1.DispatchRequest) error {
+func validateGetNearestDriversRequest(r *v1beta1.GetNearestDriversRequest) error {
 	return ozzo.Errors{
 		"Limit": ozzo.Validate(
 			r.GetLimit(),

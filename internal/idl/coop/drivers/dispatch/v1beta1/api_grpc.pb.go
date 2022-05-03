@@ -19,9 +19,9 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type DispatchServiceClient interface {
 	// Bulk-ingest driver locations.
-	Ingest(ctx context.Context, in *IngestRequest, opts ...grpc.CallOption) (*IngestResponse, error)
+	UpdateDriverLocations(ctx context.Context, in *UpdateDriverLocationsRequest, opts ...grpc.CallOption) (*UpdateDriverLocationsResponse, error)
 	// Gets the nearest drivers to a given point.
-	Dispatch(ctx context.Context, in *DispatchRequest, opts ...grpc.CallOption) (*DispatchResponse, error)
+	GetNearestDrivers(ctx context.Context, in *GetNearestDriversRequest, opts ...grpc.CallOption) (*GetNearestDriversResponse, error)
 }
 
 type dispatchServiceClient struct {
@@ -32,18 +32,18 @@ func NewDispatchServiceClient(cc grpc.ClientConnInterface) DispatchServiceClient
 	return &dispatchServiceClient{cc}
 }
 
-func (c *dispatchServiceClient) Ingest(ctx context.Context, in *IngestRequest, opts ...grpc.CallOption) (*IngestResponse, error) {
-	out := new(IngestResponse)
-	err := c.cc.Invoke(ctx, "/coop.drivers.dispatch.v1beta1.DispatchService/Ingest", in, out, opts...)
+func (c *dispatchServiceClient) UpdateDriverLocations(ctx context.Context, in *UpdateDriverLocationsRequest, opts ...grpc.CallOption) (*UpdateDriverLocationsResponse, error) {
+	out := new(UpdateDriverLocationsResponse)
+	err := c.cc.Invoke(ctx, "/coop.drivers.dispatch.v1beta1.DispatchService/UpdateDriverLocations", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *dispatchServiceClient) Dispatch(ctx context.Context, in *DispatchRequest, opts ...grpc.CallOption) (*DispatchResponse, error) {
-	out := new(DispatchResponse)
-	err := c.cc.Invoke(ctx, "/coop.drivers.dispatch.v1beta1.DispatchService/Dispatch", in, out, opts...)
+func (c *dispatchServiceClient) GetNearestDrivers(ctx context.Context, in *GetNearestDriversRequest, opts ...grpc.CallOption) (*GetNearestDriversResponse, error) {
+	out := new(GetNearestDriversResponse)
+	err := c.cc.Invoke(ctx, "/coop.drivers.dispatch.v1beta1.DispatchService/GetNearestDrivers", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -55,20 +55,20 @@ func (c *dispatchServiceClient) Dispatch(ctx context.Context, in *DispatchReques
 // for forward compatibility
 type DispatchServiceServer interface {
 	// Bulk-ingest driver locations.
-	Ingest(context.Context, *IngestRequest) (*IngestResponse, error)
+	UpdateDriverLocations(context.Context, *UpdateDriverLocationsRequest) (*UpdateDriverLocationsResponse, error)
 	// Gets the nearest drivers to a given point.
-	Dispatch(context.Context, *DispatchRequest) (*DispatchResponse, error)
+	GetNearestDrivers(context.Context, *GetNearestDriversRequest) (*GetNearestDriversResponse, error)
 }
 
 // UnimplementedDispatchServiceServer should be embedded to have forward compatible implementations.
 type UnimplementedDispatchServiceServer struct {
 }
 
-func (UnimplementedDispatchServiceServer) Ingest(context.Context, *IngestRequest) (*IngestResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Ingest not implemented")
+func (UnimplementedDispatchServiceServer) UpdateDriverLocations(context.Context, *UpdateDriverLocationsRequest) (*UpdateDriverLocationsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateDriverLocations not implemented")
 }
-func (UnimplementedDispatchServiceServer) Dispatch(context.Context, *DispatchRequest) (*DispatchResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Dispatch not implemented")
+func (UnimplementedDispatchServiceServer) GetNearestDrivers(context.Context, *GetNearestDriversRequest) (*GetNearestDriversResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetNearestDrivers not implemented")
 }
 
 // UnsafeDispatchServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -82,38 +82,38 @@ func RegisterDispatchServiceServer(s grpc.ServiceRegistrar, srv DispatchServiceS
 	s.RegisterService(&DispatchService_ServiceDesc, srv)
 }
 
-func _DispatchService_Ingest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(IngestRequest)
+func _DispatchService_UpdateDriverLocations_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateDriverLocationsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(DispatchServiceServer).Ingest(ctx, in)
+		return srv.(DispatchServiceServer).UpdateDriverLocations(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/coop.drivers.dispatch.v1beta1.DispatchService/Ingest",
+		FullMethod: "/coop.drivers.dispatch.v1beta1.DispatchService/UpdateDriverLocations",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(DispatchServiceServer).Ingest(ctx, req.(*IngestRequest))
+		return srv.(DispatchServiceServer).UpdateDriverLocations(ctx, req.(*UpdateDriverLocationsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _DispatchService_Dispatch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DispatchRequest)
+func _DispatchService_GetNearestDrivers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetNearestDriversRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(DispatchServiceServer).Dispatch(ctx, in)
+		return srv.(DispatchServiceServer).GetNearestDrivers(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/coop.drivers.dispatch.v1beta1.DispatchService/Dispatch",
+		FullMethod: "/coop.drivers.dispatch.v1beta1.DispatchService/GetNearestDrivers",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(DispatchServiceServer).Dispatch(ctx, req.(*DispatchRequest))
+		return srv.(DispatchServiceServer).GetNearestDrivers(ctx, req.(*GetNearestDriversRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -126,12 +126,12 @@ var DispatchService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*DispatchServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "Ingest",
-			Handler:    _DispatchService_Ingest_Handler,
+			MethodName: "UpdateDriverLocations",
+			Handler:    _DispatchService_UpdateDriverLocations_Handler,
 		},
 		{
-			MethodName: "Dispatch",
-			Handler:    _DispatchService_Dispatch_Handler,
+			MethodName: "GetNearestDrivers",
+			Handler:    _DispatchService_GetNearestDrivers_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

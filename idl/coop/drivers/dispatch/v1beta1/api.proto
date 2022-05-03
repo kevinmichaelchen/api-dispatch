@@ -10,10 +10,10 @@ import "google/protobuf/timestamp.proto";
 
 service DispatchService {
   // Bulk-ingest driver locations.
-  rpc Ingest(IngestRequest) returns (IngestResponse) {}
+  rpc UpdateDriverLocations(UpdateDriverLocationsRequest) returns (UpdateDriverLocationsResponse) {}
 
   // Gets the nearest drivers to a given point.
-  rpc Dispatch(DispatchRequest) returns (DispatchResponse) {}
+  rpc GetNearestDrivers(GetNearestDriversRequest) returns (GetNearestDriversResponse) {}
 }
 
 message DriverLocation {
@@ -22,18 +22,18 @@ message DriverLocation {
   LatLng lat_lng = 3;
 }
 
-message IngestRequest {
+message UpdateDriverLocationsRequest {
   repeated DriverLocation locations = 1;
 }
 
-message IngestResponse {}
+message UpdateDriverLocationsResponse {}
 
-message DispatchRequest {
+message GetNearestDriversRequest {
   LatLng location = 1;
   int32 limit = 2;
 }
 
-message DispatchResponse {
+message GetNearestDriversResponse {
   repeated SearchResult results = 1;
   string pickup_address = 2;
 }
