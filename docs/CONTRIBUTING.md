@@ -19,6 +19,7 @@ We use the following Go dependencies:
 * [migrate](https://github.com/golang-migrate/migrate) for DB migrations
 * [sqlboiler](https://github.com/volatiletech/sqlboiler) for schema-generated, strongly-typed ORM
 * [xid](https://github.com/rs/xid) for random ID generation
+* [ozzo-validation](https://github.com/go-ozzo/ozzo-validation) for validation
 
 ## Protobufs
 To regenerate protobufs, run 
