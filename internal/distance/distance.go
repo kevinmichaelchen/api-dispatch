@@ -18,39 +18,35 @@ func NewService(client *maps.Client) *Service {
 }
 
 type BetweenPointsInput struct {
-	PickupLocation  *v1beta1.LatLng
+	PickupLocations []*v1beta1.LatLng
 	DriverLocations []*v1beta1.LatLng
 }
 
 type BetweenPointsOutput struct {
-	Info               []Info
-	DestinationAddress string
+	Info []Info
 }
 
 type Info struct {
-	DistanceMeters int
-	Duration       time.Duration
-	OriginAddress  string
+	DistanceMeters     int
+	Duration           time.Duration
+	OriginAddress      string
+	DestinationAddress string
 }
 
 func (s *Service) BetweenPoints(ctx context.Context, in BetweenPointsInput) (*BetweenPointsOutput, error) {
-	var driverPlaceIDs []string
-	for _, dl := range in.DriverLocations {
-		driverPlaceID, err := getFirstPlaceID(ctx, s.client, dl)
-		if err != nil {
-			return nil, err
-		}
-		driverPlaceIDs = append(driverPlaceIDs, driverPlaceID)
+	driverPlaceIDs, err := locationsToPlaceIDs(ctx, s.client, in.DriverLocations)
+	if err != nil {
+		return nil, err
 	}
 
-	pickupPlaceID, err := getFirstPlaceID(ctx, s.client, in.PickupLocation)
+	pickupPlaceIDs, err := locationsToPlaceIDs(ctx, s.client, in.PickupLocations)
 	if err != nil {
 		return nil, err
 	}
 
 	res, err := betweenPlaces(ctx, s.client, betweenPlacesInput{
-		originPlaceIDs:     driverPlaceIDs,
-		destinationPlaceID: pickupPlaceID,
+		originPlaceIDs:      driverPlaceIDs,
+		destinationPlaceIDs: pickupPlaceIDs,
 	})
 	if err != nil {
 		return nil, err
@@ -58,24 +54,24 @@ func (s *Service) BetweenPoints(ctx context.Context, in BetweenPointsInput) (*Be
 
 	var out []Info
 	for i, fromOrigin := range res.Rows {
-		for _, toDestination := range fromOrigin.Elements {
+		for j, toDestination := range fromOrigin.Elements {
 			out = append(out, Info{
-				DistanceMeters: toDestination.Distance.Meters,
-				Duration:       toDestination.Duration,
-				OriginAddress:  res.OriginAddresses[i],
+				DistanceMeters:     toDestination.Distance.Meters,
+				Duration:           toDestination.Duration,
+				OriginAddress:      res.OriginAddresses[i],
+				DestinationAddress: res.DestinationAddresses[j],
 			})
 		}
 	}
 
 	return &BetweenPointsOutput{
-		DestinationAddress: res.DestinationAddresses[0],
-		Info:               out,
+		Info: out,
 	}, nil
 }
 
 type betweenPlacesInput struct {
-	originPlaceIDs     []string
-	destinationPlaceID string
+	originPlaceIDs      []string
+	destinationPlaceIDs []string
 }
 
 func betweenPlaces(ctx context.Context, c *maps.Client, in betweenPlacesInput) (*maps.DistanceMatrixResponse, error) {
@@ -83,7 +79,10 @@ func betweenPlaces(ctx context.Context, c *maps.Client, in betweenPlacesInput) (
 	for _, placeID := range in.originPlaceIDs {
 		origins = append(origins, "place_id:"+placeID)
 	}
-	destinations := []string{"place_id:" + in.destinationPlaceID}
+	var destinations []string
+	for _, placeID := range in.destinationPlaceIDs {
+		destinations = append(destinations, "place_id:"+placeID)
+	}
 	return c.DistanceMatrix(ctx, &maps.DistanceMatrixRequest{
 		Origins:                  origins,
 		Destinations:             destinations,

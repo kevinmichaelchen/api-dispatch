@@ -15,66 +15,77 @@ func TestParent(t *testing.T) {
 	t.Run("DriverLocations", testDriverLocations)
 	t.Run("SchemaMigrations", testSchemaMigrations)
 	t.Run("SpatialRefSys", testSpatialRefSys)
+	t.Run("Trips", testTrips)
 }
 
 func TestDelete(t *testing.T) {
 	t.Run("DriverLocations", testDriverLocationsDelete)
 	t.Run("SchemaMigrations", testSchemaMigrationsDelete)
 	t.Run("SpatialRefSys", testSpatialRefSysDelete)
+	t.Run("Trips", testTripsDelete)
 }
 
 func TestQueryDeleteAll(t *testing.T) {
 	t.Run("DriverLocations", testDriverLocationsQueryDeleteAll)
 	t.Run("SchemaMigrations", testSchemaMigrationsQueryDeleteAll)
 	t.Run("SpatialRefSys", testSpatialRefSysQueryDeleteAll)
+	t.Run("Trips", testTripsQueryDeleteAll)
 }
 
 func TestSliceDeleteAll(t *testing.T) {
 	t.Run("DriverLocations", testDriverLocationsSliceDeleteAll)
 	t.Run("SchemaMigrations", testSchemaMigrationsSliceDeleteAll)
 	t.Run("SpatialRefSys", testSpatialRefSysSliceDeleteAll)
+	t.Run("Trips", testTripsSliceDeleteAll)
 }
 
 func TestExists(t *testing.T) {
 	t.Run("DriverLocations", testDriverLocationsExists)
 	t.Run("SchemaMigrations", testSchemaMigrationsExists)
 	t.Run("SpatialRefSys", testSpatialRefSysExists)
+	t.Run("Trips", testTripsExists)
 }
 
 func TestFind(t *testing.T) {
 	t.Run("DriverLocations", testDriverLocationsFind)
 	t.Run("SchemaMigrations", testSchemaMigrationsFind)
 	t.Run("SpatialRefSys", testSpatialRefSysFind)
+	t.Run("Trips", testTripsFind)
 }
 
 func TestBind(t *testing.T) {
 	t.Run("DriverLocations", testDriverLocationsBind)
 	t.Run("SchemaMigrations", testSchemaMigrationsBind)
 	t.Run("SpatialRefSys", testSpatialRefSysBind)
+	t.Run("Trips", testTripsBind)
 }
 
 func TestOne(t *testing.T) {
 	t.Run("DriverLocations", testDriverLocationsOne)
 	t.Run("SchemaMigrations", testSchemaMigrationsOne)
 	t.Run("SpatialRefSys", testSpatialRefSysOne)
+	t.Run("Trips", testTripsOne)
 }
 
 func TestAll(t *testing.T) {
 	t.Run("DriverLocations", testDriverLocationsAll)
 	t.Run("SchemaMigrations", testSchemaMigrationsAll)
 	t.Run("SpatialRefSys", testSpatialRefSysAll)
+	t.Run("Trips", testTripsAll)
 }
 
 func TestCount(t *testing.T) {
 	t.Run("DriverLocations", testDriverLocationsCount)
 	t.Run("SchemaMigrations", testSchemaMigrationsCount)
 	t.Run("SpatialRefSys", testSpatialRefSysCount)
+	t.Run("Trips", testTripsCount)
 }
 
 func TestHooks(t *testing.T) {
 	t.Run("DriverLocations", testDriverLocationsHooks)
 	t.Run("SchemaMigrations", testSchemaMigrationsHooks)
 	t.Run("SpatialRefSys", testSpatialRefSysHooks)
+	t.Run("Trips", testTripsHooks)
 }
 
 func TestInsert(t *testing.T) {
@@ -84,6 +95,8 @@ func TestInsert(t *testing.T) {
 	t.Run("SchemaMigrations", testSchemaMigrationsInsertWhitelist)
 	t.Run("SpatialRefSys", testSpatialRefSysInsert)
 	t.Run("SpatialRefSys", testSpatialRefSysInsertWhitelist)
+	t.Run("Trips", testTripsInsert)
+	t.Run("Trips", testTripsInsertWhitelist)
 }
 
 // TestToOne tests cannot be run in parallel
@@ -130,28 +143,33 @@ func TestReload(t *testing.T) {
 	t.Run("DriverLocations", testDriverLocationsReload)
 	t.Run("SchemaMigrations", testSchemaMigrationsReload)
 	t.Run("SpatialRefSys", testSpatialRefSysReload)
+	t.Run("Trips", testTripsReload)
 }
 
 func TestReloadAll(t *testing.T) {
 	t.Run("DriverLocations", testDriverLocationsReloadAll)
 	t.Run("SchemaMigrations", testSchemaMigrationsReloadAll)
 	t.Run("SpatialRefSys", testSpatialRefSysReloadAll)
+	t.Run("Trips", testTripsReloadAll)
 }
 
 func TestSelect(t *testing.T) {
 	t.Run("DriverLocations", testDriverLocationsSelect)
 	t.Run("SchemaMigrations", testSchemaMigrationsSelect)
 	t.Run("SpatialRefSys", testSpatialRefSysSelect)
+	t.Run("Trips", testTripsSelect)
 }
 
 func TestUpdate(t *testing.T) {
 	t.Run("DriverLocations", testDriverLocationsUpdate)
 	t.Run("SchemaMigrations", testSchemaMigrationsUpdate)
 	t.Run("SpatialRefSys", testSpatialRefSysUpdate)
+	t.Run("Trips", testTripsUpdate)
 }
 
 func TestSliceUpdateAll(t *testing.T) {
 	t.Run("DriverLocations", testDriverLocationsSliceUpdateAll)
 	t.Run("SchemaMigrations", testSchemaMigrationsSliceUpdateAll)
 	t.Run("SpatialRefSys", testSpatialRefSysSliceUpdateAll)
+	t.Run("Trips", testTripsSliceUpdateAll)
 }

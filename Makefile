@@ -10,3 +10,11 @@ gen-proto:
 .PHONY: gen-models
 gen-models:
 	sqlboiler psql --output internal/models
+
+.PHONY: migrate-up
+migrate-up:
+	migrate -path ./schema -database postgres://postgres:postgres@localhost:5432/dispatch\?sslmode=disable up
+
+.PHONY: migrate-down
+migrate-down:
+	migrate -path ./schema -database postgres://postgres:postgres@localhost:5432/dispatch\?sslmode=disable down

@@ -68,10 +68,9 @@ make gen-models
 
 ## Seeding driver locations
 
-Using [`seed.json`](./seed.json):
-
 ```bash
-go run cmd/dispatch/dispatch.go ingest --file seed.json
+go run cmd/dispatch/*.go ingest trips --file seed-trips.json
+go run cmd/dispatch/*.go ingest drivers --file seed-drivers.json
 ```
 
 Or using [grpcurl](https://github.com/fullstorydev/grpcurl):

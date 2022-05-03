@@ -1,0 +1,13 @@
+{
+  "trips": [
+    {
+      "id": "1",
+      "scheduled_for": "2022-05-01T12:30:00Z",
+      "lat_lng": {
+        "latitude": 40.71664883856392,
+        "longitude": -73.95057057042513
+      },
+      "expected_payment": 10.99
+    }
+  ]
+}

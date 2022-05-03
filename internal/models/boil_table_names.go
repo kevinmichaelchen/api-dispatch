@@ -7,8 +7,10 @@ var TableNames = struct {
 	DriverLocation   string
 	SchemaMigrations string
 	SpatialRefSys    string
+	Trip             string
 }{
 	DriverLocation:   "driver_location",
 	SchemaMigrations: "schema_migrations",
 	SpatialRefSys:    "spatial_ref_sys",
+	Trip:             "trip",
 }
