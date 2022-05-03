@@ -7,7 +7,6 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/durationpb"
-	"sort"
 )
 
 const (
@@ -43,20 +42,14 @@ func (s *Service) GetNearestDrivers(ctx context.Context, req *v1beta1.GetNearest
 		results = results[:maxResults]
 	}
 
-	// Sort by age, keeping original order or equal elements.
-	sort.SliceStable(results, func(i, j int) bool {
-		a := results[i]
-		b := results[j]
-		if a.GetSearchResult().GetResolution() == b.GetSearchResult().GetResolution() {
-			return a.GetSearchResult().GetKValue() > b.GetSearchResult().GetKValue()
-		}
-		return a.GetSearchResult().GetResolution() > b.GetSearchResult().GetResolution()
-	})
+	// In the event we have no Google Maps client and are operating in a
+	// degraded state, k-ring-sorting is still pretty good.
+	results = sortResultsByKRing(results)
 
 	// Enrich results with distance/duration info from Google Maps API
 	var driverLocations []*v1beta1.LatLng
 	for _, result := range results {
-		driverLocations = append(driverLocations, result.GetSearchResult().GetLocation())
+		driverLocations = append(driverLocations, result.GetLocation())
 	}
 	var pickupAddress string
 	if s.distanceSvc != nil {
@@ -68,20 +61,16 @@ func (s *Service) GetNearestDrivers(ctx context.Context, req *v1beta1.GetNearest
 			return nil, err
 		}
 		for i, info := range out.Info {
-			results[i].SearchResult.Duration = durationpb.New(info.Duration)
-			results[i].SearchResult.DistanceMeters = float64(info.DistanceMeters)
+			results[i].Duration = durationpb.New(info.Duration)
+			results[i].DistanceMeters = float64(info.DistanceMeters)
 			// the driver is always the origin
-			results[i].SearchResult.Address = info.OriginAddress
+			results[i].Address = info.OriginAddress
 			pickupAddress = info.DestinationAddress
 		}
 	}
 
-	// Re-sort by duration
-	sort.SliceStable(results, func(i, j int) bool {
-		a := results[i]
-		b := results[j]
-		return a.GetSearchResult().GetDuration().AsDuration() < b.GetSearchResult().GetDuration().AsDuration()
-	})
+	// Sort
+	results = sortDrivers(results)
 
 	// Apply client-side limits
 	// TODO do not let client exceed server-side max limit
@@ -110,6 +99,7 @@ func (s *Service) GetNearestTrips(ctx context.Context, req *v1beta1.GetNearestTr
 	// Merge results
 	results := mergeTrips(
 		req.GetDriverLocation(),
+		// TODO these should be fed in reverse order
 		mergeTripsInput{trips: nearby.r7k1Cells, res: 7, kValue: 1},
 		mergeTripsInput{trips: nearby.r8k1Cells, res: 8, kValue: 1},
 		mergeTripsInput{trips: nearby.r8k2Cells, res: 8, kValue: 2},
@@ -124,20 +114,14 @@ func (s *Service) GetNearestTrips(ctx context.Context, req *v1beta1.GetNearestTr
 		results = results[:maxResults]
 	}
 
-	// Sort by age, keeping original order or equal elements.
-	sort.SliceStable(results, func(i, j int) bool {
-		a := results[i]
-		b := results[j]
-		if a.GetSearchResult().GetResolution() == b.GetSearchResult().GetResolution() {
-			return a.GetSearchResult().GetKValue() > b.GetSearchResult().GetKValue()
-		}
-		return a.GetSearchResult().GetResolution() > b.GetSearchResult().GetResolution()
-	})
+	// In the event we have no Google Maps client and are operating in a
+	// degraded state, k-ring-sorting is still pretty good.
+	results = sortResultsByKRing(results)
 
 	// Enrich results with distance/duration info from Google Maps API
 	var locations []*v1beta1.LatLng
 	for _, result := range results {
-		locations = append(locations, result.GetSearchResult().GetLocation())
+		locations = append(locations, result.GetLocation())
 	}
 	if s.distanceSvc != nil {
 		out, err := s.distanceSvc.BetweenPoints(ctx, distance.BetweenPointsInput{
@@ -148,20 +132,15 @@ func (s *Service) GetNearestTrips(ctx context.Context, req *v1beta1.GetNearestTr
 			return nil, err
 		}
 		for i, info := range out.Info {
-			results[i].SearchResult.Duration = durationpb.New(info.Duration)
-			results[i].SearchResult.DistanceMeters = float64(info.DistanceMeters)
+			results[i].Duration = durationpb.New(info.Duration)
+			results[i].DistanceMeters = float64(info.DistanceMeters)
 			// the driver is always the origin, the pickup is the destination
-			results[i].SearchResult.Address = info.DestinationAddress
+			results[i].Address = info.DestinationAddress
 		}
 	}
 
-	// TODO use TimeUntilTripStart and ExpectedPayment in sorting/ranking
 	// Re-sort by duration
-	sort.SliceStable(results, func(i, j int) bool {
-		a := results[i]
-		b := results[j]
-		return a.GetSearchResult().GetDuration().AsDuration() < b.GetSearchResult().GetDuration().AsDuration()
-	})
+	results = sortTrips(results)
 
 	// Apply client-side limits
 	// TODO do not let client exceed server-side max limit

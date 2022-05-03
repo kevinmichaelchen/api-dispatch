@@ -7,6 +7,7 @@ import (
 	"github.com/kevinmichaelchen/api-dispatch/internal/idl/coop/drivers/dispatch/v1beta1"
 	"github.com/kevinmichaelchen/api-dispatch/internal/models"
 	"github.com/volatiletech/sqlboiler/v4/queries"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 var (
@@ -90,8 +91,8 @@ type mergeDriversInput struct {
 	kValue  int
 }
 
-func mergeDrivers(location *v1beta1.LatLng, in ...mergeDriversInput) []*v1beta1.NearestDriversSearchResult {
-	cache := make(map[string]*v1beta1.NearestDriversSearchResult)
+func mergeDrivers(location *v1beta1.LatLng, in ...mergeDriversInput) []*v1beta1.SearchResult {
+	cache := make(map[string]*v1beta1.SearchResult)
 	for _, mi := range in {
 		for _, dl := range mi.drivers {
 			extant, exists := cache[dl.DriverID]
@@ -99,13 +100,13 @@ func mergeDrivers(location *v1beta1.LatLng, in ...mergeDriversInput) []*v1beta1.
 			// higher-resolution neighbor, skip
 			if exists {
 				// prefer higher-res immediate neighbors
-				if extant.GetSearchResult().GetResolution() > int32(mi.res) {
+				if extant.GetResolution() > int32(mi.res) {
 					continue
 				}
 				// if they're the same res, prefer those in 1-ring over the
 				// 2-ring
-				if extant.GetSearchResult().GetResolution() == int32(mi.res) {
-					if extant.GetSearchResult().GetKValue() >= int32(mi.kValue) {
+				if extant.GetResolution() == int32(mi.res) {
+					if extant.GetKValue() >= int32(mi.kValue) {
 						continue
 					}
 				}
@@ -114,18 +115,22 @@ func mergeDrivers(location *v1beta1.LatLng, in ...mergeDriversInput) []*v1beta1.
 				Latitude:  dl.Latitude,
 				Longitude: dl.Longitude,
 			}
-			cache[dl.DriverID] = &v1beta1.NearestDriversSearchResult{
-				DriverId: dl.DriverID,
-				SearchResult: &v1beta1.SearchResult{
-					DistanceMeters: pointDistance(location, latLng),
-					Location:       latLng,
-					Resolution:     int32(mi.res),
-					KValue:         int32(mi.kValue),
+			cache[dl.DriverID] = &v1beta1.SearchResult{
+				Payload: &v1beta1.SearchResult_Driver{
+					Driver: &v1beta1.DriverLocation{
+						DriverId:  dl.DriverID,
+						Timestamp: timestamppb.New(dl.CreatedAt),
+						LatLng:    latLng,
+					},
 				},
+				DistanceMeters: pointDistance(location, latLng),
+				Location:       latLng,
+				Resolution:     int32(mi.res),
+				KValue:         int32(mi.kValue),
 			}
 		}
 	}
-	var out []*v1beta1.NearestDriversSearchResult
+	var out []*v1beta1.SearchResult
 	for _, e := range cache {
 		out = append(out, e)
 	}
@@ -190,7 +195,7 @@ func (s *Service) getNearbyTripsHelper(ctx context.Context, l *v1beta1.LatLng, r
 	cell := getCell(l, res)
 	var obj models.TripSlice
 	queryTemplate := `
-SELECT id, latitude, longitude 
+SELECT id, latitude, longitude, scheduled_for, expected_pay 
 FROM trip 
 WHERE 
   $1 = ANY (r%d_k%d_neighbors)
@@ -209,8 +214,8 @@ type mergeTripsInput struct {
 	kValue int
 }
 
-func mergeTrips(location *v1beta1.LatLng, in ...mergeTripsInput) []*v1beta1.NearestTripsSearchResult {
-	cache := make(map[string]*v1beta1.NearestTripsSearchResult)
+func mergeTrips(location *v1beta1.LatLng, in ...mergeTripsInput) []*v1beta1.SearchResult {
+	cache := make(map[string]*v1beta1.SearchResult)
 	for _, mi := range in {
 		for _, e := range mi.trips {
 			extant, exists := cache[e.ID]
@@ -218,13 +223,13 @@ func mergeTrips(location *v1beta1.LatLng, in ...mergeTripsInput) []*v1beta1.Near
 			// higher-resolution neighbor, skip
 			if exists {
 				// prefer higher-res immediate neighbors
-				if extant.GetSearchResult().GetResolution() > int32(mi.res) {
+				if extant.GetResolution() > int32(mi.res) {
 					continue
 				}
 				// if they're the same res, prefer those in 1-ring over the
 				// 2-ring
-				if extant.GetSearchResult().GetResolution() == int32(mi.res) {
-					if extant.GetSearchResult().GetKValue() >= int32(mi.kValue) {
+				if extant.GetResolution() == int32(mi.res) {
+					if extant.GetKValue() >= int32(mi.kValue) {
 						continue
 					}
 				}
@@ -233,18 +238,23 @@ func mergeTrips(location *v1beta1.LatLng, in ...mergeTripsInput) []*v1beta1.Near
 				Latitude:  e.Latitude,
 				Longitude: e.Longitude,
 			}
-			cache[e.ID] = &v1beta1.NearestTripsSearchResult{
-				TripId: e.ID,
-				SearchResult: &v1beta1.SearchResult{
-					DistanceMeters: pointDistance(location, latLng),
-					Location:       latLng,
-					Resolution:     int32(mi.res),
-					KValue:         int32(mi.kValue),
+			cache[e.ID] = &v1beta1.SearchResult{
+				Payload: &v1beta1.SearchResult_Trip{
+					Trip: &v1beta1.Trip{
+						Id:              e.ID,
+						PickupLocation:  latLng,
+						ScheduledFor:    timestamppb.New(e.ScheduledFor),
+						ExpectedPayment: e.ExpectedPay,
+					},
 				},
+				DistanceMeters: pointDistance(location, latLng),
+				Location:       latLng,
+				Resolution:     int32(mi.res),
+				KValue:         int32(mi.kValue),
 			}
 		}
 	}
-	var out []*v1beta1.NearestTripsSearchResult
+	var out []*v1beta1.SearchResult
 	for _, e := range cache {
 		out = append(out, e)
 	}

@@ -88,7 +88,7 @@ cat << EOF
   ]
 }
 EOF
-) | grpcurl -plaintext -d @ localhost:8080 coop.drivers.dispatch.v1beta1.DispatchService/Ingest
+) | grpcurl -plaintext -d @ localhost:8080 coop.drivers.dispatch.v1beta1.DispatchService/UpdateDriverLocations
 ```
 
 ## Connecting to postgres
