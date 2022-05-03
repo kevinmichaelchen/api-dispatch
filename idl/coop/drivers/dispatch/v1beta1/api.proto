@@ -12,8 +12,14 @@ service DispatchService {
   // Bulk-ingest driver locations.
   rpc UpdateDriverLocations(UpdateDriverLocationsRequest) returns (UpdateDriverLocationsResponse) {}
 
-  // Gets the nearest drivers to a given point.
+  // Bulk-ingest (on-demand or scheduled) trips.
+  rpc CreateTrips(CreateTripsRequest) returns (CreateTripsResponse) {}
+
+  // Gets the nearest drivers to a given trip pickup location.
   rpc GetNearestDrivers(GetNearestDriversRequest) returns (GetNearestDriversResponse) {}
+
+  // Gets the nearest trips to a given driver's location.
+  rpc GetNearestTrips(GetNearestTripsRequest) returns (GetNearestTripsResponse) {}
 }
 
 message DriverLocation {
@@ -28,33 +34,68 @@ message UpdateDriverLocationsRequest {
 
 message UpdateDriverLocationsResponse {}
 
+message CreateTripsRequest {
+  repeated Trip trips = 1;
+}
+
+message Trip {
+  // where
+  LatLng pickup_location = 1;
+  // when
+  google.protobuf.Timestamp scheduled_for = 2;
+  // how much $$$
+  double expected_payment = 3;
+}
+
+message CreateTripsResponse {}
+
 message GetNearestDriversRequest {
-  LatLng location = 1;
+  // trip pickup location
+  LatLng pickup_location = 1;
   int32 limit = 2;
 }
 
 message GetNearestDriversResponse {
-  repeated SearchResult results = 1;
+  repeated NearestDriversSearchResult results = 1;
   string pickup_address = 2;
 }
 
-message SearchResult {
+message NearestDriversSearchResult {
   // Driver's ID
   string driver_id = 1;
+  SearchResult search_result = 2;
+}
+
+message GetNearestTripsRequest {
+  oneof driver {
+    string driver_id = 1;
+    LatLng driver_location = 2;
+  }
+  int32 limit = 3;
+}
+
+message GetNearestTripsResponse {
+  repeated NearestTripsSearchResult results = 1;
+}
+
+message NearestTripsSearchResult {
+  // Trip's ID
+  string trip_id = 1;
+  SearchResult search_result = 2;
+}
+
+message SearchResult {
   // Driver's distance from the pickup location (in meters)
-  double distance_meters = 2;
+  double distance_meters = 1;
   // Time it takes driver to go to pickup
-  google.protobuf.Duration duration = 3;
-  // Driver's current location
-  LatLng driver_location = 4;
-  // Driver's current location as a human-readable address
-  string address = 5;
-  // what resolution the driver was found to be a k=1 k-ring neighbor to the
-  // pickup location. if resolution is 7, that means the highest (finest)
-  // resolution in which the driver appeared in the pickup location's
-  // neighborhood was 7.
-  int32 resolution = 6;
-  // if k=1, it's an immediate (1st degree) neighbor. if k=2, it's a 2nd-degree
-  // neighbor (i.e., a neighbor's neighbor).
-  int32 k_value = 7;
+  google.protobuf.Duration duration = 2;
+  // The match's location.
+  LatLng location = 3;
+  // Human-readable location
+  string address = 4;
+  // The highest (finest) H3 resolution in which the match was found.
+  int32 resolution = 5;
+  // The k-value of the lowest k-ring (most immediate neighborhood) in which the
+  // match was found.
+  int32 k_value = 6;
 }

@@ -9,7 +9,7 @@ import (
 func Test_validateGetNearestDriversRequest(t *testing.T) {
 	buildValid := func() *v1beta1.GetNearestDriversRequest {
 		return &v1beta1.GetNearestDriversRequest{
-			Location: &v1beta1.LatLng{
+			PickupLocation: &v1beta1.LatLng{
 				Latitude:  40.2,
 				Longitude: -73.3,
 			},

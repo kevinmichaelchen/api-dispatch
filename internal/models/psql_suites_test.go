@@ -11,4 +11,6 @@ func TestUpsert(t *testing.T) {
 	t.Run("SchemaMigrations", testSchemaMigrationsUpsert)
 
 	t.Run("SpatialRefSys", testSpatialRefSysUpsert)
+
+	t.Run("Trips", testTripsUpsert)
 }
