@@ -15,6 +15,18 @@ type Place struct {
 	Types   []string
 }
 
+func locationsToPlaceIDs(ctx context.Context, c *maps.Client, locations []*v1beta1.LatLng) ([]string, error) {
+	var out []string
+	for _, location := range locations {
+		placeID, err := getFirstPlaceID(ctx, c, location)
+		if err != nil {
+			return nil, err
+		}
+		out = append(out, placeID)
+	}
+	return out, nil
+}
+
 func getFirstPlaceID(ctx context.Context, c *maps.Client, location *v1beta1.LatLng) (string, error) {
 	res, err := reverseGeocode(ctx, c, location)
 	if err != nil {

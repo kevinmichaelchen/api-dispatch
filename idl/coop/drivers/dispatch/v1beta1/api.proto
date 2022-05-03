@@ -39,12 +39,13 @@ message CreateTripsRequest {
 }
 
 message Trip {
+  string id = 1;
   // where
-  LatLng pickup_location = 1;
+  LatLng pickup_location = 2;
   // when
-  google.protobuf.Timestamp scheduled_for = 2;
+  google.protobuf.Timestamp scheduled_for = 3;
   // how much $$$
-  double expected_payment = 3;
+  double expected_payment = 4;
 }
 
 message CreateTripsResponse {}

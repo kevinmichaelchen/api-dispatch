@@ -10,6 +10,34 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 
+func (s *Service) CreateTrips(ctx context.Context, r *v1beta1.CreateTripsRequest) (*v1beta1.CreateTripsResponse, error) {
+	for _, tripPB := range r.GetTrips() {
+		trip := models.Trip{
+			ID:             tripPB.GetId(),
+			ScheduledFor:   tripPB.GetScheduledFor().AsTime(),
+			ExpectedPay:    tripPB.GetExpectedPayment(),
+			Latitude:       tripPB.GetPickupLocation().GetLatitude(),
+			Longitude:      tripPB.GetPickupLocation().GetLongitude(),
+			R7Cell:         null.StringFrom(getCell(tripPB.GetPickupLocation(), 7)),
+			R8Cell:         null.StringFrom(getCell(tripPB.GetPickupLocation(), 8)),
+			R9Cell:         null.StringFrom(getCell(tripPB.GetPickupLocation(), 9)),
+			R10Cell:        null.StringFrom(getCell(tripPB.GetPickupLocation(), 10)),
+			R7K1Neighbors:  cellNeighbors(tripPB.GetPickupLocation(), 7, 1),
+			R8K1Neighbors:  cellNeighbors(tripPB.GetPickupLocation(), 8, 1),
+			R8K2Neighbors:  cellNeighbors(tripPB.GetPickupLocation(), 8, 2),
+			R9K1Neighbors:  cellNeighbors(tripPB.GetPickupLocation(), 9, 1),
+			R9K2Neighbors:  cellNeighbors(tripPB.GetPickupLocation(), 9, 2),
+			R10K1Neighbors: cellNeighbors(tripPB.GetPickupLocation(), 10, 1),
+			R10K2Neighbors: cellNeighbors(tripPB.GetPickupLocation(), 10, 2),
+		}
+		err := trip.Insert(ctx, s.db, boil.Infer())
+		if err != nil {
+			return nil, fmt.Errorf("failed to insert location for trip: %s: %v", tripPB.GetId(), err)
+		}
+	}
+	return &v1beta1.CreateTripsResponse{}, nil
+}
+
 func (s *Service) UpdateDriverLocations(ctx context.Context, r *v1beta1.UpdateDriverLocationsRequest) (*v1beta1.UpdateDriverLocationsResponse, error) {
 	for _, l := range r.GetLocations() {
 		dl := models.DriverLocation{

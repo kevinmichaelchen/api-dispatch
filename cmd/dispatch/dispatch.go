@@ -143,11 +143,9 @@ var dispatchCmd = &cobra.Command{
 	Short: "Hits the DispatchService/Dispatch endpoint",
 	Long:  `Hits the DispatchService/Dispatch endpoint`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("lat =", latitude)
-		fmt.Println("lng =", longitude)
 		// Create request
 		req := &v1beta1.GetNearestDriversRequest{
-			Location: &v1beta1.LatLng{
+			PickupLocation: &v1beta1.LatLng{
 				Latitude:  latitude,
 				Longitude: longitude,
 			},

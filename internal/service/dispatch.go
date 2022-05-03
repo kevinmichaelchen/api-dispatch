@@ -61,7 +61,7 @@ func (s *Service) GetNearestDrivers(ctx context.Context, req *v1beta1.GetNearest
 	var pickupAddress string
 	if s.distanceSvc != nil {
 		out, err := s.distanceSvc.BetweenPoints(ctx, distance.BetweenPointsInput{
-			PickupLocation:  req.GetPickupLocation(),
+			PickupLocations: []*v1beta1.LatLng{req.GetPickupLocation()},
 			DriverLocations: driverLocations,
 		})
 		if err != nil {
@@ -70,9 +70,10 @@ func (s *Service) GetNearestDrivers(ctx context.Context, req *v1beta1.GetNearest
 		for i, info := range out.Info {
 			results[i].SearchResult.Duration = durationpb.New(info.Duration)
 			results[i].SearchResult.DistanceMeters = float64(info.DistanceMeters)
+			// the driver is always the origin
 			results[i].SearchResult.Address = info.OriginAddress
+			pickupAddress = info.DestinationAddress
 		}
-		pickupAddress = out.DestinationAddress
 	}
 
 	// Re-sort by duration
@@ -95,10 +96,10 @@ func (s *Service) GetNearestDrivers(ctx context.Context, req *v1beta1.GetNearest
 }
 
 func (s *Service) GetNearestTrips(ctx context.Context, req *v1beta1.GetNearestTripsRequest) (*v1beta1.GetNearestTripsResponse, error) {
-	err := validateGetNearestTripsRequest(req)
-	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, err.Error())
-	}
+	//err := validateGetNearestTripsRequest(req)
+	//if err != nil {
+	//	return nil, status.Error(codes.InvalidArgument, err.Error())
+	//}
 
 	// Query database
 	nearby, err := s.getNearbyTrips(ctx, req.GetDriverLocation())
@@ -140,8 +141,8 @@ func (s *Service) GetNearestTrips(ctx context.Context, req *v1beta1.GetNearestTr
 	}
 	if s.distanceSvc != nil {
 		out, err := s.distanceSvc.BetweenPoints(ctx, distance.BetweenPointsInput{
-			PickupLocation:  req.GetPickupLocation(),
-			DriverLocations: locations,
+			PickupLocations: locations,
+			DriverLocations: []*v1beta1.LatLng{req.GetDriverLocation()},
 		})
 		if err != nil {
 			return nil, err
@@ -149,7 +150,8 @@ func (s *Service) GetNearestTrips(ctx context.Context, req *v1beta1.GetNearestTr
 		for i, info := range out.Info {
 			results[i].SearchResult.Duration = durationpb.New(info.Duration)
 			results[i].SearchResult.DistanceMeters = float64(info.DistanceMeters)
-			results[i].SearchResult.Address = info.OriginAddress
+			// the driver is always the origin, the pickup is the destination
+			results[i].SearchResult.Address = info.DestinationAddress
 		}
 	}
 
