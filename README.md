@@ -3,17 +3,17 @@
 ## Table of Contents
 
 1. [Introduction](#introduction)
-1. [The problem](#the-problem)
-1. [The solution](#the-solution)
-1. [Not considered yet](#not-considered-yet)
+   1. [The problem](#the-problem)
+   1. [The solution](#the-solution)
+   1. [Not considered yet](#not-considered-yet)
 1. [Project structure](#project-structure)
 1. [How does it work](#how-does-it-work)
-1. [Location Ingestion](#location-ingestion)
-1. [H3 Geospatial Indexing](#h3-geospatial-indexing)
-   1. [H3 resolutions](#h3-resolutions)
-1. [Getting the nearest drivers](#getting-the-nearest-drivers)
-   1. [Request](#request)
-   2. [Response](#response)
+   1. [Location Ingestion](#location-ingestion)
+   1. [H3 Geospatial Indexing](#h3-geospatial-indexing)
+      1. [H3 resolutions](#h3-resolutions)
+   1. [Getting the nearest drivers](#getting-the-nearest-drivers)
+      1. [Request](#request)
+      2. [Response](#response)
 
 ## Introduction
 A proof-of-concept dispatch service.
