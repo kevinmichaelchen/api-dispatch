@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"github.com/kevinmichaelchen/api-dispatch/internal/distance"
 	"github.com/kevinmichaelchen/api-dispatch/internal/idl/coop/drivers/dispatch/v1beta1"
 	"github.com/kevinmichaelchen/api-dispatch/internal/models"
 	"github.com/volatiletech/sqlboiler/v4/queries"
@@ -78,14 +79,21 @@ func (s *Service) Dispatch(ctx context.Context, req *v1beta1.DispatchRequest) (*
 	})
 
 	// Enrich results with distance/duration info from Google Maps API
+	var driverLocations []*v1beta1.LatLng
 	for _, result := range results {
-		if s.distanceSvc != nil {
-			out, err := s.distanceSvc.BetweenPoints(ctx, result.GetDriverLocation(), req.GetLocation())
-			if err != nil {
-				return nil, err
-			}
-			result.Duration = durationpb.New(out.Duration)
-			result.DistanceMeters = float64(out.DistanceMeters)
+		driverLocations = append(driverLocations, result.GetDriverLocation())
+	}
+	if s.distanceSvc != nil {
+		out, err := s.distanceSvc.BetweenPoints(ctx, distance.BetweenPointsInput{
+			PickupLocation:  req.GetLocation(),
+			DriverLocations: driverLocations,
+		})
+		if err != nil {
+			return nil, err
+		}
+		for i, info := range out.Info {
+			results[i].Duration = durationpb.New(info.Duration)
+			results[i].DistanceMeters = float64(info.DistanceMeters)
 		}
 	}
 

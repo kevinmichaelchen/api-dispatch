@@ -3,6 +3,7 @@ package distance
 import (
 	"context"
 	"errors"
+	"github.com/kevinmichaelchen/api-dispatch/internal/idl/coop/drivers/dispatch/v1beta1"
 	"googlemaps.github.io/maps"
 )
 
@@ -14,15 +15,23 @@ type Place struct {
 	Types   []string
 }
 
-func reverseGeocode(ctx context.Context, c *maps.Client, lat, lng float64) ([]maps.GeocodingResult, error) {
+func getFirstPlaceID(ctx context.Context, c *maps.Client, location *v1beta1.LatLng) (string, error) {
+	res, err := reverseGeocode(ctx, c, location)
+	if err != nil {
+		return "", err
+	}
+	return res[0].PlaceID, nil
+}
+
+func reverseGeocode(ctx context.Context, c *maps.Client, location *v1beta1.LatLng) ([]maps.GeocodingResult, error) {
 	results, err := c.ReverseGeocode(ctx, &maps.GeocodingRequest{
 		Address:    "",
 		Components: nil,
 		Bounds:     nil,
 		Region:     "",
 		LatLng: &maps.LatLng{
-			Lat: lat,
-			Lng: lng,
+			Lat: location.GetLatitude(),
+			Lng: location.GetLongitude(),
 		},
 		ResultType:   nil,
 		LocationType: nil,

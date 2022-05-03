@@ -17,43 +17,73 @@ func NewService(client *maps.Client) *Service {
 	}
 }
 
+type BetweenPointsInput struct {
+	PickupLocation  *v1beta1.LatLng
+	DriverLocations []*v1beta1.LatLng
+}
+
 type BetweenPointsOutput struct {
+	Info []Info
+}
+
+type Info struct {
 	DistanceMeters int
 	Duration       time.Duration
 }
 
-func (s *Service) BetweenPoints(ctx context.Context, p1, p2 *v1beta1.LatLng) (*BetweenPointsOutput, error) {
-	place1Res, err := reverseGeocode(ctx, s.client, p1.GetLatitude(), p1.GetLongitude())
-	if err != nil {
-		return nil, err
+func (s *Service) BetweenPoints(ctx context.Context, in BetweenPointsInput) (*BetweenPointsOutput, error) {
+	var driverPlaceIDs []string
+	for _, dl := range in.DriverLocations {
+		driverPlaceID, err := getFirstPlaceID(ctx, s.client, dl)
+		if err != nil {
+			return nil, err
+		}
+		driverPlaceIDs = append(driverPlaceIDs, driverPlaceID)
 	}
-	place2Res, err := reverseGeocode(ctx, s.client, p2.GetLatitude(), p2.GetLongitude())
-	if err != nil {
-		return nil, err
-	}
-	place1 := place1Res[0].PlaceID
-	place2 := place2Res[0].PlaceID
 
-	res, err := betweenPlaces(ctx, s.client, place1, place2)
+	pickupPlaceID, err := getFirstPlaceID(ctx, s.client, in.PickupLocation)
 	if err != nil {
 		return nil, err
 	}
-	elem := res.Rows[0].Elements[0]
+
+	res, err := betweenPlaces(ctx, s.client, betweenPlacesInput{
+		originPlaceIDs:     driverPlaceIDs,
+		destinationPlaceID: pickupPlaceID,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	var out []Info
+	for _, fromOrigin := range res.Rows {
+		for _, toDestination := range fromOrigin.Elements {
+			out = append(out, Info{
+				DistanceMeters: toDestination.Distance.Meters,
+				Duration:       toDestination.Duration,
+				// TODO grab human-readable place descriptions from res.OriginAddresses + res.DestinationAddresses
+			})
+		}
+	}
+
 	return &BetweenPointsOutput{
-		DistanceMeters: elem.Distance.Meters,
-		Duration:       elem.Duration,
+		Info: out,
 	}, nil
 }
 
-func betweenPlaces(ctx context.Context, c *maps.Client, placeID1, placeID2 string) (*maps.DistanceMatrixResponse, error) {
+type betweenPlacesInput struct {
+	originPlaceIDs     []string
+	destinationPlaceID string
+}
+
+func betweenPlaces(ctx context.Context, c *maps.Client, in betweenPlacesInput) (*maps.DistanceMatrixResponse, error) {
+	var origins []string
+	for _, placeID := range in.originPlaceIDs {
+		origins = append(origins, "place_id:"+placeID)
+	}
+	destinations := []string{"place_id:" + in.destinationPlaceID}
 	return c.DistanceMatrix(ctx, &maps.DistanceMatrixRequest{
-		// https://developers.google.com/maps/documentation/distance-matrix/distance-matrix#origins
-		Origins: []string{
-			"place_id:" + placeID1,
-		},
-		Destinations: []string{
-			"place_id:" + placeID2,
-		},
+		Origins:                  origins,
+		Destinations:             destinations,
 		Mode:                     "",
 		Language:                 "",
 		Avoid:                    "",
