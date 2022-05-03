@@ -3,113 +3,113 @@
     {
       "driver_id": "GPT-Beer-Ale",
       "lat_lng": {
-        "latitude": 40.737689977054565,
-        "longitude": -73.95528488057654
+        "latitude": 40.73768287387954,
+        "longitude": -73.95532763530136
       }
     },
     {
       "driver_id": "GPT-St-Vitus",
       "lat_lng": {
-        "latitude": 40.737116268235525,
-        "longitude": -73.95425922312981
+        "latitude": 40.73679056328414,
+        "longitude": -73.95519251268286
       }
     },
     {
       "driver_id": "GPT-Le-Fanfare",
       "lat_lng": {
-        "latitude": 40.73640659952994,
-        "longitude": -73.95616178430338
+        "latitude": 40.73622468817931,
+        "longitude": -73.95551737528102
       }
     },
     {
       "driver_id": "GPT-Lobster-Joint",
       "lat_lng": {
-        "latitude": 40.73570796316877,
-        "longitude": -73.95471296204035
+        "latitude": 40.73541316092886,
+        "longitude": -73.95527626749518
       }
     },
     {
       "driver_id": "GPT-Sweetleaf-Coffee-Roasters",
       "lat_lng": {
-        "latitude": 40.73470993736533,
-        "longitude": -73.95447884704288
+        "latitude": 40.73455015020375,
+        "longitude": -73.95537362219625
       }
     },
     {
       "driver_id": "GPT-Wenwen",
       "lat_lng": {
-        "latitude": 40.7340725164784,
-        "longitude": -73.95478344708282
+        "latitude": 40.7340094734467,
+        "longitude": -73.95504667163209
       }
     },
     {
       "driver_id": "GPT-Esme",
       "lat_lng": {
-        "latitude": 40.73341597708627,
-        "longitude": -73.95453615584985
+        "latitude": 40.733235412885314,
+        "longitude": -73.95491763917049
       }
     },
     {
       "driver_id": "GPT-Kana-Hashi",
       "lat_lng": {
-        "latitude": 40.73267839045372,
-        "longitude": -73.95498100296005
+        "latitude": 40.732637499546215,
+        "longitude": -73.95488693544799
       }
     },
     {
       "driver_id": "GPT-Pelicana-Chicken",
       "lat_lng": {
-        "latitude": 40.73145299880781,
-        "longitude": -73.95453125752603
+        "latitude": 40.731416756150395,
+        "longitude": -73.95470131162523
       }
     },
     {
       "driver_id": "GPT-Christinas",
       "lat_lng": {
-        "latitude": 40.729212580192396,
-        "longitude": -73.95367193640175
+        "latitude": 40.729116923462385,
+        "longitude": -73.95392251222499
       }
     },
     {
       "driver_id": "GPT-Good-Room",
       "lat_lng": {
-        "latitude": 40.727136833286565,
-        "longitude": -73.95260914370321
+        "latitude": 40.726944958544514,
+        "longitude": -73.95291323476157
       }
     },
     {
       "driver_id": "GPT-El-Born",
       "lat_lng": {
-        "latitude": 40.72458479176929,
-        "longitude": -73.95095436146362
+        "latitude": 40.72436580353396,
+        "longitude": -73.95124766347774
       }
     },
     {
       "driver_id": "WBG-Bernies",
       "lat_lng": {
-        "latitude": 40.722135621331645,
-        "longitude": -73.95011426935746
+        "latitude": 40.721899506693795,
+        "longitude": -73.95055397598824
       }
     },
     {
       "driver_id": "WBG-Llama-Inn",
       "lat_lng": {
-        "latitude": 40.717046310599365,
-        "longitude": -73.94969794585268
+        "latitude": 40.71664883856392,
+        "longitude": -73.95057057042513
       }
     },
     {
       "driver_id": "WBG-Chimu-Bistro",
       "lat_lng": {
-        "latitude": 40.715273706507176,
-        "longitude": -73.95167992349239
+        "latitude": 40.71490256658084,
+        "longitude": -73.95161244752069
       }
     },
     {
       "driver_id": "WBG-Birria-Landia",
       "lat_lng": {
-        "latitude": 40.71454465722973,
-        "longitude": -73.95241070138934
+        "latitude": 40.714287309742595,
+        "longitude": -73.95249781329622
       }
     }
   ]
