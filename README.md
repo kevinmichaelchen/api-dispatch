@@ -106,10 +106,17 @@ above those who neighbor the pickup location in lower (coarser) resolutions.
 {
    "results": [
       {
-         "driverId": "GPT-Christinas",
+         "driver": {
+            "driverId": "GPT-Christinas",
+            "timestamp": "0001-01-01T00:00:00Z",
+            "latLng": {
+               "latitude": 40.729116923462385,
+               "longitude": -73.95392251222499
+            }
+         },
          "distanceMeters": 471,
          "duration": "227s",
-         "driverLocation": {
+         "location": {
             "latitude": 40.729116923462385,
             "longitude": -73.95392251222499
          },
@@ -118,10 +125,17 @@ above those who neighbor the pickup location in lower (coarser) resolutions.
          "kValue": 2
       },
       {
-         "driverId": "GPT-Pelicana-Chicken",
+         "driver": {
+            "driverId": "GPT-Pelicana-Chicken",
+            "timestamp": "0001-01-01T00:00:00Z",
+            "latLng": {
+               "latitude": 40.731416756150395,
+               "longitude": -73.95470131162523
+            }
+         },
          "distanceMeters": 706,
-         "duration": "285s",
-         "driverLocation": {
+         "duration": "292s",
+         "location": {
             "latitude": 40.731416756150395,
             "longitude": -73.95470131162523
          },
@@ -130,10 +144,17 @@ above those who neighbor the pickup location in lower (coarser) resolutions.
          "kValue": 2
       },
       {
-         "driverId": "GPT-El-Born",
+         "driver": {
+            "driverId": "GPT-El-Born",
+            "timestamp": "0001-01-01T00:00:00Z",
+            "latLng": {
+               "latitude": 40.72436580353396,
+               "longitude": -73.95124766347774
+            }
+         },
          "distanceMeters": 806,
-         "duration": "301s",
-         "driverLocation": {
+         "duration": "305s",
+         "location": {
             "latitude": 40.72436580353396,
             "longitude": -73.95124766347774
          },
@@ -142,10 +163,17 @@ above those who neighbor the pickup location in lower (coarser) resolutions.
          "kValue": 2
       },
       {
-         "driverId": "GPT-Good-Room",
+         "driver": {
+            "driverId": "GPT-Good-Room",
+            "timestamp": "0001-01-01T00:00:00Z",
+            "latLng": {
+               "latitude": 40.726944958544514,
+               "longitude": -73.95291323476157
+            }
+         },
          "distanceMeters": 768,
          "duration": "317s",
-         "driverLocation": {
+         "location": {
             "latitude": 40.726944958544514,
             "longitude": -73.95291323476157
          },
@@ -154,10 +182,17 @@ above those who neighbor the pickup location in lower (coarser) resolutions.
          "kValue": 2
       },
       {
-         "driverId": "GPT-Kana-Hashi",
+         "driver": {
+            "driverId": "GPT-Kana-Hashi",
+            "timestamp": "0001-01-01T00:00:00Z",
+            "latLng": {
+               "latitude": 40.732637499546215,
+               "longitude": -73.95488693544799
+            }
+         },
          "distanceMeters": 843,
-         "duration": "320s",
-         "driverLocation": {
+         "duration": "327s",
+         "location": {
             "latitude": 40.732637499546215,
             "longitude": -73.95488693544799
          },
@@ -166,10 +201,17 @@ above those who neighbor the pickup location in lower (coarser) resolutions.
          "kValue": 2
       },
       {
-         "driverId": "GPT-Esme",
+         "driver": {
+            "driverId": "GPT-Esme",
+            "timestamp": "0001-01-01T00:00:00Z",
+            "latLng": {
+               "latitude": 40.733235412885314,
+               "longitude": -73.95491763917049
+            }
+         },
          "distanceMeters": 911,
-         "duration": "337s",
-         "driverLocation": {
+         "duration": "343s",
+         "location": {
             "latitude": 40.733235412885314,
             "longitude": -73.95491763917049
          },
@@ -178,10 +220,17 @@ above those who neighbor the pickup location in lower (coarser) resolutions.
          "kValue": 2
       },
       {
-         "driverId": "GPT-Wenwen",
+         "driver": {
+            "driverId": "GPT-Wenwen",
+            "timestamp": "0001-01-01T00:00:00Z",
+            "latLng": {
+               "latitude": 40.7340094734467,
+               "longitude": -73.95504667163209
+            }
+         },
          "distanceMeters": 999,
-         "duration": "340s",
-         "driverLocation": {
+         "duration": "347s",
+         "location": {
             "latitude": 40.7340094734467,
             "longitude": -73.95504667163209
          },
@@ -190,10 +239,17 @@ above those who neighbor the pickup location in lower (coarser) resolutions.
          "kValue": 2
       },
       {
-         "driverId": "GPT-Lobster-Joint",
+         "driver": {
+            "driverId": "GPT-Lobster-Joint",
+            "timestamp": "0001-01-01T00:00:00Z",
+            "latLng": {
+               "latitude": 40.73541316092886,
+               "longitude": -73.95527626749518
+            }
+         },
          "distanceMeters": 1132,
-         "duration": "342s",
-         "driverLocation": {
+         "duration": "350s",
+         "location": {
             "latitude": 40.73541316092886,
             "longitude": -73.95527626749518
          },
@@ -202,27 +258,41 @@ above those who neighbor the pickup location in lower (coarser) resolutions.
          "kValue": 2
       },
       {
-         "driverId": "GPT-Le-Fanfare",
-         "distanceMeters": 1223,
-         "duration": "368s",
-         "driverLocation": {
-            "latitude": 40.73622468817931,
-            "longitude": -73.95551737528102
+         "driver": {
+            "driverId": "WBG-Bernies",
+            "timestamp": "0001-01-01T00:00:00Z",
+            "latLng": {
+               "latitude": 40.721899506693795,
+               "longitude": -73.95055397598824
+            }
          },
-         "address": "1103 Manhattan Ave, Brooklyn, NY 11222, USA",
-         "resolution": 9,
-         "kValue": 2
-      },
-      {
-         "driverId": "WBG-Bernies",
          "distanceMeters": 1193,
          "duration": "374s",
-         "driverLocation": {
+         "location": {
             "latitude": 40.721899506693795,
             "longitude": -73.95055397598824
          },
          "address": "332 Driggs Ave, Brooklyn, NY 11222, USA",
          "resolution": 8,
+         "kValue": 2
+      },
+      {
+         "driver": {
+            "driverId": "GPT-Le-Fanfare",
+            "timestamp": "0001-01-01T00:00:00Z",
+            "latLng": {
+               "latitude": 40.73622468817931,
+               "longitude": -73.95551737528102
+            }
+         },
+         "distanceMeters": 1223,
+         "duration": "375s",
+         "location": {
+            "latitude": 40.73622468817931,
+            "longitude": -73.95551737528102
+         },
+         "address": "1103 Manhattan Ave, Brooklyn, NY 11222, USA",
+         "resolution": 9,
          "kValue": 2
       }
    ],
