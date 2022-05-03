@@ -23,12 +23,14 @@ type BetweenPointsInput struct {
 }
 
 type BetweenPointsOutput struct {
-	Info []Info
+	Info               []Info
+	DestinationAddress string
 }
 
 type Info struct {
 	DistanceMeters int
 	Duration       time.Duration
+	OriginAddress  string
 }
 
 func (s *Service) BetweenPoints(ctx context.Context, in BetweenPointsInput) (*BetweenPointsOutput, error) {
@@ -55,18 +57,19 @@ func (s *Service) BetweenPoints(ctx context.Context, in BetweenPointsInput) (*Be
 	}
 
 	var out []Info
-	for _, fromOrigin := range res.Rows {
+	for i, fromOrigin := range res.Rows {
 		for _, toDestination := range fromOrigin.Elements {
 			out = append(out, Info{
 				DistanceMeters: toDestination.Distance.Meters,
 				Duration:       toDestination.Duration,
-				// TODO grab human-readable place descriptions from res.OriginAddresses + res.DestinationAddresses
+				OriginAddress:  res.OriginAddresses[i],
 			})
 		}
 	}
 
 	return &BetweenPointsOutput{
-		Info: out,
+		DestinationAddress: res.DestinationAddresses[0],
+		Info:               out,
 	}, nil
 }
 

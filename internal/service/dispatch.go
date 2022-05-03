@@ -83,6 +83,7 @@ func (s *Service) Dispatch(ctx context.Context, req *v1beta1.DispatchRequest) (*
 	for _, result := range results {
 		driverLocations = append(driverLocations, result.GetDriverLocation())
 	}
+	var pickupAddress string
 	if s.distanceSvc != nil {
 		out, err := s.distanceSvc.BetweenPoints(ctx, distance.BetweenPointsInput{
 			PickupLocation:  req.GetLocation(),
@@ -94,7 +95,9 @@ func (s *Service) Dispatch(ctx context.Context, req *v1beta1.DispatchRequest) (*
 		for i, info := range out.Info {
 			results[i].Duration = durationpb.New(info.Duration)
 			results[i].DistanceMeters = float64(info.DistanceMeters)
+			results[i].Address = info.OriginAddress
 		}
+		pickupAddress = out.DestinationAddress
 	}
 
 	// Re-sort by duration
@@ -111,7 +114,8 @@ func (s *Service) Dispatch(ctx context.Context, req *v1beta1.DispatchRequest) (*
 	}
 
 	return &v1beta1.DispatchResponse{
-		Results: results,
+		Results:       results,
+		PickupAddress: pickupAddress,
 	}, nil
 }
 
