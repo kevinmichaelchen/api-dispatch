@@ -57,14 +57,8 @@ message GetNearestDriversRequest {
 }
 
 message GetNearestDriversResponse {
-  repeated NearestDriversSearchResult results = 1;
+  repeated SearchResult results = 1;
   string pickup_address = 2;
-}
-
-message NearestDriversSearchResult {
-  // Driver's ID
-  string driver_id = 1;
-  SearchResult search_result = 2;
 }
 
 message GetNearestTripsRequest {
@@ -76,27 +70,25 @@ message GetNearestTripsRequest {
 }
 
 message GetNearestTripsResponse {
-  repeated NearestTripsSearchResult results = 1;
-}
-
-message NearestTripsSearchResult {
-  // Trip's ID
-  string trip_id = 1;
-  SearchResult search_result = 2;
+  repeated SearchResult results = 1;
 }
 
 message SearchResult {
+  oneof payload {
+    Trip trip = 1;
+    DriverLocation driver = 2;
+  }
   // Driver's distance from the pickup location (in meters)
-  double distance_meters = 1;
+  double distance_meters = 3;
   // Time it takes driver to go to pickup
-  google.protobuf.Duration duration = 2;
+  google.protobuf.Duration duration = 4;
   // The match's location.
-  LatLng location = 3;
+  LatLng location = 5;
   // Human-readable location
-  string address = 4;
+  string address = 6;
   // The highest (finest) H3 resolution in which the match was found.
-  int32 resolution = 5;
+  int32 resolution = 7;
   // The k-value of the lowest k-ring (most immediate neighborhood) in which the
   // match was found.
-  int32 k_value = 6;
+  int32 k_value = 8;
 }

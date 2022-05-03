@@ -72,6 +72,11 @@ See [`./docs/h3.md`](./docs/h3.md).
 
 ### Getting the nearest trips or drivers
 
+Resolution and k-ring value are used for the first round of filtering. If 
+someone isn't in the 1-ring at resolution 7 (pretty zoomed out), they won't 
+appear in search results. After that, we sort by Google Maps-estimated duration
+(time to get to pickup location).
+
 #### Request
 
 Here we're requesting a pickup at [Key Food Supermarkets](https://goo.gl/maps/xUnzhGm2h1Hpcx6q7)
