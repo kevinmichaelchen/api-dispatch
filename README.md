@@ -8,9 +8,8 @@
    1. [Not considered yet](#not-considered-yet)
 1. [Project structure](#project-structure)
 1. [How does it work](#how-does-it-work)
-   1. [Location Ingestion](#location-ingestion)
-   1. [H3 Geospatial Indexing](#h3-geospatial-indexing)
-      1. [H3 resolutions](#h3-resolutions)
+   1. [Ingestion](#ingestion)
+      1. [Geospatial Indexing](#geospatial-indexing)
    1. [Getting the nearest trips or drivers](#getting-the-nearest-trips-or-drivers)
       1. [Request](#request)
       2. [Response](#response)
@@ -21,8 +20,7 @@ A proof-of-concept dispatch service.
 ### The problem
 Given a known list of drivers and their geographic whereabouts,
 and given a known location for a trip pickup, how do we select the nearest
-drivers quickly and efficiently? Conversely, how do we select the best trips for
-drivers?
+drivers? Conversely, how do we select the best trips for drivers?
 
 ### The solution
 Combine [Google Maps](https://developers.google.com/maps/documentation/distance-matrix/distance-matrix)
@@ -69,34 +67,8 @@ locations are persisted to something like
 [RedisTimeSeries](https://redis.io/docs/stack/timeseries/) and periodically
 compacted into Postgres.
 
-### H3 Geospatial Indexing
-For each location ingested, we use the H3 library to determine hex cells at
-various resolutions, as well as k-rings (which are essentially sets of 
-*1*st-degree, *2*nd-degree, or _k_-degree neighbors).
-
-#### H3 resolutions
-H3 supports [multiple resolutions](https://h3geo.org/docs/core-library/restable):
-
-<div style="display: flex; justify-content: space-between;">
-<img src="./docs/hex.png" style="margin-right:15px;" />
-<img src="./docs/hex-annotated.png" />
-  </div>
-
-Each finer-resolution cell is 7 times smaller than its coarser parent.
-
-Brooklyn is 250 km<sup>2</sup> (one cell at Resolution 5)...
-
-Williamsburg is 5 km<sup>2</sup> (one cell at Resolution 7)...
-
-| Resolution | Avg Hex Area               | Avg Hex Edge Length (km) | Number of unique indexes |
-|------------|----------------------------|--------------------------|--------------------------|
-| 5          | 252.9 km<sup>2</sup>       | 8.5 km                   | 2,016,842                |
-| 6          | 36.13 km<sup>2</sup>       | 3.2 km                   | 14,117,882               |
-| 7          | 5.16 km<sup>2</sup>        | 1.2 km                   | 98,825,162               |
-| 8          | 737327.6 m<sup>2</sup>     | 461 m                    | 691,776,122              |
-| 9          | 105332.5 m<sup>2</sup>     | 174 m                    | 4,842,432,842            |
-| 10         | 15047.5 m<sup>2</sup>      | 65 m                     | 33,897,029,882           |
-| 11         | 2149.6 m<sup>2</sup>       | 24 m                     | 237,279,209,162          |
+#### Geospatial Indexing
+See [`./docs/h3.md`](./docs/h3.md).
 
 ### Getting the nearest trips or drivers
 
