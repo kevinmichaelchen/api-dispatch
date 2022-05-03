@@ -6,6 +6,8 @@ import (
 	"github.com/kevinmichaelchen/api-dispatch/internal/idl/coop/drivers/dispatch/v1beta1"
 	"github.com/kevinmichaelchen/api-dispatch/internal/models"
 	"github.com/volatiletech/sqlboiler/v4/queries"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"sort"
 )
@@ -15,6 +17,10 @@ const (
 )
 
 func (s *Service) Dispatch(ctx context.Context, req *v1beta1.DispatchRequest) (*v1beta1.DispatchResponse, error) {
+	err := validateDispatchRequest(req)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
 	// TODO parallelize with errgroup
 	r7k1Cells, err := s.getNearbyDriverLocations(ctx, req.GetLocation(), 7, 1)
 	if err != nil {
@@ -71,7 +77,7 @@ func (s *Service) Dispatch(ctx context.Context, req *v1beta1.DispatchRequest) (*
 		return a.Resolution > b.Resolution
 	})
 
-	// TODO we're just enriching results with distance/duration info, but not re-sorting them
+	// Enrich results with distance/duration info from Google Maps API
 	for _, result := range results {
 		if s.distanceSvc != nil {
 			out, err := s.distanceSvc.BetweenPoints(ctx, result.GetDriverLocation(), req.GetLocation())
@@ -82,6 +88,13 @@ func (s *Service) Dispatch(ctx context.Context, req *v1beta1.DispatchRequest) (*
 			result.DistanceMeters = float64(out.DistanceMeters)
 		}
 	}
+
+	// Re-sort by duration
+	sort.SliceStable(results, func(i, j int) bool {
+		a := results[i]
+		b := results[j]
+		return a.Duration.AsDuration() < b.Duration.AsDuration()
+	})
 
 	// Apply client-side limits
 	// TODO do not let client exceed server-side max limit
