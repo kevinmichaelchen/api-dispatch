@@ -1,5 +1,7 @@
 # api-dispatch
 
+[![Lines Of Code](https://tokei.rs/b1/github/kevinmichaelchen/api-dispatch?category=code)](https://github.com/kevinmichaelchen/api-dispatch)
+
 ## Table of Contents
 
 1. [Introduction](#introduction)
