@@ -1,3 +1,4 @@
 *.pb.go
 internal/models
 *.json
+!*.go
