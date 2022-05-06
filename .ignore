@@ -1,4 +1,11 @@
+docs
+idl
+schema
+*.yaml
+*.yml
+go.mod
+go.sum
 *.pb.go
 internal/models
 *.json
-!*.go
+*.toml
