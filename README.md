@@ -2,8 +2,6 @@
 
 [![Lines Of Code](https://tokei.rs/b1/github/kevinmichaelchen/api-dispatch?category=code)](https://github.com/kevinmichaelchen/api-dispatch)
 
-[![Sparkline](https://stars.medv.io/kevinmichaelchen/api-dispatch.svg)](https://stars.medv.io/kevinmichaelchen/api-dispatch)
-
 ## Table of Contents
 
 1. [Introduction](#introduction)
