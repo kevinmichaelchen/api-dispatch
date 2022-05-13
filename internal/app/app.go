@@ -9,8 +9,11 @@ import (
 	"github.com/kevinmichaelchen/api-dispatch/internal/idl/coop/drivers/dispatch/v1beta1"
 	"github.com/kevinmichaelchen/api-dispatch/internal/service"
 	_ "github.com/lib/pq"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.uber.org/fx"
+	"go.uber.org/zap"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/reflection"
 	"googlemaps.github.io/maps"
 	"log"
@@ -18,34 +21,42 @@ import (
 	"os"
 )
 
-func NewLogger() *log.Logger {
-	logger := log.New(os.Stdout, "" /* prefix */, 0 /* flags */)
-	logger.Print("Executing NewLogger.")
+func NewLogger() *zap.Logger {
+	// TODO configure log options
+	logger, err := zap.NewProduction(
+		zap.AddCaller(),
+	)
+	if err != nil {
+		log.Fatalf("failed to build zap logger: %v", err)
+	}
 	return logger
 }
 
-func NewGRPCServer(lc fx.Lifecycle, logger *log.Logger) (*grpc.Server, error) {
+func NewGRPCServer(lc fx.Lifecycle, logger *zap.Logger) (*grpc.Server, error) {
 	// TODO configure options here
 	//var opts grpc.ServerOption
-	s := grpc.NewServer()
+	s := grpc.NewServer(
+		grpc.UnaryInterceptor(otelgrpc.UnaryServerInterceptor()),
+		grpc.StreamInterceptor(otelgrpc.StreamServerInterceptor()),
+	)
 	lc.Append(fx.Hook{
 		// To mitigate the impact of deadlocks in application startup and
 		// shutdown, Fx imposes a time limit on OnStart and OnStop hooks. By
 		// default, hooks have a total of 15 seconds to complete. Timeouts are
 		// passed via Go's usual context.Context.
 		OnStart: func(context.Context) error {
-			logger.Print("Starting gRPC server.")
+			logger.Info("Starting gRPC server.")
 			// TODO make configurable
 			address := fmt.Sprintf(":%d", 8080)
 			lis, err := net.Listen("tcp", address)
 			if err != nil {
-				logger.Fatalf("Failed to listen on address \"%s\": %v", address, err)
+				logger.Sugar().Fatal("Failed to listen on address \"%s\"", address, zap.Error(err))
 			}
 			go s.Serve(lis)
 			return nil
 		},
 		OnStop: func(ctx context.Context) error {
-			logger.Print("Stopping gRPC server.")
+			logger.Info("Stopping gRPC server.")
 			// GracefulStop stops the gRPC server gracefully. It stops the server from
 			// accepting new connections and RPCs and blocks until all the pending RPCs are
 			// finished.
@@ -56,7 +67,7 @@ func NewGRPCServer(lc fx.Lifecycle, logger *log.Logger) (*grpc.Server, error) {
 	return s, nil
 }
 
-func NewDatabase(logger *log.Logger, lc fx.Lifecycle) (*sql.DB, error) {
+func NewDatabase(logger *zap.Logger, lc fx.Lifecycle) (*sql.DB, error) {
 	// TODO make configurable
 	db, err := sql.Open("postgres", "postgres://postgres:postgres@localhost:5432/dispatch?sslmode=disable")
 	lc.Append(fx.Hook{
@@ -68,13 +79,13 @@ func NewDatabase(logger *log.Logger, lc fx.Lifecycle) (*sql.DB, error) {
 			return nil
 		},
 		OnStop: func(ctx context.Context) error {
-			logger.Print("Closing DB connection.")
+			logger.Info("Closing DB connection.")
 			err := db.Close()
 			if err != nil {
-				logger.Printf("Failed to close DB connection: %v\n", err)
+				logger.Error("Failed to close DB connection", zap.Error(err))
 				return err
 			}
-			logger.Println("Successfully closed DB connection")
+			logger.Info("Successfully closed DB connection")
 			return err
 		},
 	})
@@ -83,7 +94,7 @@ func NewDatabase(logger *log.Logger, lc fx.Lifecycle) (*sql.DB, error) {
 
 type ServiceParams struct {
 	fx.In
-	Logger          *log.Logger
+	Logger          *zap.Logger
 	GRPCServer      *grpc.Server
 	DB              *sql.DB
 	DistanceService *distance.Service `optional:"true"`
@@ -100,20 +111,18 @@ func NewMapsClient() (*maps.Client, error) {
 	}
 	c, err := maps.NewClient(maps.WithAPIKey(apiKey))
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to build Google Maps client: %w", err)
 	}
 	return c, nil
 }
 
-func NewDistanceService(logger *log.Logger, client *maps.Client) (*distance.Service, error) {
+func NewDistanceService(logger *zap.Logger, client *maps.Client) (*distance.Service, error) {
 	if client == nil {
 		return nil, errors.New("no maps client")
 	}
 	return distance.NewService(client), nil
 }
 
-// Register mounts our HTTP handler on the mux.
-//
 // Register is a typical top-level application function: it takes a generic
 // type like *grpc.Server, which typically comes from a third-party library,
 // and introduces it to a type that contains our application logic. In this
@@ -129,5 +138,6 @@ func NewDistanceService(logger *log.Logger, client *maps.Client) (*distance.Serv
 // below for details.
 func Register(server *grpc.Server, svc *service.Service) {
 	v1beta1.RegisterDispatchServiceServer(server, svc)
+	grpc_health_v1.RegisterHealthServer(server, svc)
 	reflection.Register(server)
 }

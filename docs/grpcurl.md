@@ -1,4 +1,7 @@
-[grpcurl](https://github.com/fullstorydev/grpcurl) is pretty useful for testing:
+# [grpcurl](https://github.com/fullstorydev/grpcurl)
+`grpcurl` is pretty useful for testing:
+
+## Make request
 ```bash
 (
 cat << EOF
@@ -10,4 +13,9 @@ cat << EOF
 }
 EOF
 ) | grpcurl -plaintext -d @ localhost:8080 coop.drivers.dispatch.v1beta1.DispatchService/Dispatch
+```
+
+## Check App Health
+```bash
+grpcurl -plaintext -d '{"service":"foobar"}' localhost:8080 grpc.health.v1.Health/Check
 ```
