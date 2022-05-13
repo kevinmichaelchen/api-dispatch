@@ -2,11 +2,11 @@ syntax = "proto3";
 
 package coop.drivers.dispatch.v1beta1;
 
-option go_package = "github.com/kevinmichaelchen/api-dispatch/internal/idl/coop/drivers/dispatch/v1beta1";
-
 import "coop/drivers/dispatch/v1beta1/latlng.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/kevinmichaelchen/api-dispatch/internal/idl/coop/drivers/dispatch/v1beta1";
 
 service DispatchService {
   // Bulk-ingest driver locations.
