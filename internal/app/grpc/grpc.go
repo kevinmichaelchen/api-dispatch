@@ -6,7 +6,8 @@ import (
 	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	"github.com/kevinmichaelchen/api-dispatch/internal/idl/coop/drivers/dispatch/v1beta1"
 	"github.com/kevinmichaelchen/api-dispatch/internal/service"
-	"github.com/kevinmichaelchen/api-dispatch/pkg/tracelog"
+	"github.com/kevinmichaelchen/api-dispatch/pkg/grpc/interceptors/stats"
+	"github.com/kevinmichaelchen/api-dispatch/pkg/grpc/interceptors/tracelog"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
@@ -38,7 +39,10 @@ func NewGRPCServer(lc fx.Lifecycle, logger *zap.Logger) (*grpc.Server, error) {
 			// TODO is it possible not to sample Health/Check calls?
 			otelgrpc.UnaryServerInterceptor(),
 			grpc_zap.UnaryServerInterceptor(logger),
+			// Add trace ID as field on logger
 			tracelog.UnaryServerInterceptor(),
+			// Response counts (w/ status code as a dimension)
+			stats.UnaryServerInterceptor(),
 		),
 		grpc.ChainStreamInterceptor(
 			otelgrpc.StreamServerInterceptor(),

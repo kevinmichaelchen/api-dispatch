@@ -1,13 +1,10 @@
-package tracelog
+package stats
 
 import (
 	"context"
-	"github.com/grpc-ecosystem/go-grpc-middleware/logging/zap/ctxzap"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric/global"
 	semconv "go.opentelemetry.io/otel/semconv/v1.10.0"
-	"go.opentelemetry.io/otel/trace"
-	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/status"
 	"log"
@@ -15,16 +12,9 @@ import (
 
 func UnaryServerInterceptor() grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
-		logger := ctxzap.Extract(ctx)
-		span := trace.SpanFromContext(ctx)
-		traceID := span.SpanContext().TraceID().String()
-		newCtx := ctxzap.ToContext(ctx, logger.With(
-			zap.String("traceid", traceID),
-		))
+		resp, err = handler(ctx, req)
 
-		resp, err = handler(newCtx, req)
-
-		handleStatusMetrics(newCtx, err)
+		handleStatusMetrics(ctx, err)
 
 		return
 	}
