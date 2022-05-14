@@ -1,12 +1,19 @@
-package app
+package sql
 
 import (
 	"context"
 	"database/sql"
 	"github.com/XSAM/otelsql"
+	_ "github.com/lib/pq"
 	semconv "go.opentelemetry.io/otel/semconv/v1.10.0"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
+)
+
+var Module = fx.Module("sql",
+	fx.Provide(
+		NewDatabase,
+	),
 )
 
 func NewDatabase(logger *zap.Logger, lc fx.Lifecycle) (*sql.DB, error) {
