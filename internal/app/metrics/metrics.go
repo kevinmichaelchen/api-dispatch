@@ -1,8 +1,9 @@
-package app
+package metrics
 
 import (
 	"context"
 	"go.opentelemetry.io/otel/exporters/prometheus"
+	"go.opentelemetry.io/otel/metric/global"
 	"go.opentelemetry.io/otel/sdk/metric/aggregator/histogram"
 	controller "go.opentelemetry.io/otel/sdk/metric/controller/basic"
 	"go.opentelemetry.io/otel/sdk/metric/export/aggregation"
@@ -12,6 +13,22 @@ import (
 	"log"
 	"net/http"
 )
+
+var Module = fx.Module("metrics",
+	fx.Provide(
+		NewMux,
+		NewPrometheusExporter,
+	),
+	fx.Invoke(Register),
+)
+
+func Register(exporter *prometheus.Exporter, mux *http.ServeMux) {
+	// Set global meter provider
+	global.SetMeterProvider(exporter.MeterProvider())
+
+	// Register the Prometheus export handler on our Mux HTTP Server.
+	mux.HandleFunc("/", exporter.ServeHTTP)
+}
 
 func NewMux(lc fx.Lifecycle) *http.ServeMux {
 	mux := http.NewServeMux()

@@ -1,16 +1,34 @@
-package app
+package grpc
 
 import (
 	"context"
 	"fmt"
 	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
+	"github.com/kevinmichaelchen/api-dispatch/internal/idl/coop/drivers/dispatch/v1beta1"
+	"github.com/kevinmichaelchen/api-dispatch/internal/service"
 	"github.com/kevinmichaelchen/api-dispatch/pkg/tracelog"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/health/grpc_health_v1"
+	"google.golang.org/grpc/reflection"
 	"net"
 )
+
+var Module = fx.Module("grpc",
+	fx.Provide(NewGRPCServer),
+	fx.Invoke(Register),
+)
+
+func Register(
+	server *grpc.Server,
+	svc *service.Service,
+) {
+	v1beta1.RegisterDispatchServiceServer(server, svc)
+	grpc_health_v1.RegisterHealthServer(server, svc)
+	reflection.Register(server)
+}
 
 func NewGRPCServer(lc fx.Lifecycle, logger *zap.Logger) (*grpc.Server, error) {
 	// TODO configure options here

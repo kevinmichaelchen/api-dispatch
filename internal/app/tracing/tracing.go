@@ -1,7 +1,9 @@
-package app
+package tracing
 
 import (
 	"context"
+	"github.com/kevinmichaelchen/api-dispatch/internal/app/config"
+	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/exporters/jaeger"
 	"go.opentelemetry.io/otel/sdk/resource"
@@ -18,11 +20,24 @@ const (
 	id          = 1
 )
 
+var Module = fx.Module("tracing",
+	fx.Provide(
+		NewTracerProvider,
+	),
+	fx.Invoke(Register),
+)
+
+func Register(tp *tracesdk.TracerProvider) {
+	// Register our TracerProvider as the global so any imported
+	// instrumentation in the future will default to using it.
+	otel.SetTracerProvider(tp)
+}
+
 // NewTracerProvider returns an OpenTelemetry TracerProvider configured to use
 // the Jaeger exporter that will send spans to the provided url. The returned
 // TracerProvider will also use a Resource configured with all the information
 // about the application.
-func NewTracerProvider(lc fx.Lifecycle, cfg *Config) (*tracesdk.TracerProvider, error) {
+func NewTracerProvider(lc fx.Lifecycle, cfg *config.Config) (*tracesdk.TracerProvider, error) {
 	// Create the Jaeger exporter
 	exp, err := jaeger.New(jaeger.WithCollectorEndpoint(jaeger.WithEndpoint(cfg.TraceConfig.URL)))
 	if err != nil {
