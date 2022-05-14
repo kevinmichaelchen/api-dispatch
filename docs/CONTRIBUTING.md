@@ -4,6 +4,9 @@ docker-compose up
 API_KEY=GOOGLE_MAPS_KEY go run main.go
 ```
 
+## Telemetry
+Visit the Jaeger UI at http://localhost:16686.
+
 ## Lines of code
 ```bash
 tokei -e models -e idl
@@ -14,6 +17,9 @@ We use the following Go dependencies:
 
 * [go-envconfig](https://github.com/sethvargo/go-envconfig) for env configuration
 * [fx](https://github.com/uber-go/fx) for dependency injection
+* [zap](https://github.com/uber-go/zap) for logging
+* [OpenTelemetry](https://github.com/open-telemetry/opentelemetry-go) for tracing and metrics
+* [otelsql](https://github.com/XSAM/otelsql) for SQL telemetry
 * [cobra](https://github.com/spf13/cobra) for CLI
 * [postgres](https://www.postgresql.org/) for SQL DB
 * [migrate](https://github.com/golang-migrate/migrate) for DB migrations
@@ -46,10 +52,10 @@ go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@lat
 migrate create -dir ./schema -ext sql init
 
 # Run all migrations
-migrate -path ./schema -database postgres://postgres:postgres@localhost:5432/dispatch\?sslmode=disable up
+make migrate-up
 
 # Undo migrations
-migrate -path ./schema -database postgres://postgres:postgres@localhost:5432/dispatch\?sslmode=disable down
+make migrate-down
 ```
 
 ### Generating SQLBoiler code

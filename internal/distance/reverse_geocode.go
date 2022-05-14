@@ -16,6 +16,7 @@ type Place struct {
 }
 
 func locationsToPlaceIDs(ctx context.Context, c *maps.Client, locations []*v1beta1.LatLng) ([]string, error) {
+	// TODO can we batch or parallelize these? Individually, they take 130-150 ms.
 	var out []string
 	for _, location := range locations {
 		placeID, err := getFirstPlaceID(ctx, c, location)
