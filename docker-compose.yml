@@ -1,6 +1,11 @@
 version: "3.9"
 
 services:
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - "9090:9090"
+
   jaeger:
     image: jaegertracing/all-in-one:1.33
     environment:

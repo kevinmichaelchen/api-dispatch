@@ -4,10 +4,13 @@ import (
 	"github.com/kevinmichaelchen/api-dispatch/internal/idl/coop/drivers/dispatch/v1beta1"
 	"github.com/kevinmichaelchen/api-dispatch/internal/service"
 	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/exporters/prometheus"
+	"go.opentelemetry.io/otel/metric/global"
 	tracesdk "go.opentelemetry.io/otel/sdk/trace"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/reflection"
+	"net/http"
 )
 
 // Register is a typical top-level application function: it takes a generic
@@ -23,7 +26,13 @@ import (
 //
 // Unlike constructors, invocations are called eagerly. See the main function
 // below for details.
-func Register(server *grpc.Server, svc *service.Service, tp *tracesdk.TracerProvider) {
+func Register(
+	server *grpc.Server,
+	svc *service.Service,
+	tp *tracesdk.TracerProvider,
+	exporter *prometheus.Exporter,
+	mux *http.ServeMux,
+) {
 	v1beta1.RegisterDispatchServiceServer(server, svc)
 	grpc_health_v1.RegisterHealthServer(server, svc)
 	reflection.Register(server)
@@ -31,4 +40,10 @@ func Register(server *grpc.Server, svc *service.Service, tp *tracesdk.TracerProv
 	// Register our TracerProvider as the global so any imported
 	// instrumentation in the future will default to using it.
 	otel.SetTracerProvider(tp)
+
+	// Set global meter provider
+	global.SetMeterProvider(exporter.MeterProvider())
+
+	// Register the Prometheus export handler on our Mux HTTP Server.
+	mux.HandleFunc("/", exporter.ServeHTTP)
 }
