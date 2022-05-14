@@ -16,6 +16,8 @@ func main() {
 			app.NewService,
 			app.NewMapsClient,
 			app.NewDistanceService,
+			app.NewTracerProvider,
+			app.NewConfig,
 		),
 		// Since constructors are called lazily, we need some invocations to
 		// kick-start our application. In this case, we'll use Register. Since

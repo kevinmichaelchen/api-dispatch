@@ -5,9 +5,11 @@ go 1.18
 require (
 	github.com/friendsofgo/errors v0.9.2
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
+	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0
 	github.com/kat-co/vala v0.0.0-20170210184112-42e1d8b61f12
 	github.com/lib/pq v1.10.5
 	github.com/rs/xid v1.4.0
+	github.com/sethvargo/go-envconfig v0.6.0
 	github.com/spf13/cobra v1.4.0
 	github.com/spf13/viper v1.9.0
 	github.com/stretchr/testify v1.7.1
@@ -17,6 +19,10 @@ require (
 	github.com/volatiletech/sqlboiler/v4 v4.11.0
 	github.com/volatiletech/strmangle v0.0.4
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.32.0
+	go.opentelemetry.io/otel v1.7.0
+	go.opentelemetry.io/otel/exporters/jaeger v1.7.0
+	go.opentelemetry.io/otel/sdk v1.7.0
+	go.opentelemetry.io/otel/trace v1.7.0
 	go.uber.org/fx v1.17.1
 	go.uber.org/zap v1.21.0
 	google.golang.org/grpc v1.46.0
@@ -46,8 +52,6 @@ require (
 	github.com/subosito/gotenv v1.2.0 // indirect
 	github.com/volatiletech/inflect v0.0.1 // indirect
 	go.opencensus.io v0.23.0 // indirect
-	go.opentelemetry.io/otel v1.7.0 // indirect
-	go.opentelemetry.io/otel/trace v1.7.0 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/dig v1.14.1 // indirect
 	go.uber.org/multierr v1.8.0 // indirect

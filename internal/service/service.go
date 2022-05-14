@@ -6,17 +6,15 @@ import (
 	"github.com/kevinmichaelchen/api-dispatch/internal/idl/coop/drivers/dispatch/v1beta1"
 	"github.com/uber/h3-go"
 	"github.com/volatiletech/sqlboiler/v4/types"
-	"go.uber.org/zap"
 )
 
 type Service struct {
-	logger      *zap.Logger
 	db          *sql.DB
 	distanceSvc *distance.Service
 }
 
-func NewService(logger *zap.Logger, db *sql.DB, distanceSvc *distance.Service) *Service {
-	return &Service{logger: logger, db: db, distanceSvc: distanceSvc}
+func NewService(db *sql.DB, distanceSvc *distance.Service) *Service {
+	return &Service{db: db, distanceSvc: distanceSvc}
 }
 
 func getCell(l *v1beta1.LatLng, res int) string {
