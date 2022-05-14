@@ -12,6 +12,10 @@ import (
 	"sync/atomic"
 )
 
+const (
+	parallelizationFactor = 10
+)
+
 var errNoResults = errors.New("no results found for coordinates")
 
 type Place struct {
@@ -56,7 +60,7 @@ func locationsToPlaceIDs(ctx context.Context, c *maps.Client, locations []*v1bet
 	results := make(chan Result)
 
 	// Step 2: Map
-	nWorkers := 5 // parallelization factor
+	nWorkers := parallelizationFactor
 	workers := int32(nWorkers)
 	for i := 0; i < nWorkers; i++ {
 		g.Go(func() error {
