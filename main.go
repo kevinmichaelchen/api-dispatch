@@ -18,6 +18,8 @@ func main() {
 			app.NewDistanceService,
 			app.NewTracerProvider,
 			app.NewConfig,
+			app.NewPrometheusExporter,
+			app.NewMux,
 		),
 		// Since constructors are called lazily, we need some invocations to
 		// kick-start our application. In this case, we'll use Register. Since

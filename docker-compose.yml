@@ -1,6 +1,14 @@
 version: "3.9"
 
 services:
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - ./docker/prometheus/:/etc/prometheus/
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+
   jaeger:
     image: jaegertracing/all-in-one:1.33
     environment:
@@ -34,3 +42,4 @@ services:
 
 volumes:
   pg_data:
+  prometheus_data:
