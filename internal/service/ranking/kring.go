@@ -1,13 +1,12 @@
-package service
+package ranking
 
 import (
 	"github.com/kevinmichaelchen/api-dispatch/internal/idl/coop/drivers/dispatch/v1beta1"
-	"github.com/kevinmichaelchen/api-dispatch/internal/service/ranking"
 	"sort"
 )
 
-func sortResultsByKRing(in []*v1beta1.SearchResult) []*v1beta1.SearchResult {
-	results := ranking.CopySearchResults(in)
+func SortResultsByKRing(in []*v1beta1.SearchResult) []*v1beta1.SearchResult {
+	results := CopySearchResults(in)
 
 	sort.SliceStable(results, func(i, j int) bool {
 		a := results[i]

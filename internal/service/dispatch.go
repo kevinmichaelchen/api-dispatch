@@ -45,7 +45,7 @@ func (s *Service) GetNearestDrivers(ctx context.Context, req *v1beta1.GetNearest
 
 	// In the event we have no Google Maps client and are operating in a
 	// degraded state, k-ring-sorting is still pretty good.
-	results = sortResultsByKRing(results)
+	results = ranking.SortResultsByKRing(results)
 
 	// Enrich results with distance/duration info from Google Maps API
 	var driverLocations []*v1beta1.LatLng
@@ -117,7 +117,7 @@ func (s *Service) GetNearestTrips(ctx context.Context, req *v1beta1.GetNearestTr
 
 	// In the event we have no Google Maps client and are operating in a
 	// degraded state, k-ring-sorting is still pretty good.
-	results = sortResultsByKRing(results)
+	results = ranking.SortResultsByKRing(results)
 
 	// Enrich results with distance/duration info from Google Maps API
 	var locations []*v1beta1.LatLng
