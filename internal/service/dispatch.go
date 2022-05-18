@@ -4,10 +4,14 @@ import (
 	"context"
 	"github.com/kevinmichaelchen/api-dispatch/internal/distance"
 	"github.com/kevinmichaelchen/api-dispatch/internal/idl/coop/drivers/dispatch/v1beta1"
+	"github.com/kevinmichaelchen/api-dispatch/internal/service/money"
 	"github.com/kevinmichaelchen/api-dispatch/internal/service/ranking"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/durationpb"
+	"google.golang.org/protobuf/types/known/timestamppb"
+	"math/rand"
+	"time"
 )
 
 const (
@@ -70,7 +74,7 @@ func (s *Service) GetNearestDrivers(ctx context.Context, req *v1beta1.GetNearest
 		}
 	}
 
-	// Sort
+	// Final ranking/sorting pass
 	results = ranking.RankDrivers(results)
 
 	// Apply client-side limits
@@ -140,7 +144,10 @@ func (s *Service) GetNearestTrips(ctx context.Context, req *v1beta1.GetNearestTr
 		}
 	}
 
-	// Re-sort by duration
+	// Enrich results
+	enrichTripsWithFakeData(results)
+
+	// Final ranking/sorting pass
 	results = ranking.RankTrips(results)
 
 	// Apply client-side limits
@@ -152,4 +159,26 @@ func (s *Service) GetNearestTrips(ctx context.Context, req *v1beta1.GetNearestTr
 	return &v1beta1.GetNearestTripsResponse{
 		Results: results,
 	}, nil
+}
+
+func enrichTripsWithFakeData(in []*v1beta1.SearchResult) {
+	for idx := range in {
+		e := in[idx]
+		t := e.GetTrip()
+		t.ScheduledFor = timestamppb.New(randomTime())
+		t.ExpectedPayment = randomMoney()
+	}
+}
+
+func randomTime() time.Time {
+	minutes := time.Duration(rand.Intn(20)) * time.Minute
+	seconds := time.Duration(rand.Intn(60)) * time.Second
+	return time.Now().Add(minutes + seconds)
+}
+
+func randomMoney() *v1beta1.Money {
+	randomUnits := 4 + rand.Intn(25)
+	randomCents := rand.Intn(100)
+	f := float64(randomUnits) + (float64(randomCents) / float64(100))
+	return money.ConvertFloatToMoney(f)
 }
