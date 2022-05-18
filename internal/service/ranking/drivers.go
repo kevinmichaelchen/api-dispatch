@@ -23,5 +23,7 @@ func RankDrivers(in []*v1beta1.SearchResult) []*v1beta1.SearchResult {
 func scoreDriver(in *v1beta1.SearchResult) float64 {
 	// TODO factor in driver seniority (whether they've done a lot of trips)
 	d := in.GetDuration().AsDuration()
-	return 100 - float64(d/time.Minute)
+	score := 100 - float64(d/time.Minute)
+	in.Score = score
+	return score
 }
