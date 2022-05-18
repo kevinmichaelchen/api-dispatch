@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/kevinmichaelchen/api-dispatch/internal/idl/coop/drivers/dispatch/v1beta1"
 	"github.com/kevinmichaelchen/api-dispatch/internal/models"
+	"github.com/kevinmichaelchen/api-dispatch/internal/service/money"
 	"github.com/rs/xid"
 	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
@@ -15,7 +16,7 @@ func (s *Service) CreateTrips(ctx context.Context, r *v1beta1.CreateTripsRequest
 		trip := models.Trip{
 			ID:             tripPB.GetId(),
 			ScheduledFor:   tripPB.GetScheduledFor().AsTime(),
-			ExpectedPay:    tripPB.GetExpectedPayment(),
+			ExpectedPay:    money.ConvertMoneyToFloat(tripPB.GetExpectedPayment()),
 			Latitude:       tripPB.GetPickupLocation().GetLatitude(),
 			Longitude:      tripPB.GetPickupLocation().GetLongitude(),
 			R7Cell:         null.StringFrom(getCell(tripPB.GetPickupLocation(), 7)),

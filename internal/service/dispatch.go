@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/kevinmichaelchen/api-dispatch/internal/distance"
 	"github.com/kevinmichaelchen/api-dispatch/internal/idl/coop/drivers/dispatch/v1beta1"
+	"github.com/kevinmichaelchen/api-dispatch/internal/service/ranking"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/durationpb"
@@ -70,7 +71,7 @@ func (s *Service) GetNearestDrivers(ctx context.Context, req *v1beta1.GetNearest
 	}
 
 	// Sort
-	results = sortDrivers(results)
+	results = ranking.RankDrivers(results)
 
 	// Apply client-side limits
 	// TODO do not let client exceed server-side max limit
@@ -140,7 +141,7 @@ func (s *Service) GetNearestTrips(ctx context.Context, req *v1beta1.GetNearestTr
 	}
 
 	// Re-sort by duration
-	results = sortTrips(results)
+	results = ranking.RankTrips(results)
 
 	// Apply client-side limits
 	// TODO do not let client exceed server-side max limit

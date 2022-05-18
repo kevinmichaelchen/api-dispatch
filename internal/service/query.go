@@ -6,6 +6,7 @@ import (
 	"github.com/friendsofgo/errors"
 	"github.com/kevinmichaelchen/api-dispatch/internal/idl/coop/drivers/dispatch/v1beta1"
 	"github.com/kevinmichaelchen/api-dispatch/internal/models"
+	"github.com/kevinmichaelchen/api-dispatch/internal/service/money"
 	"github.com/volatiletech/sqlboiler/v4/queries"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -66,6 +67,7 @@ func (s *Service) getNearbyDriverLocations(ctx context.Context, location *v1beta
 }
 
 func (s *Service) getNearbyDriverLocationsHelper(ctx context.Context, l *v1beta1.LatLng, res int, k int) (models.DriverLocationSlice, error) {
+	// TODO filter out offline drivers or busy (currently-on-a-trip) drivers
 	if k < 1 || k > 2 {
 		return nil, errUnsupportedKValue
 	}
@@ -188,6 +190,7 @@ func (s *Service) getNearbyTrips(ctx context.Context, location *v1beta1.LatLng) 
 	}, nil
 }
 
+// TODO trips that are too far in the past (or in a terminal state) should be filtered out
 func (s *Service) getNearbyTripsHelper(ctx context.Context, l *v1beta1.LatLng, res int, k int) (models.TripSlice, error) {
 	if k < 1 || k > 2 {
 		return nil, errUnsupportedKValue
@@ -244,7 +247,7 @@ func mergeTrips(location *v1beta1.LatLng, in ...mergeTripsInput) []*v1beta1.Sear
 						Id:              e.ID,
 						PickupLocation:  latLng,
 						ScheduledFor:    timestamppb.New(e.ScheduledFor),
-						ExpectedPayment: e.ExpectedPay,
+						ExpectedPayment: money.ConvertFloatToMoney(e.ExpectedPay),
 					},
 				},
 				DistanceMeters: pointDistance(location, latLng),

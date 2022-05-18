@@ -30,6 +30,8 @@ and [h3](https://h3geo.org/) (a hexagonal hierarchical geospatial indexing syste
 
 ### Not considered yet
 1. Driver eligibility for trip
+2. Whether the driver is offline or currently on a trip.
+3. 
 
 ## Project structure
 

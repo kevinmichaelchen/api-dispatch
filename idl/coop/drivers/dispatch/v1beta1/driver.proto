@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package coop.drivers.dispatch.v1beta1;
+
+import "coop/drivers/dispatch/v1beta1/latlng.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/kevinmichaelchen/api-dispatch/internal/idl/coop/drivers/dispatch/v1beta1";
+
+message DriverLocation {
+  string driver_id = 1;
+  google.protobuf.Timestamp most_recent_heartbeat = 2;
+  LatLng current_location = 3;
+}

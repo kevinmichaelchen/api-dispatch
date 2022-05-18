@@ -2,9 +2,10 @@ syntax = "proto3";
 
 package coop.drivers.dispatch.v1beta1;
 
+import "coop/drivers/dispatch/v1beta1/driver.proto";
 import "coop/drivers/dispatch/v1beta1/latlng.proto";
+import "coop/drivers/dispatch/v1beta1/trip.proto";
 import "google/protobuf/duration.proto";
-import "google/protobuf/timestamp.proto";
 
 option go_package = "github.com/kevinmichaelchen/api-dispatch/internal/idl/coop/drivers/dispatch/v1beta1";
 
@@ -22,12 +23,6 @@ service DispatchService {
   rpc GetNearestTrips(GetNearestTripsRequest) returns (GetNearestTripsResponse) {}
 }
 
-message DriverLocation {
-  string driver_id = 1;
-  google.protobuf.Timestamp most_recent_heartbeat = 2;
-  LatLng current_location = 3;
-}
-
 message UpdateDriverLocationsRequest {
   repeated DriverLocation locations = 1;
 }
@@ -36,16 +31,6 @@ message UpdateDriverLocationsResponse {}
 
 message CreateTripsRequest {
   repeated Trip trips = 1;
-}
-
-message Trip {
-  string id = 1;
-  // where
-  LatLng pickup_location = 2;
-  // when
-  google.protobuf.Timestamp scheduled_for = 3;
-  // how much $$$
-  double expected_payment = 4;
 }
 
 message CreateTripsResponse {}
@@ -91,4 +76,5 @@ message SearchResult {
   // The k-value of the lowest k-ring (most immediate neighborhood) in which the
   // match was found.
   int32 k_value = 8;
+  double score = 9;
 }

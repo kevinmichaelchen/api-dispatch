@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/kevinmichaelchen/api-dispatch/internal/idl/coop/drivers/dispatch/v1beta1"
+	"github.com/kevinmichaelchen/api-dispatch/internal/service/money"
 	"github.com/spf13/cobra"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"io/ioutil"
@@ -126,7 +127,7 @@ func ingestTrips(cmd *cobra.Command, args []string) {
 				Latitude:  e.LatLng.Latitude,
 				Longitude: e.LatLng.Longitude,
 			},
-			ExpectedPayment: e.ExpectedPayment,
+			ExpectedPayment: money.ConvertFloatToMoney(e.ExpectedPayment),
 		})
 	}
 
