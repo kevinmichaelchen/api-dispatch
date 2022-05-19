@@ -41,13 +41,13 @@ func (s *Service) GetNearestDrivers(
 	// Merge results
 	results := MergeDrivers(
 		req.GetPickupLocation(),
-		MergeDriversInput{Drivers: nearby.R7K1Cells, Res: 7, KValue: 1},
-		MergeDriversInput{Drivers: nearby.R8K1Cells, Res: 8, KValue: 1},
-		MergeDriversInput{Drivers: nearby.R8K2Cells, Res: 8, KValue: 2},
-		MergeDriversInput{Drivers: nearby.R9K1Cells, Res: 9, KValue: 1},
-		MergeDriversInput{Drivers: nearby.R9K2Cells, Res: 9, KValue: 2},
-		MergeDriversInput{Drivers: nearby.R10K1Cells, Res: 10, KValue: 1},
-		MergeDriversInput{Drivers: nearby.R10K2Cells, Res: 10, KValue: 2},
+		MergeDriversInput{Drivers: nearby.R7K1, Res: 7, KValue: 1},
+		MergeDriversInput{Drivers: nearby.R8K1, Res: 8, KValue: 1},
+		MergeDriversInput{Drivers: nearby.R8K2, Res: 8, KValue: 2},
+		MergeDriversInput{Drivers: nearby.R9K1, Res: 9, KValue: 1},
+		MergeDriversInput{Drivers: nearby.R9K2, Res: 9, KValue: 2},
+		MergeDriversInput{Drivers: nearby.R10K1, Res: 10, KValue: 1},
+		MergeDriversInput{Drivers: nearby.R10K2, Res: 10, KValue: 2},
 	)
 
 	// Apply server-side results limit
@@ -119,13 +119,13 @@ func (s *Service) GetNearestTrips(
 	results := MergeTrips(
 		req.GetDriverLocation(),
 		// TODO these should be fed in reverse order
-		MergeTripsInput{trips: nearby.R7K1Cells, res: 7, kValue: 1},
-		MergeTripsInput{trips: nearby.R8K1Cells, res: 8, kValue: 1},
-		MergeTripsInput{trips: nearby.R8K2Cells, res: 8, kValue: 2},
-		MergeTripsInput{trips: nearby.R9K1Cells, res: 9, kValue: 1},
-		MergeTripsInput{trips: nearby.R9K2Cells, res: 9, kValue: 2},
-		MergeTripsInput{trips: nearby.R10K1Cells, res: 10, kValue: 1},
-		MergeTripsInput{trips: nearby.R10K2Cells, res: 10, kValue: 2},
+		MergeTripsInput{trips: nearby.R7K1, res: 7, kValue: 1},
+		MergeTripsInput{trips: nearby.R8K1, res: 8, kValue: 1},
+		MergeTripsInput{trips: nearby.R8K2, res: 8, kValue: 2},
+		MergeTripsInput{trips: nearby.R9K1, res: 9, kValue: 1},
+		MergeTripsInput{trips: nearby.R9K2, res: 9, kValue: 2},
+		MergeTripsInput{trips: nearby.R10K1, res: 10, kValue: 1},
+		MergeTripsInput{trips: nearby.R10K2, res: 10, kValue: 2},
 	)
 
 	// Apply server-side results limit

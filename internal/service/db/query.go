@@ -15,13 +15,20 @@ var (
 )
 
 type GetNearbyDriverLocationsOutput struct {
-	R7K1Cells  models.DriverLocationSlice
-	R8K1Cells  models.DriverLocationSlice
-	R8K2Cells  models.DriverLocationSlice
-	R9K1Cells  models.DriverLocationSlice
-	R9K2Cells  models.DriverLocationSlice
-	R10K1Cells models.DriverLocationSlice
-	R10K2Cells models.DriverLocationSlice
+	// Drivers in the passenger's Resolution-7 k=1 k-ring
+	R7K1 models.DriverLocationSlice
+	// Drivers in the passenger's Resolution-8 k=1 k-ring
+	R8K1 models.DriverLocationSlice
+	// Drivers in the passenger's Resolution-8 k=2 k-ring
+	R8K2 models.DriverLocationSlice
+	// Drivers in the passenger's Resolution-9 k=1 k-ring
+	R9K1 models.DriverLocationSlice
+	// Drivers in the passenger's Resolution-9 k=2 k-ring
+	R9K2 models.DriverLocationSlice
+	// Drivers in the passenger's Resolution-10 k=1 k-ring
+	R10K1 models.DriverLocationSlice
+	// Drivers in the passenger's Resolution-10 k=2 k-ring
+	R10K2 models.DriverLocationSlice
 }
 
 func (s *Store) GetNearbyDriverLocations(ctx context.Context, location *v1beta1.LatLng) (*GetNearbyDriverLocationsOutput, error) {
@@ -55,13 +62,13 @@ func (s *Store) GetNearbyDriverLocations(ctx context.Context, location *v1beta1.
 		return nil, err
 	}
 	return &GetNearbyDriverLocationsOutput{
-		R7K1Cells:  r7k1Cells,
-		R8K1Cells:  r8k1Cells,
-		R8K2Cells:  r8k2Cells,
-		R9K1Cells:  r9k1Cells,
-		R9K2Cells:  r9k2Cells,
-		R10K1Cells: r10k1Cells,
-		R10K2Cells: r10k2Cells,
+		R7K1:  r7k1Cells,
+		R8K1:  r8k1Cells,
+		R8K2:  r8k2Cells,
+		R9K1:  r9k1Cells,
+		R9K2:  r9k2Cells,
+		R10K1: r10k1Cells,
+		R10K2: r10k2Cells,
 	}, nil
 }
 
@@ -87,13 +94,20 @@ WHERE
 }
 
 type GetNearbyTripsOutput struct {
-	R7K1Cells  models.TripSlice
-	R8K1Cells  models.TripSlice
-	R8K2Cells  models.TripSlice
-	R9K1Cells  models.TripSlice
-	R9K2Cells  models.TripSlice
-	R10K1Cells models.TripSlice
-	R10K2Cells models.TripSlice
+	// Trips in the driver's Resolution-7 k=1 k-ring
+	R7K1 models.TripSlice
+	// Trips in the driver's Resolution-8 k=1 k-ring
+	R8K1 models.TripSlice
+	// Trips in the driver's Resolution-8 k=2 k-ring
+	R8K2 models.TripSlice
+	// Trips in the driver's Resolution-9 k=1 k-ring
+	R9K1 models.TripSlice
+	// Trips in the driver's Resolution-9 k=2 k-ring
+	R9K2 models.TripSlice
+	// Trips in the driver's Resolution-10 k=1 k-ring
+	R10K1 models.TripSlice
+	// Trips in the driver's Resolution-10 k=2 k-ring
+	R10K2 models.TripSlice
 }
 
 func (s *Store) GetNearbyTrips(ctx context.Context, location *v1beta1.LatLng) (*GetNearbyTripsOutput, error) {
@@ -127,13 +141,13 @@ func (s *Store) GetNearbyTrips(ctx context.Context, location *v1beta1.LatLng) (*
 		return nil, err
 	}
 	return &GetNearbyTripsOutput{
-		R7K1Cells:  r7k1Cells,
-		R8K1Cells:  r8k1Cells,
-		R8K2Cells:  r8k2Cells,
-		R9K1Cells:  r9k1Cells,
-		R9K2Cells:  r9k2Cells,
-		R10K1Cells: r10k1Cells,
-		R10K2Cells: r10k2Cells,
+		R7K1:  r7k1Cells,
+		R8K1:  r8k1Cells,
+		R8K2:  r8k2Cells,
+		R9K1:  r9k1Cells,
+		R9K2:  r9k2Cells,
+		R10K1: r10k1Cells,
+		R10K2: r10k2Cells,
 	}, nil
 }
 
