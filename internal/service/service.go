@@ -2,9 +2,9 @@ package service
 
 import (
 	"context"
-	"github.com/kevinmichaelchen/api-dispatch/internal/distance"
 	"github.com/kevinmichaelchen/api-dispatch/internal/idl/coop/drivers/dispatch/v1beta1"
 	"github.com/kevinmichaelchen/api-dispatch/internal/service/db"
+	"github.com/kevinmichaelchen/api-dispatch/internal/service/distance"
 	"github.com/kevinmichaelchen/api-dispatch/internal/service/health"
 	healthV1 "google.golang.org/grpc/health/grpc_health_v1"
 )
