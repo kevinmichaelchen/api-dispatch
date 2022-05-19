@@ -2,11 +2,12 @@ package service
 
 import (
 	"context"
+	"github.com/grpc-ecosystem/go-grpc-middleware/logging/zap/ctxzap"
 	"github.com/kevinmichaelchen/api-dispatch/internal/idl/coop/drivers/dispatch/v1beta1"
-	"github.com/kevinmichaelchen/api-dispatch/internal/service/db"
 	"github.com/kevinmichaelchen/api-dispatch/internal/service/distance"
 	"github.com/kevinmichaelchen/api-dispatch/internal/service/money"
 	"github.com/kevinmichaelchen/api-dispatch/internal/service/ranking"
+	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/durationpb"
@@ -19,20 +20,20 @@ const (
 	maxResults = 100
 )
 
-func getNearestDrivers(
+func (s *Service) GetNearestDrivers(
 	ctx context.Context,
 	req *v1beta1.GetNearestDriversRequest,
-	query func(context.Context, *v1beta1.LatLng) (*db.GetNearbyDriverLocationsOutput, error),
-	distanceBetweenPoints func(context.Context, distance.BetweenPointsInput) (*distance.BetweenPointsOutput, error),
-	trafficAware bool,
 ) (*v1beta1.GetNearestDriversResponse, error) {
+	logger := ctxzap.Extract(ctx)
 	err := validateGetNearestDriversRequest(req)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
+	trafficAware := s.distanceSvc != nil
+
 	// Query database
-	nearby, err := query(ctx, req.GetPickupLocation())
+	nearby, err := s.dataStore.GetNearbyDriverLocations(ctx, req.GetPickupLocation())
 	if err != nil {
 		return nil, err
 	}
@@ -65,7 +66,7 @@ func getNearestDrivers(
 	}
 	var pickupAddress string
 	if trafficAware {
-		out, err := distanceBetweenPoints(ctx, distance.BetweenPointsInput{
+		out, err := s.distanceSvc.BetweenPoints(ctx, distance.BetweenPointsInput{
 			PickupLocations: []*v1beta1.LatLng{req.GetPickupLocation()},
 			DriverLocations: driverLocations,
 		})
@@ -73,6 +74,7 @@ func getNearestDrivers(
 			return nil, err
 		}
 		for i, info := range out.Info {
+			logger.Info("received distance matrix info", zap.Any("info", info))
 			results[i].Duration = durationpb.New(info.Duration)
 			results[i].DistanceMeters = float64(info.DistanceMeters)
 			// the driver is always the origin
@@ -96,20 +98,19 @@ func getNearestDrivers(
 	}, nil
 }
 
-func getNearestTrips(
+func (s *Service) GetNearestTrips(
 	ctx context.Context,
 	req *v1beta1.GetNearestTripsRequest,
-	query func(context.Context, *v1beta1.LatLng) (*db.GetNearbyTripsOutput, error),
-	distanceBetweenPoints func(context.Context, distance.BetweenPointsInput) (*distance.BetweenPointsOutput, error),
-	trafficAware bool,
 ) (*v1beta1.GetNearestTripsResponse, error) {
 	//err := validateGetNearestTripsRequest(req)
 	//if err != nil {
 	//	return nil, status.Error(codes.InvalidArgument, err.Error())
 	//}
 
+	trafficAware := s.distanceSvc != nil
+
 	// Query database
-	nearby, err := query(ctx, req.GetDriverLocation())
+	nearby, err := s.dataStore.GetNearbyTrips(ctx, req.GetDriverLocation())
 	if err != nil {
 		return nil, err
 	}
@@ -142,7 +143,7 @@ func getNearestTrips(
 		locations = append(locations, result.GetLocation())
 	}
 	if trafficAware {
-		out, err := distanceBetweenPoints(ctx, distance.BetweenPointsInput{
+		out, err := s.distanceSvc.BetweenPoints(ctx, distance.BetweenPointsInput{
 			PickupLocations: locations,
 			DriverLocations: []*v1beta1.LatLng{req.GetDriverLocation()},
 		})

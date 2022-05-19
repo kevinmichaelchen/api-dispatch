@@ -26,22 +26,6 @@ func (s *Service) UpdateDriverLocations(ctx context.Context, r *v1beta1.UpdateDr
 	return s.dataStore.UpdateDriverLocations(ctx, r)
 }
 
-func (s *Service) GetNearestDrivers(ctx context.Context, req *v1beta1.GetNearestDriversRequest) (*v1beta1.GetNearestDriversResponse, error) {
-	return getNearestDrivers(ctx, req,
-		s.dataStore.GetNearbyDriverLocations,
-		s.distanceSvc.BetweenPoints,
-		s.distanceSvc != nil,
-	)
-}
-
-func (s *Service) GetNearestTrips(ctx context.Context, req *v1beta1.GetNearestTripsRequest) (*v1beta1.GetNearestTripsResponse, error) {
-	return getNearestTrips(ctx, req,
-		s.dataStore.GetNearbyTrips,
-		s.distanceSvc.BetweenPoints,
-		s.distanceSvc != nil,
-	)
-}
-
 func (s *Service) Check(ctx context.Context, in *healthV1.HealthCheckRequest) (*healthV1.HealthCheckResponse, error) {
 	return health.Check(ctx, in)
 }
