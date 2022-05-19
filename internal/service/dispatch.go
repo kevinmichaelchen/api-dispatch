@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/kevinmichaelchen/api-dispatch/internal/distance"
 	"github.com/kevinmichaelchen/api-dispatch/internal/idl/coop/drivers/dispatch/v1beta1"
+	"github.com/kevinmichaelchen/api-dispatch/internal/service/db"
 	"github.com/kevinmichaelchen/api-dispatch/internal/service/money"
 	"github.com/kevinmichaelchen/api-dispatch/internal/service/ranking"
 	"google.golang.org/grpc/codes"
@@ -18,28 +19,34 @@ const (
 	maxResults = 100
 )
 
-func (s *Service) GetNearestDrivers(ctx context.Context, req *v1beta1.GetNearestDriversRequest) (*v1beta1.GetNearestDriversResponse, error) {
+func getNearestDrivers(
+	ctx context.Context,
+	req *v1beta1.GetNearestDriversRequest,
+	query func(context.Context, *v1beta1.LatLng) (*db.GetNearbyDriverLocationsOutput, error),
+	distanceBetweenPoints func(context.Context, distance.BetweenPointsInput) (*distance.BetweenPointsOutput, error),
+	trafficAware bool,
+) (*v1beta1.GetNearestDriversResponse, error) {
 	err := validateGetNearestDriversRequest(req)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
 	// Query database
-	nearby, err := s.getNearbyDriverLocations(ctx, req.GetPickupLocation())
+	nearby, err := query(ctx, req.GetPickupLocation())
 	if err != nil {
 		return nil, err
 	}
 
 	// Merge results
-	results := mergeDrivers(
+	results := MergeDrivers(
 		req.GetPickupLocation(),
-		mergeDriversInput{drivers: nearby.r7k1Cells, res: 7, kValue: 1},
-		mergeDriversInput{drivers: nearby.r8k1Cells, res: 8, kValue: 1},
-		mergeDriversInput{drivers: nearby.r8k2Cells, res: 8, kValue: 2},
-		mergeDriversInput{drivers: nearby.r9k1Cells, res: 9, kValue: 1},
-		mergeDriversInput{drivers: nearby.r9k2Cells, res: 9, kValue: 2},
-		mergeDriversInput{drivers: nearby.r10k1Cells, res: 10, kValue: 1},
-		mergeDriversInput{drivers: nearby.r10k2Cells, res: 10, kValue: 2},
+		MergeDriversInput{Drivers: nearby.R7K1Cells, Res: 7, KValue: 1},
+		MergeDriversInput{Drivers: nearby.R8K1Cells, Res: 8, KValue: 1},
+		MergeDriversInput{Drivers: nearby.R8K2Cells, Res: 8, KValue: 2},
+		MergeDriversInput{Drivers: nearby.R9K1Cells, Res: 9, KValue: 1},
+		MergeDriversInput{Drivers: nearby.R9K2Cells, Res: 9, KValue: 2},
+		MergeDriversInput{Drivers: nearby.R10K1Cells, Res: 10, KValue: 1},
+		MergeDriversInput{Drivers: nearby.R10K2Cells, Res: 10, KValue: 2},
 	)
 
 	// Apply server-side results limit
@@ -57,8 +64,8 @@ func (s *Service) GetNearestDrivers(ctx context.Context, req *v1beta1.GetNearest
 		driverLocations = append(driverLocations, result.GetLocation())
 	}
 	var pickupAddress string
-	if s.distanceSvc != nil {
-		out, err := s.distanceSvc.BetweenPoints(ctx, distance.BetweenPointsInput{
+	if trafficAware {
+		out, err := distanceBetweenPoints(ctx, distance.BetweenPointsInput{
 			PickupLocations: []*v1beta1.LatLng{req.GetPickupLocation()},
 			DriverLocations: driverLocations,
 		})
@@ -89,29 +96,35 @@ func (s *Service) GetNearestDrivers(ctx context.Context, req *v1beta1.GetNearest
 	}, nil
 }
 
-func (s *Service) GetNearestTrips(ctx context.Context, req *v1beta1.GetNearestTripsRequest) (*v1beta1.GetNearestTripsResponse, error) {
+func getNearestTrips(
+	ctx context.Context,
+	req *v1beta1.GetNearestTripsRequest,
+	query func(context.Context, *v1beta1.LatLng) (*db.GetNearbyTripsOutput, error),
+	distanceBetweenPoints func(context.Context, distance.BetweenPointsInput) (*distance.BetweenPointsOutput, error),
+	trafficAware bool,
+) (*v1beta1.GetNearestTripsResponse, error) {
 	//err := validateGetNearestTripsRequest(req)
 	//if err != nil {
 	//	return nil, status.Error(codes.InvalidArgument, err.Error())
 	//}
 
 	// Query database
-	nearby, err := s.getNearbyTrips(ctx, req.GetDriverLocation())
+	nearby, err := query(ctx, req.GetDriverLocation())
 	if err != nil {
 		return nil, err
 	}
 
 	// Merge results
-	results := mergeTrips(
+	results := MergeTrips(
 		req.GetDriverLocation(),
 		// TODO these should be fed in reverse order
-		mergeTripsInput{trips: nearby.r7k1Cells, res: 7, kValue: 1},
-		mergeTripsInput{trips: nearby.r8k1Cells, res: 8, kValue: 1},
-		mergeTripsInput{trips: nearby.r8k2Cells, res: 8, kValue: 2},
-		mergeTripsInput{trips: nearby.r9k1Cells, res: 9, kValue: 1},
-		mergeTripsInput{trips: nearby.r9k2Cells, res: 9, kValue: 2},
-		mergeTripsInput{trips: nearby.r10k1Cells, res: 10, kValue: 1},
-		mergeTripsInput{trips: nearby.r10k2Cells, res: 10, kValue: 2},
+		MergeTripsInput{trips: nearby.R7K1Cells, res: 7, kValue: 1},
+		MergeTripsInput{trips: nearby.R8K1Cells, res: 8, kValue: 1},
+		MergeTripsInput{trips: nearby.R8K2Cells, res: 8, kValue: 2},
+		MergeTripsInput{trips: nearby.R9K1Cells, res: 9, kValue: 1},
+		MergeTripsInput{trips: nearby.R9K2Cells, res: 9, kValue: 2},
+		MergeTripsInput{trips: nearby.R10K1Cells, res: 10, kValue: 1},
+		MergeTripsInput{trips: nearby.R10K2Cells, res: 10, kValue: 2},
 	)
 
 	// Apply server-side results limit
@@ -128,8 +141,8 @@ func (s *Service) GetNearestTrips(ctx context.Context, req *v1beta1.GetNearestTr
 	for _, result := range results {
 		locations = append(locations, result.GetLocation())
 	}
-	if s.distanceSvc != nil {
-		out, err := s.distanceSvc.BetweenPoints(ctx, distance.BetweenPointsInput{
+	if trafficAware {
+		out, err := distanceBetweenPoints(ctx, distance.BetweenPointsInput{
 			PickupLocations: locations,
 			DriverLocations: []*v1beta1.LatLng{req.GetDriverLocation()},
 		})

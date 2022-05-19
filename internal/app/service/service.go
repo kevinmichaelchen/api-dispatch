@@ -6,6 +6,7 @@ import (
 	"github.com/friendsofgo/errors"
 	"github.com/kevinmichaelchen/api-dispatch/internal/distance"
 	"github.com/kevinmichaelchen/api-dispatch/internal/service"
+	"github.com/kevinmichaelchen/api-dispatch/internal/service/db"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
@@ -18,17 +19,22 @@ var Module = fx.Module("service",
 		NewService,
 		NewDistanceService,
 		NewMapsClient,
+		NewDataStore,
 	),
 )
 
-type ServiceParams struct {
+type Params struct {
 	fx.In
-	DB              *sql.DB
+	DataStore       *db.Store
 	DistanceService *distance.Service `optional:"true"`
 }
 
-func NewService(p ServiceParams) *service.Service {
-	return service.NewService(p.DB, p.DistanceService)
+func NewService(p Params) *service.Service {
+	return service.NewService(p.DataStore, p.DistanceService)
+}
+
+func NewDataStore(sqlDB *sql.DB) *db.Store {
+	return db.NewStore(sqlDB)
 }
 
 func NewMapsClient() (*maps.Client, error) {
