@@ -1,45 +1,35 @@
 package service
 
 import (
-	"database/sql"
-	"github.com/kevinmichaelchen/api-dispatch/internal/distance"
+	"context"
 	"github.com/kevinmichaelchen/api-dispatch/internal/idl/coop/drivers/dispatch/v1beta1"
-	"github.com/uber/h3-go"
-	"github.com/volatiletech/sqlboiler/v4/types"
+	"github.com/kevinmichaelchen/api-dispatch/internal/service/db"
+	"github.com/kevinmichaelchen/api-dispatch/internal/service/distance"
+	"github.com/kevinmichaelchen/api-dispatch/internal/service/health"
+	healthV1 "google.golang.org/grpc/health/grpc_health_v1"
 )
 
 type Service struct {
-	db          *sql.DB
+	dataStore   *db.Store
 	distanceSvc *distance.Service
 }
 
-func NewService(db *sql.DB, distanceSvc *distance.Service) *Service {
-	return &Service{db: db, distanceSvc: distanceSvc}
+func NewService(dataStore *db.Store, distanceSvc *distance.Service) *Service {
+	return &Service{dataStore: dataStore, distanceSvc: distanceSvc}
 }
 
-func getCell(l *v1beta1.LatLng, res int) string {
-	i := h3.FromGeo(h3.GeoCoord{
-		Latitude:  l.GetLatitude(),
-		Longitude: l.GetLongitude(),
-	}, res)
-	return h3.ToString(i)
+func (s *Service) CreateTrips(ctx context.Context, r *v1beta1.CreateTripsRequest) (*v1beta1.CreateTripsResponse, error) {
+	return s.dataStore.CreateTrips(ctx, r)
 }
 
-func cellNeighbors(l *v1beta1.LatLng, res int, k int) types.StringArray {
-	i := h3.FromGeo(h3.GeoCoord{
-		Latitude:  l.GetLatitude(),
-		Longitude: l.GetLongitude(),
-	}, res)
-	indexes := h3.KRing(i, k)
-	var out []string
-	for _, idx := range indexes {
-		out = append(out, h3.ToString(idx))
-	}
-	return out
+func (s *Service) UpdateDriverLocations(ctx context.Context, r *v1beta1.UpdateDriverLocationsRequest) (*v1beta1.UpdateDriverLocationsResponse, error) {
+	return s.dataStore.UpdateDriverLocations(ctx, r)
 }
 
-func pointDistance(l1, l2 *v1beta1.LatLng) float64 {
-	// TODO can't find this on the h3-go SDK
-	// https://h3geo.org/docs/api/misc/#pointdistm
-	return 0
+func (s *Service) Check(ctx context.Context, in *healthV1.HealthCheckRequest) (*healthV1.HealthCheckResponse, error) {
+	return health.Check(ctx, in)
+}
+
+func (s *Service) Watch(in *healthV1.HealthCheckRequest, srv healthV1.Health_WatchServer) error {
+	return health.Watch(in, srv)
 }

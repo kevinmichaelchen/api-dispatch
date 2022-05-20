@@ -7,7 +7,6 @@
 1. [Introduction](#introduction)
    1. [The problem](#the-problem)
    1. [The solution](#the-solution)
-   1. [Not considered yet](#not-considered-yet)
 1. [Project structure](#project-structure)
 1. [How does it work](#how-does-it-work)
    1. [Ingestion](#ingestion)
@@ -28,21 +27,18 @@ drivers? Conversely, how do we select the best trips for drivers?
 Combine [Google Maps](https://developers.google.com/maps/documentation/distance-matrix/distance-matrix)
 and [h3](https://h3geo.org/) (a hexagonal hierarchical geospatial indexing system).
 
-### Not considered yet
-1. Driver eligibility for trip
-
 ## Project structure
 
-| Directory                                    | Description                               |
-|----------------------------------------------|-------------------------------------------|
-| [`./cmd`](./cmd)                             | CLI for making gRPC requests              |
-| [`./idl`](./idl)                             | Protobufs (Interface Definition Language) |
-| [`./internal/app`](./internal/app)           | App dependency injection / initialization |
-| [`./internal/distance`](./internal/distance) | Google Maps Distance Matrix logic         |
-| [`./internal/idl`](./internal/idl)           | Auto-generated protobufs                  |
-| [`./internal/models`](./internal/models)     | Auto-generated ORM / models               |
-| [`./internal/service`](./internal/service)   | Service layer / Business logic            |
-| [`./schema`](./schema)                       | SQL migration scripts                     |
+| Directory                                           | Description                               |
+|-----------------------------------------------------|-------------------------------------------|
+| [`./cmd`](./cmd)                                    | CLI for making gRPC requests              |
+| [`./idl`](./idl/coop/drivers/dispatch/v1beta1)      | Protobufs (Interface Definition Language) |
+| [`./internal/app`](./internal/app)                  | App dependency injection / initialization |
+| [`./internal/distance`](internal/service/distance)  | Google Maps Distance Matrix logic         |
+| [`./internal/idl`](./internal/idl)                  | Auto-generated protobufs                  |
+| [`./internal/models`](./internal/models)            | Auto-generated ORM / models               |
+| [`./internal/service`](./internal/service)          | Service layer / Business logic            |
+| [`./schema`](./schema)                              | SQL migration scripts                     |
 
 ## How does it work
 
