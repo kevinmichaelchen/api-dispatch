@@ -29,9 +29,9 @@ func scoreTrip(in *v1beta1.SearchResult) float64 {
 	u := time.Until(in.GetTrip().GetScheduledFor().AsTime())
 	p := in.GetTrip().GetExpectedPayment()
 
-	score := 100 +
+	score := 1000 +
 		float64(money.ConvertMoneyToFloat(p)) -
-		float64(u/time.Minute) +
+		float64(u/time.Second) +
 		scoreDurationToPickup(in.GetDuration().AsDuration())
 	in.Score = score
 	return score
