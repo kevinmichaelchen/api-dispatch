@@ -1,13 +1,18 @@
 package db
 
-import "database/sql"
+import (
+	"database/sql"
+	"github.com/go-redis/redis/v8"
+)
 
 type Store struct {
-	db *sql.DB
+	db          *sql.DB
+	redisClient *redis.Client
 }
 
-func NewStore(db *sql.DB) *Store {
+func NewStore(db *sql.DB, redisClient *redis.Client) *Store {
 	return &Store{
-		db: db,
+		db:          db,
+		redisClient: redisClient,
 	}
 }

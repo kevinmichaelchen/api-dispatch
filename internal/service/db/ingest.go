@@ -32,9 +32,13 @@ func (s *Store) CreateTrips(ctx context.Context, r *v1beta1.CreateTripsRequest) 
 			R10K1Neighbors: h3.CellNeighbors(tripPB.GetPickupLocation(), 10, 1),
 			R10K2Neighbors: h3.CellNeighbors(tripPB.GetPickupLocation(), 10, 2),
 		}
-		err := trip.Insert(ctx, s.db, boil.Infer())
+		err := trip.Upsert(ctx, s.db, true, []string{models.TripColumns.ID}, boil.Infer(), boil.Infer())
 		if err != nil {
 			return nil, fmt.Errorf("failed to insert location for trip: %s: %v", tripPB.GetId(), err)
+		}
+		err = cacheTrip(ctx, s.redisClient, trip)
+		if err != nil {
+			return nil, err
 		}
 	}
 	return &v1beta1.CreateTripsResponse{}, nil

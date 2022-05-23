@@ -3,6 +3,7 @@ package service
 import (
 	"database/sql"
 	"fmt"
+	"github.com/go-redis/redis/v8"
 	"github.com/kevinmichaelchen/api-dispatch/internal/service"
 	"github.com/kevinmichaelchen/api-dispatch/internal/service/db"
 	"github.com/kevinmichaelchen/api-dispatch/internal/service/geo"
@@ -32,8 +33,8 @@ func NewService(p ServiceParams) *service.Service {
 	return service.NewService(p.DataStore, p.DistanceService)
 }
 
-func NewDataStore(sqlDB *sql.DB) *db.Store {
-	return db.NewStore(sqlDB)
+func NewDataStore(sqlDB *sql.DB, redisClient *redis.Client) *db.Store {
+	return db.NewStore(sqlDB, redisClient)
 }
 
 func NewMapsClient(logger *zap.Logger) (*gmaps.Client, error) {
