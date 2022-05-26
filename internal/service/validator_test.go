@@ -26,20 +26,21 @@ func Test_validateGetNearestDriversRequest(t *testing.T) {
 				require.NoError(t, err)
 			},
 		},
-		//"Negative limit": {
-		//	build: func() *v1beta1.GetNearestDriversRequest {
-		//		p := buildValid()
-		//		p.Limit = -5
-		//		return p
-		//	},
-		//	expect: func(t *testing.T, err error) {
-		//		require.EqualError(t, err, `foobar`)
-		//	},
-		//},
+		"Negative limit": {
+			build: func() *v1beta1.GetNearestDriversRequest {
+				p := buildValid()
+				p.Limit = -5
+				return p
+			},
+			expect: func(t *testing.T, err error) {
+				require.EqualError(t, err, `invalid GetNearestDriversRequest.Limit: value must be inside range (0, 1000]`)
+			},
+		},
 	}
 	for testName, tc := range cases {
 		t.Run(testName, func(t *testing.T) {
-			err := validateGetNearestDriversRequest(tc.build())
+			r := tc.build()
+			err := r.Validate()
 			tc.expect(t, err)
 		})
 	}

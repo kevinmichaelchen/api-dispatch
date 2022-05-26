@@ -106,6 +106,10 @@ func (s *Service) GetNearestTrips(
 	//if err != nil {
 	//	return nil, status.Error(codes.InvalidArgument, err.Error())
 	//}
+	err := req.GetDriverLocation().Validate()
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
 
 	trafficAware := s.distanceSvc != nil
 

@@ -5,6 +5,7 @@ all:
 
 .PHONY: gen-proto
 gen-proto:
+	buf mod update idl
 	buf generate idl
 
 .PHONY: gen-models

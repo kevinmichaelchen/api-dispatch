@@ -6,6 +6,7 @@ import "coop/drivers/dispatch/v1beta1/driver.proto";
 import "coop/drivers/dispatch/v1beta1/latlng.proto";
 import "coop/drivers/dispatch/v1beta1/trip.proto";
 import "google/protobuf/duration.proto";
+import "validate/validate.proto";
 
 option go_package = "github.com/kevinmichaelchen/api-dispatch/internal/idl/coop/drivers/dispatch/v1beta1";
 
@@ -38,7 +39,7 @@ message CreateTripsResponse {}
 message GetNearestDriversRequest {
   // trip pickup location
   LatLng pickup_location = 1;
-  int32 limit = 2;
+  int32 limit = 2 [(validate.rules).int32 = { gt: 0,  lte: 1000 }];
 }
 
 message GetNearestDriversResponse {
@@ -48,10 +49,12 @@ message GetNearestDriversResponse {
 
 message GetNearestTripsRequest {
   oneof driver {
+    option (validate.required) = true;
+
     string driver_id = 1;
     LatLng driver_location = 2;
   }
-  int32 limit = 3;
+  int32 limit = 3 [(validate.rules).int32 = { gt: 0,  lte: 1000 }];
 }
 
 message GetNearestTripsResponse {
