@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/zap/ctxzap"
 	"github.com/kevinmichaelchen/api-dispatch/internal/idl/coop/drivers/dispatch/v1beta1"
-	"github.com/kevinmichaelchen/api-dispatch/internal/service/distance"
+	"github.com/kevinmichaelchen/api-dispatch/internal/service/maps"
 	"github.com/kevinmichaelchen/api-dispatch/internal/service/money"
 	"github.com/kevinmichaelchen/api-dispatch/internal/service/ranking"
 	"go.uber.org/zap"
@@ -66,9 +66,10 @@ func (s *Service) GetNearestDrivers(
 	}
 	var pickupAddress string
 	if trafficAware {
-		out, err := s.distanceSvc.BetweenPoints(ctx, distance.BetweenPointsInput{
-			PickupLocations: []*v1beta1.LatLng{req.GetPickupLocation()},
-			DriverLocations: driverLocations,
+		out, err := s.distanceSvc.BetweenPoints(ctx, maps.BetweenPointsInput{
+			// the driver location(s) is/are always the origin(s)
+			Origins:      driverLocations,
+			Destinations: []*v1beta1.LatLng{req.GetPickupLocation()},
 		})
 		if err != nil {
 			return nil, err
@@ -144,9 +145,10 @@ func (s *Service) GetNearestTrips(
 		locations = append(locations, result.GetLocation())
 	}
 	if trafficAware {
-		out, err := s.distanceSvc.BetweenPoints(ctx, distance.BetweenPointsInput{
-			PickupLocations: locations,
-			DriverLocations: []*v1beta1.LatLng{req.GetDriverLocation()},
+		out, err := s.distanceSvc.BetweenPoints(ctx, maps.BetweenPointsInput{
+			// the driver location(s) is/are always the origin(s)
+			Origins:      []*v1beta1.LatLng{req.GetDriverLocation()},
+			Destinations: locations,
 		})
 		if err != nil {
 			return nil, err

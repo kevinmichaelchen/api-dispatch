@@ -1,4 +1,4 @@
-package distance
+package maps
 
 import (
 	"context"
@@ -18,8 +18,8 @@ func NewService(client *maps.Client) *Service {
 }
 
 type BetweenPointsInput struct {
-	PickupLocations []*v1beta1.LatLng
-	DriverLocations []*v1beta1.LatLng
+	Destinations []*v1beta1.LatLng
+	Origins      []*v1beta1.LatLng
 }
 
 type BetweenPointsOutput struct {
@@ -34,19 +34,21 @@ type Info struct {
 }
 
 func (s *Service) BetweenPoints(ctx context.Context, in BetweenPointsInput) (*BetweenPointsOutput, error) {
-	driverPlaceIDs, err := locationsToPlaceIDs(ctx, s.client, in.DriverLocations)
+	origins, err := locationsToPlaceIDs(ctx, s.client, in.Origins)
 	if err != nil {
 		return nil, err
 	}
 
-	pickupPlaceIDs, err := locationsToPlaceIDs(ctx, s.client, in.PickupLocations)
+	destinations, err := locationsToPlaceIDs(ctx, s.client, in.Destinations)
 	if err != nil {
 		return nil, err
 	}
+
+	// TODO if len(origins) > 25 || len(destinations) > 25, we need to partition/batch
 
 	res, err := betweenPlaces(ctx, s.client, betweenPlacesInput{
-		originPlaceIDs:      driverPlaceIDs,
-		destinationPlaceIDs: pickupPlaceIDs,
+		originPlaceIDs:      origins,
+		destinationPlaceIDs: destinations,
 	})
 	if err != nil {
 		return nil, err

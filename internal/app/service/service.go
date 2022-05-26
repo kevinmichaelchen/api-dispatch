@@ -6,11 +6,11 @@ import (
 	"github.com/friendsofgo/errors"
 	"github.com/kevinmichaelchen/api-dispatch/internal/service"
 	"github.com/kevinmichaelchen/api-dispatch/internal/service/db"
-	"github.com/kevinmichaelchen/api-dispatch/internal/service/distance"
+	"github.com/kevinmichaelchen/api-dispatch/internal/service/maps"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
-	"googlemaps.github.io/maps"
+	gmaps "googlemaps.github.io/maps"
 	"os"
 )
 
@@ -26,7 +26,7 @@ var Module = fx.Module("service",
 type Params struct {
 	fx.In
 	DataStore       *db.Store
-	DistanceService *distance.Service `optional:"true"`
+	DistanceService *maps.Service `optional:"true"`
 }
 
 func NewService(p Params) *service.Service {
@@ -37,14 +37,14 @@ func NewDataStore(sqlDB *sql.DB) *db.Store {
 	return db.NewStore(sqlDB)
 }
 
-func NewMapsClient() (*maps.Client, error) {
+func NewMapsClient() (*gmaps.Client, error) {
 	apiKey := os.Getenv("API_KEY")
 	if apiKey == "" {
 		return nil, errors.New("missing API_KEY for Google Maps")
 	}
-	c, err := maps.NewClient(
-		maps.WithAPIKey(apiKey),
-		maps.WithHTTPClient(otelhttp.DefaultClient),
+	c, err := gmaps.NewClient(
+		gmaps.WithAPIKey(apiKey),
+		gmaps.WithHTTPClient(otelhttp.DefaultClient),
 	)
 	if err != nil {
 		return nil, fmt.Errorf("failed to build Google Maps client: %w", err)
@@ -52,9 +52,9 @@ func NewMapsClient() (*maps.Client, error) {
 	return c, nil
 }
 
-func NewDistanceService(logger *zap.Logger, client *maps.Client) (*distance.Service, error) {
+func NewDistanceService(logger *zap.Logger, client *gmaps.Client) (*maps.Service, error) {
 	if client == nil {
 		return nil, errors.New("no maps client")
 	}
-	return distance.NewService(client), nil
+	return maps.NewService(client), nil
 }

@@ -1,10 +1,11 @@
-package distance
+package maps
 
 import (
 	"context"
 	"errors"
 	"fmt"
 	"github.com/kevinmichaelchen/api-dispatch/internal/idl/coop/drivers/dispatch/v1beta1"
+	"github.com/kevinmichaelchen/api-dispatch/internal/service/maps/google"
 	"golang.org/x/sync/errgroup"
 	"googlemaps.github.io/maps"
 	"strconv"
@@ -15,8 +16,6 @@ import (
 const (
 	parallelizationFactor = 10
 )
-
-var errNoResults = errors.New("no results found for coordinates")
 
 type Place struct {
 	ID      string
@@ -72,7 +71,7 @@ func locationsToPlaceIDs(ctx context.Context, c *maps.Client, locations []*v1bet
 			}()
 
 			for location := range locationsChan {
-				geocodingResults, err := reverseGeocode(ctx, c, location)
+				geocodingResults, err := google.ReverseGeocode(ctx, c, location)
 				if err != nil {
 					return fmt.Errorf("failed to reverse geocode location: %w", err)
 				} else {
@@ -139,25 +138,4 @@ func locationsToPlaceIDs(ctx context.Context, c *maps.Client, locations []*v1bet
 		out = append(out, geocodingResults[0].PlaceID)
 	}
 	return out, nil
-}
-
-func reverseGeocode(ctx context.Context, c *maps.Client, location *v1beta1.LatLng) ([]maps.GeocodingResult, error) {
-	results, err := c.ReverseGeocode(ctx, &maps.GeocodingRequest{
-		LatLng: &maps.LatLng{
-			Lat: location.GetLatitude(),
-			Lng: location.GetLongitude(),
-		},
-		ResultType:   nil,
-		LocationType: nil,
-		PlaceID:      "",
-		Language:     "",
-		Custom:       nil,
-	})
-	if err != nil {
-		return nil, err
-	}
-	if len(results) == 0 {
-		return nil, errNoResults
-	}
-	return results, err
 }
