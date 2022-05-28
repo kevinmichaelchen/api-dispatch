@@ -8,8 +8,6 @@ import (
 	"github.com/kevinmichaelchen/api-dispatch/internal/service/money"
 	"github.com/kevinmichaelchen/api-dispatch/internal/service/ranking"
 	"go.uber.org/zap"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"math/rand"
@@ -17,7 +15,8 @@ import (
 )
 
 const (
-	maxResults = 100
+	// TODO probably a way to get the limit programmatically; https://go.dev/blog/protobuf-apiv2
+	maxResults = 1000
 )
 
 func (s *Service) GetNearestDrivers(
@@ -25,9 +24,10 @@ func (s *Service) GetNearestDrivers(
 	req *v1beta1.GetNearestDriversRequest,
 ) (*v1beta1.GetNearestDriversResponse, error) {
 	logger := ctxzap.Extract(ctx)
-	err := validateGetNearestDriversRequest(req)
+
+	err := validate(req, req)
 	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, err.Error())
+		return nil, err
 	}
 
 	trafficAware := s.distanceSvc != nil
@@ -102,10 +102,11 @@ func (s *Service) GetNearestTrips(
 	ctx context.Context,
 	req *v1beta1.GetNearestTripsRequest,
 ) (*v1beta1.GetNearestTripsResponse, error) {
-	//err := validateGetNearestTripsRequest(req)
-	//if err != nil {
-	//	return nil, status.Error(codes.InvalidArgument, err.Error())
-	//}
+
+	err := validate(req, req)
+	if err != nil {
+		return nil, err
+	}
 
 	trafficAware := s.distanceSvc != nil
 

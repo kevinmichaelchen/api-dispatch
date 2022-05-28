@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package coop.drivers.dispatch.v1beta1;
 
+import "validate/validate.proto";
+
 option go_package = "github.com/kevinmichaelchen/api-dispatch/internal/idl/coop/drivers/dispatch/v1beta1";
 
 // An object that represents a latitude/longitude pair. This is expressed as a
@@ -11,8 +13,14 @@ option go_package = "github.com/kevinmichaelchen/api-dispatch/internal/idl/coop/
 // standard</a>. Values must be within normalized ranges.
 message LatLng {
   // The latitude in degrees. It must be in the range [-90.0, +90.0].
-  double latitude = 1;
+  double latitude = 1 [(validate.rules).double = {
+    gte: -90,
+    lte: 90
+  }];
 
   // The longitude in degrees. It must be in the range [-180.0, +180.0].
-  double longitude = 2;
+  double longitude = 2 [(validate.rules).double = {
+    gte: -180,
+    lte: 180
+  }];
 }

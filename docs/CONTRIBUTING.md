@@ -125,3 +125,19 @@ dispatch=# select driver_id from driver_location ;
  WBG-Birria-Landia
 (16 rows)
 ```
+
+## JetBrains Protobuf Import Paths
+In `Languages & Frameworks > Protocol Buffers`, import the `./idl` directory.
+
+Install envoyproxy/protoc-gen-validate into your `GOPATH`.
+```
+$ go env -json GOPATH GOROOT                
+{
+	"GOPATH": "/Users/kevinchen/go",
+	"GOROOT": "/opt/homebrew/Cellar/go/1.18.2/libexec"
+}
+
+$ go install github.com/envoyproxy/protoc-gen-validate@latest
+```
+
+Add an import path for `${GOPATH}/pkg/mod/github.com/envoyproxy/protoc-gen-validate@v0.6.7`.
