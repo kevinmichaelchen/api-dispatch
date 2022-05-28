@@ -36,6 +36,56 @@ func Test_validateGetNearestDriversRequest(t *testing.T) {
 				require.EqualError(t, err, `invalid GetNearestDriversRequest.Limit: value must be inside range (0, 1000]`)
 			},
 		},
+		"Excessive limit": {
+			build: func() *v1beta1.GetNearestDriversRequest {
+				p := buildValid()
+				p.Limit = 1001
+				return p
+			},
+			expect: func(t *testing.T, err error) {
+				require.EqualError(t, err, `invalid GetNearestDriversRequest.Limit: value must be inside range (0, 1000]`)
+			},
+		},
+		"Latitude too low": {
+			build: func() *v1beta1.GetNearestDriversRequest {
+				p := buildValid()
+				p.PickupLocation.Latitude = -91
+				return p
+			},
+			expect: func(t *testing.T, err error) {
+				require.EqualError(t, err, `invalid GetNearestDriversRequest.PickupLocation: embedded message failed validation | caused by: invalid LatLng.Latitude: value must be inside range [-90, 90]`)
+			},
+		},
+		"Latitude too high": {
+			build: func() *v1beta1.GetNearestDriversRequest {
+				p := buildValid()
+				p.PickupLocation.Latitude = 91
+				return p
+			},
+			expect: func(t *testing.T, err error) {
+				require.EqualError(t, err, `invalid GetNearestDriversRequest.PickupLocation: embedded message failed validation | caused by: invalid LatLng.Latitude: value must be inside range [-90, 90]`)
+			},
+		},
+		"Longitude too low": {
+			build: func() *v1beta1.GetNearestDriversRequest {
+				p := buildValid()
+				p.PickupLocation.Longitude = -181
+				return p
+			},
+			expect: func(t *testing.T, err error) {
+				require.EqualError(t, err, `invalid GetNearestDriversRequest.PickupLocation: embedded message failed validation | caused by: invalid LatLng.Longitude: value must be inside range [-180, 180]`)
+			},
+		},
+		"Longitude too high": {
+			build: func() *v1beta1.GetNearestDriversRequest {
+				p := buildValid()
+				p.PickupLocation.Longitude = 181
+				return p
+			},
+			expect: func(t *testing.T, err error) {
+				require.EqualError(t, err, `invalid GetNearestDriversRequest.PickupLocation: embedded message failed validation | caused by: invalid LatLng.Longitude: value must be inside range [-180, 180]`)
+			},
+		},
 	}
 	for testName, tc := range cases {
 		t.Run(testName, func(t *testing.T) {
