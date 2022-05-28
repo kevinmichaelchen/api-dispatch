@@ -4,11 +4,12 @@ package coop.drivers.dispatch.v1beta1;
 
 import "coop/drivers/dispatch/v1beta1/latlng.proto";
 import "google/protobuf/timestamp.proto";
+import "validate/validate.proto";
 
 option go_package = "github.com/kevinmichaelchen/api-dispatch/internal/idl/coop/drivers/dispatch/v1beta1";
 
 message DriverLocation {
-  string driver_id = 1;
-  google.protobuf.Timestamp most_recent_heartbeat = 2;
-  LatLng current_location = 3;
+  string driver_id = 1 [(validate.rules).string.min_len = 1];
+  google.protobuf.Timestamp most_recent_heartbeat = 2 [(validate.rules).timestamp.required = true];
+  LatLng current_location = 3 [(validate.rules).message.required = true];
 }

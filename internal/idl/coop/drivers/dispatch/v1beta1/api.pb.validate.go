@@ -57,6 +57,17 @@ func (m *UpdateDriverLocationsRequest) validate(all bool) error {
 
 	var errors []error
 
+	if l := len(m.GetLocations()); l < 1 || l > 1000 {
+		err := UpdateDriverLocationsRequestValidationError{
+			field:  "Locations",
+			reason: "value must contain between 1 and 1000 items, inclusive",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
 	for idx, item := range m.GetLocations() {
 		_, _ = idx, item
 
@@ -296,6 +307,17 @@ func (m *CreateTripsRequest) validate(all bool) error {
 	}
 
 	var errors []error
+
+	if l := len(m.GetTrips()); l < 1 || l > 1000 {
+		err := CreateTripsRequestValidationError{
+			field:  "Trips",
+			reason: "value must contain between 1 and 1000 items, inclusive",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	for idx, item := range m.GetTrips() {
 		_, _ = idx, item

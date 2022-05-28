@@ -57,35 +57,37 @@ func (m *DriverLocation) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for DriverId
+	if utf8.RuneCountInString(m.GetDriverId()) < 1 {
+		err := DriverLocationValidationError{
+			field:  "DriverId",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	if all {
-		switch v := interface{}(m.GetMostRecentHeartbeat()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, DriverLocationValidationError{
-					field:  "MostRecentHeartbeat",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, DriverLocationValidationError{
-					field:  "MostRecentHeartbeat",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
+	if m.GetMostRecentHeartbeat() == nil {
+		err := DriverLocationValidationError{
+			field:  "MostRecentHeartbeat",
+			reason: "value is required",
 		}
-	} else if v, ok := interface{}(m.GetMostRecentHeartbeat()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return DriverLocationValidationError{
-				field:  "MostRecentHeartbeat",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
+		if !all {
+			return err
 		}
+		errors = append(errors, err)
+	}
+
+	if m.GetCurrentLocation() == nil {
+		err := DriverLocationValidationError{
+			field:  "CurrentLocation",
+			reason: "value is required",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
 	}
 
 	if all {

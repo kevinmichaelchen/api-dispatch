@@ -56,7 +56,27 @@ func (m *Trip) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Id
+	if utf8.RuneCountInString(m.GetId()) < 1 {
+		err := TripValidationError{
+			field:  "Id",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if m.GetPickupLocation() == nil {
+		err := TripValidationError{
+			field:  "PickupLocation",
+			reason: "value is required",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if all {
 		switch v := interface{}(m.GetPickupLocation()).(type) {
@@ -87,33 +107,26 @@ func (m *Trip) validate(all bool) error {
 		}
 	}
 
-	if all {
-		switch v := interface{}(m.GetScheduledFor()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, TripValidationError{
-					field:  "ScheduledFor",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, TripValidationError{
-					field:  "ScheduledFor",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
+	if m.GetScheduledFor() == nil {
+		err := TripValidationError{
+			field:  "ScheduledFor",
+			reason: "value is required",
 		}
-	} else if v, ok := interface{}(m.GetScheduledFor()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return TripValidationError{
-				field:  "ScheduledFor",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
+		if !all {
+			return err
 		}
+		errors = append(errors, err)
+	}
+
+	if m.GetExpectedPayment() == nil {
+		err := TripValidationError{
+			field:  "ExpectedPayment",
+			reason: "value is required",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
 	}
 
 	if all {
@@ -243,11 +256,30 @@ func (m *Money) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for CurrencyCode
+	if utf8.RuneCountInString(m.GetCurrencyCode()) != 3 {
+		err := MoneyValidationError{
+			field:  "CurrencyCode",
+			reason: "value length must be 3 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+
+	}
 
 	// no validation rules for Units
 
-	// no validation rules for Nanos
+	if val := m.GetNanos(); val < -999999999 || val > 999999999 {
+		err := MoneyValidationError{
+			field:  "Nanos",
+			reason: "value must be inside range [-999999999, 999999999]",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return MoneyMultiError(errors)

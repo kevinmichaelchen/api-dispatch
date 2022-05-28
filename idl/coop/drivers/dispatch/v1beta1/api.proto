@@ -25,13 +25,19 @@ service DispatchService {
 }
 
 message UpdateDriverLocationsRequest {
-  repeated DriverLocation locations = 1;
+  repeated DriverLocation locations = 1 [(validate.rules).repeated = {
+    min_items: 1,
+    max_items: 1000
+  }];
 }
 
 message UpdateDriverLocationsResponse {}
 
 message CreateTripsRequest {
-  repeated Trip trips = 1;
+  repeated Trip trips = 1 [(validate.rules).repeated = {
+    min_items: 1,
+    max_items: 1000
+  }];
 }
 
 message CreateTripsResponse {}
@@ -39,7 +45,10 @@ message CreateTripsResponse {}
 message GetNearestDriversRequest {
   // trip pickup location
   LatLng pickup_location = 1;
-  int32 limit = 2 [(validate.rules).int32 = { gt: 0,  lte: 1000 }];
+  int32 limit = 2 [(validate.rules).int32 = {
+    gt: 0,
+    lte: 1000
+  }];
 }
 
 message GetNearestDriversResponse {
@@ -54,7 +63,10 @@ message GetNearestTripsRequest {
     string driver_id = 1;
     LatLng driver_location = 2;
   }
-  int32 limit = 3 [(validate.rules).int32 = { gt: 0,  lte: 1000 }];
+  int32 limit = 3 [(validate.rules).int32 = {
+    gt: 0,
+    lte: 1000
+  }];
 }
 
 message GetNearestTripsResponse {

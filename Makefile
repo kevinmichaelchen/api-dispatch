@@ -5,6 +5,8 @@ all:
 
 .PHONY: gen-proto
 gen-proto:
+	buf lint idl
+	buf format idl -w
 	buf mod update idl
 	buf generate idl
 
