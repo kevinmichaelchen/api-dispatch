@@ -4,8 +4,8 @@ import (
 	"context"
 	"github.com/kevinmichaelchen/api-dispatch/internal/idl/coop/drivers/dispatch/v1beta1"
 	"github.com/kevinmichaelchen/api-dispatch/internal/service/db"
+	"github.com/kevinmichaelchen/api-dispatch/internal/service/geo"
 	"github.com/kevinmichaelchen/api-dispatch/internal/service/health"
-	"github.com/kevinmichaelchen/api-dispatch/internal/service/maps"
 	"google.golang.org/grpc/codes"
 	healthV1 "google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/status"
@@ -14,10 +14,10 @@ import (
 
 type Service struct {
 	dataStore   *db.Store
-	distanceSvc *maps.Service
+	distanceSvc *geo.Service
 }
 
-func NewService(dataStore *db.Store, distanceSvc *maps.Service) *Service {
+func NewService(dataStore *db.Store, distanceSvc *geo.Service) *Service {
 	return &Service{dataStore: dataStore, distanceSvc: distanceSvc}
 }
 

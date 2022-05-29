@@ -4,9 +4,10 @@ import (
 	"context"
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/zap/ctxzap"
 	"github.com/kevinmichaelchen/api-dispatch/internal/idl/coop/drivers/dispatch/v1beta1"
-	"github.com/kevinmichaelchen/api-dispatch/internal/service/maps"
 	"github.com/kevinmichaelchen/api-dispatch/internal/service/money"
 	"github.com/kevinmichaelchen/api-dispatch/internal/service/ranking"
+	"github.com/kevinmichaelchen/api-dispatch/pkg/maps"
+	"github.com/kevinmichaelchen/api-dispatch/pkg/maps/distance"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -66,10 +67,10 @@ func (s *Service) GetNearestDrivers(
 	}
 	var pickupAddress string
 	if trafficAware {
-		out, err := s.distanceSvc.BetweenPoints(ctx, maps.BetweenPointsInput{
+		out, err := s.distanceSvc.BetweenPoints(ctx, distance.BetweenPointsInput{
 			// the driver location(s) is/are always the origin(s)
-			Origins:      driverLocations,
-			Destinations: []*v1beta1.LatLng{req.GetPickupLocation()},
+			Origins:      toLatLngs(driverLocations),
+			Destinations: toLatLngs([]*v1beta1.LatLng{req.GetPickupLocation()}),
 		})
 		if err != nil {
 			return nil, err
@@ -145,10 +146,10 @@ func (s *Service) GetNearestTrips(
 		locations = append(locations, result.GetLocation())
 	}
 	if trafficAware {
-		out, err := s.distanceSvc.BetweenPoints(ctx, maps.BetweenPointsInput{
+		out, err := s.distanceSvc.BetweenPoints(ctx, distance.BetweenPointsInput{
 			// the driver location(s) is/are always the origin(s)
-			Origins:      []*v1beta1.LatLng{req.GetDriverLocation()},
-			Destinations: locations,
+			Origins:      toLatLngs([]*v1beta1.LatLng{req.GetDriverLocation()}),
+			Destinations: toLatLngs(locations),
 		})
 		if err != nil {
 			return nil, err
@@ -198,4 +199,15 @@ func randomMoney() *v1beta1.Money {
 	randomCents := rand.Intn(100)
 	f := float64(randomUnits) + (float64(randomCents) / float64(100))
 	return money.ConvertFloatToMoney(f)
+}
+
+func toLatLngs(in []*v1beta1.LatLng) []maps.LatLng {
+	var out []maps.LatLng
+	for _, e := range in {
+		out = append(out, maps.LatLng{
+			Lat: e.GetLatitude(),
+			Lng: e.GetLongitude(),
+		})
+	}
+	return out
 }

@@ -1,43 +1,42 @@
-package maps
+package geocode
 
 import (
 	"context"
-	"errors"
 	"fmt"
-	"github.com/kevinmichaelchen/api-dispatch/internal/idl/coop/drivers/dispatch/v1beta1"
-	"github.com/kevinmichaelchen/api-dispatch/internal/service/maps/google"
+	"github.com/kevinmichaelchen/api-dispatch/pkg/maps"
 	"golang.org/x/sync/errgroup"
-	"googlemaps.github.io/maps"
 	"strconv"
 	"sync"
 	"sync/atomic"
 )
 
-const (
-	parallelizationFactor = 10
-)
-
-type Place struct {
-	ID      string
-	Address string
-	Types   []string
+// ReverseGeocodeOutput is a representation of a reverse-geocode request.
+// It should be generic enough to work for various APIs:
+// https://github.com/codingsince1985/geo-golang
+type ReverseGeocodeOutput struct {
+	PlaceID string
 }
 
-type LatLng struct {
-	Lat float64
-	Lng float64
+type ReverseGeocoder interface {
+	ReverseGeocode(ctx context.Context, location maps.LatLng) (*ReverseGeocodeOutput, error)
 }
 
-// locationsToPlaceIDs reverse geocodes a list of geographic coordinates.
-// It uses parallelization with the errgroup package, since Google Maps does not
-// offer a way to reverse geocode in bulk, and since each individual request
-// would take roughly 150 ms.
+// BatchReverseGeocode reverse-geocodes a list of geographic coordinates.
+//
+// It uses parallelization with the errgroup package, since some APIs (e.g.,
+// Google Maps) do not offer a way to reverse geocode in bulk, and since each
+// individual request would take roughly 150 ms.
 // Inspired by:
 // https://www.fullstory.com/blog/why-errgroup-withcontext-in-golang-server-handlers/
-func locationsToPlaceIDs(ctx context.Context, c *maps.Client, locations []*v1beta1.LatLng) ([]string, error) {
+func BatchReverseGeocode(
+	ctx context.Context,
+	reverseGeocoder ReverseGeocoder,
+	locations []maps.LatLng,
+	parallelizationFactor int,
+) ([]*ReverseGeocodeOutput, error) {
 	g, ctx := errgroup.WithContext(ctx)
 
-	locationsChan := make(chan *v1beta1.LatLng)
+	locationsChan := make(chan maps.LatLng)
 
 	// Step 1: Produce
 	g.Go(func() error {
@@ -53,8 +52,8 @@ func locationsToPlaceIDs(ctx context.Context, c *maps.Client, locations []*v1bet
 	})
 
 	type Result struct {
-		LatLng           LatLng
-		GeocodingResults []maps.GeocodingResult
+		LatLng           maps.LatLng
+		GeocodingResults *ReverseGeocodeOutput
 	}
 	results := make(chan Result)
 
@@ -71,14 +70,14 @@ func locationsToPlaceIDs(ctx context.Context, c *maps.Client, locations []*v1bet
 			}()
 
 			for location := range locationsChan {
-				geocodingResults, err := google.ReverseGeocode(ctx, c, location)
+				geocodingResults, err := reverseGeocoder.ReverseGeocode(ctx, location)
 				if err != nil {
 					return fmt.Errorf("failed to reverse geocode location: %w", err)
 				} else {
 					result := Result{
-						LatLng: LatLng{
-							Lat: location.GetLatitude(),
-							Lng: location.GetLongitude(),
+						LatLng: maps.LatLng{
+							Lat: location.Lat,
+							Lng: location.Lng,
 						},
 						GeocodingResults: geocodingResults,
 					}
@@ -114,28 +113,21 @@ func locationsToPlaceIDs(ctx context.Context, c *maps.Client, locations []*v1bet
 	// The order of outputs has to correspond with the order of inputs
 	// e.g., if the input was [point1, point2] then the output should be
 	// [place1ID, place2ID]
-	var out []string
+	var out []*ReverseGeocodeOutput
 	for _, location := range locations {
-		lat := location.GetLatitude()
-		lng := location.GetLongitude()
-		val, ok := ret.Load(LatLng{Lat: lat, Lng: lng})
+		val, ok := ret.Load(location)
 		if !ok {
 			return nil, fmt.Errorf("could not find lat/lng for (%s, %s)",
-				strconv.FormatFloat(lat, 'f', -1, 64),
-				strconv.FormatFloat(lng, 'f', -1, 64),
+				strconv.FormatFloat(location.Lat, 'f', -1, 64),
+				strconv.FormatFloat(location.Lng, 'f', -1, 64),
 			)
 		}
-		geocodingResults, ok := val.([]maps.GeocodingResult)
+		geocodingResults, ok := val.(*ReverseGeocodeOutput)
 		if !ok {
-			return nil, errors.New("expected sync.Map values to be []maps.GeocodingResult")
-		}
-		if len(geocodingResults) == 0 {
-			return nil, errors.New("sync.Map value was empty slice of []maps.GeocodingResult")
+			return nil, fmt.Errorf("expected sync.Map values to be *ReverseGeocodeOutput, not %T", val)
 		}
 
-		// Assuming Google Maps API returns places ordered in such a way that
-		// the first element is the most salient/relevant.
-		out = append(out, geocodingResults[0].PlaceID)
+		out = append(out, geocodingResults)
 	}
 	return out, nil
 }

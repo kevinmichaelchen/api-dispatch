@@ -6,7 +6,7 @@ import (
 	"github.com/friendsofgo/errors"
 	"github.com/kevinmichaelchen/api-dispatch/internal/service"
 	"github.com/kevinmichaelchen/api-dispatch/internal/service/db"
-	"github.com/kevinmichaelchen/api-dispatch/internal/service/maps"
+	"github.com/kevinmichaelchen/api-dispatch/internal/service/geo"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
@@ -26,7 +26,7 @@ var Module = fx.Module("service",
 type Params struct {
 	fx.In
 	DataStore       *db.Store
-	DistanceService *maps.Service `optional:"true"`
+	DistanceService *geo.Service `optional:"true"`
 }
 
 func NewService(p Params) *service.Service {
@@ -52,9 +52,9 @@ func NewMapsClient() (*gmaps.Client, error) {
 	return c, nil
 }
 
-func NewDistanceService(logger *zap.Logger, client *gmaps.Client) (*maps.Service, error) {
+func NewDistanceService(logger *zap.Logger, client *gmaps.Client) (*geo.Service, error) {
 	if client == nil {
 		return nil, errors.New("no maps client")
 	}
-	return maps.NewService(client), nil
+	return geo.NewService(client), nil
 }
