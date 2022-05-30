@@ -31,8 +31,6 @@ func (s *Service) GetNearestDrivers(
 		return nil, err
 	}
 
-	trafficAware := s.distanceSvc != nil
-
 	// Query database
 	nearby, err := s.dataStore.GetNearbyDriverLocations(ctx, req.GetPickupLocation())
 	if err != nil {
@@ -109,8 +107,6 @@ func (s *Service) GetNearestTrips(
 	if err != nil {
 		return nil, err
 	}
-
-	trafficAware := s.distanceSvc != nil
 
 	// Query database
 	nearby, err := s.dataStore.GetNearbyTrips(ctx, req.GetDriverLocation())

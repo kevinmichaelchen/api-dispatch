@@ -4,8 +4,8 @@ go 1.18
 
 require (
 	github.com/XSAM/otelsql v0.14.1
-	github.com/envoyproxy/protoc-gen-validate v0.1.0
 	github.com/codingsince1985/geo-golang v1.8.1
+	github.com/envoyproxy/protoc-gen-validate v0.1.0
 	github.com/friendsofgo/errors v0.9.2
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
 	github.com/gojuno/go.osrm v0.1.0

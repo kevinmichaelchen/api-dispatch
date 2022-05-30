@@ -22,7 +22,7 @@ func NewService(client *gMaps.Client, httpClient *http.Client) *Service {
 	}
 }
 
-func (s *Service) BetweenPoints(ctx context.Context, in distance.BetweenPointsInput) (*distance.BetweenPointsOutput, error) {
+func (s *Service) BetweenPoints(ctx context.Context, in distance.BetweenPointsInput) (*distance.MatrixResponse, error) {
 	err := validate(in)
 	if err != nil {
 		return nil, err

@@ -1,10 +1,11 @@
 package osrm
 
 import (
-	"fmt"
-	"github.com/codingsince1985/geo-golang"
+	"context"
 	"github.com/codingsince1985/geo-golang/openstreetmap"
-	"github.com/kr/pretty"
+	"github.com/kevinmichaelchen/api-dispatch/pkg/maps"
+	"github.com/kevinmichaelchen/api-dispatch/pkg/maps/geocode"
+	"net/http"
 )
 
 const (
@@ -12,23 +13,23 @@ const (
 	lat, lng = -37.813611, 144.963056
 )
 
-func ReverseGeocode() {
-	try(openstreetmap.Geocoder())
+type Geocoder struct {
+	client *http.Client
 }
 
-func try(geocoder geo.Geocoder) {
-	location, _ := geocoder.Geocode(addr)
-	if location != nil {
-		fmt.Printf("%s location is (%.6f, %.6f)\n", addr, location.Lat, location.Lng)
-	} else {
-		fmt.Println("got <nil> location")
+func NewGeocoder(client *http.Client) *Geocoder {
+	return &Geocoder{client: client}
+}
+
+func (g *Geocoder) ReverseGeocode(ctx context.Context, location maps.LatLng) (*geocode.ReverseGeocodeOutput, error) {
+	geocoder := openstreetmap.Geocoder()
+
+	address, err := geocoder.ReverseGeocode(lat, lng)
+	if err != nil {
+		return nil, err
 	}
-	address, _ := geocoder.ReverseGeocode(lat, lng)
-	if address != nil {
-		fmt.Printf("Address of (%.6f,%.6f) is %s\n", lat, lng, address.FormattedAddress)
-		pretty.Println(address)
-	} else {
-		fmt.Println("got <nil> address")
-	}
-	fmt.Print("\n")
+
+	return &geocode.ReverseGeocodeOutput{
+		Address: *address,
+	}, nil
 }

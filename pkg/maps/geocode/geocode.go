@@ -3,6 +3,7 @@ package geocode
 import (
 	"context"
 	"fmt"
+	"github.com/codingsince1985/geo-golang"
 	"github.com/kevinmichaelchen/api-dispatch/pkg/maps"
 	"golang.org/x/sync/errgroup"
 	"strconv"
@@ -15,6 +16,9 @@ import (
 // https://github.com/codingsince1985/geo-golang
 type ReverseGeocodeOutput struct {
 	PlaceID string
+
+	// Embedded Address struct from codingsince1985/geo-golang
+	geo.Address
 }
 
 type ReverseGeocoder interface {

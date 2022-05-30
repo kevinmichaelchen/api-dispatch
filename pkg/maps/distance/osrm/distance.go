@@ -44,6 +44,7 @@ func BetweenPoints(
 	}
 
 	// TODO throw in some reverse-geocoding for origins+destination addresses
+	//geocode.BatchReverseGeocode(ctx, osrm2.NewGeocoder(httpClient), append(in.Origins, in.Destinations...), 10)
 
 	return fromTableRes(res), nil
 }
