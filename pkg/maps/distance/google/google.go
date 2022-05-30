@@ -11,7 +11,7 @@ import (
 func BetweenPoints(
 	ctx context.Context,
 	client *maps.Client,
-	in distance.BetweenPointsInput) (*distance.BetweenPointsOutput, error) {
+	in distance.BetweenPointsInput) (*distance.MatrixResponse, error) {
 
 	// Batch reverse-geocode the origins
 	geocoder := google.NewGeocoder(client)
@@ -46,21 +46,9 @@ func BetweenPoints(
 		return nil, err
 	}
 
-	var out []distance.Info
-	for i, fromOrigin := range res.Rows {
-		for j, toDestination := range fromOrigin.Elements {
-			out = append(out, distance.Info{
-				DistanceMeters:     toDestination.Distance.Meters,
-				Duration:           toDestination.Duration,
-				OriginAddress:      res.OriginAddresses[i],
-				DestinationAddress: res.DestinationAddresses[j],
-			})
-		}
-	}
+	return toRes(res), nil
 
-	return &distance.BetweenPointsOutput{
-		Info: out,
-	}, nil
+	// TODO throw in some reverse-geocoding for origins+destination addresses
 }
 
 func BetweenPlaces(ctx context.Context, c *maps.Client, in distance.BetweenPlacesInput) (*maps.DistanceMatrixResponse, error) {
@@ -85,4 +73,31 @@ func BetweenPlaces(ctx context.Context, c *maps.Client, in distance.BetweenPlace
 		TransitMode:              nil,
 		TransitRoutingPreference: "",
 	})
+}
+
+func toRes(res *maps.DistanceMatrixResponse) *distance.MatrixResponse {
+	var rows []distance.MatrixElementsRow
+	for i := range res.Rows {
+		row := res.Rows[i]
+		var elements []distance.MatrixElement
+		for j := range row.Elements {
+			elem := row.Elements[j]
+			elements = append(elements, toElem(elem))
+		}
+		rows = append(rows, distance.MatrixElementsRow{Elements: elements})
+	}
+	return &distance.MatrixResponse{
+		OriginAddresses:      nil,
+		DestinationAddresses: nil,
+		Rows:                 rows,
+	}
+}
+
+func toElem(res *maps.DistanceMatrixElement) distance.MatrixElement {
+	return distance.MatrixElement{
+		Status:            res.Status,
+		Duration:          res.Duration,
+		DurationInTraffic: res.DurationInTraffic,
+		Distance:          res.Distance.Meters,
+	}
 }

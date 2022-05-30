@@ -3,7 +3,6 @@ package service
 import (
 	"database/sql"
 	"fmt"
-	"github.com/friendsofgo/errors"
 	"github.com/kevinmichaelchen/api-dispatch/internal/service"
 	"github.com/kevinmichaelchen/api-dispatch/internal/service/db"
 	"github.com/kevinmichaelchen/api-dispatch/internal/service/geo"
@@ -23,13 +22,13 @@ var Module = fx.Module("service",
 	),
 )
 
-type Params struct {
+type ServiceParams struct {
 	fx.In
 	DataStore       *db.Store
-	DistanceService *geo.Service `optional:"true"`
+	DistanceService *geo.Service
 }
 
-func NewService(p Params) *service.Service {
+func NewService(p ServiceParams) *service.Service {
 	return service.NewService(p.DataStore, p.DistanceService)
 }
 
@@ -37,10 +36,11 @@ func NewDataStore(sqlDB *sql.DB) *db.Store {
 	return db.NewStore(sqlDB)
 }
 
-func NewMapsClient() (*gmaps.Client, error) {
+func NewMapsClient(logger *zap.Logger) (*gmaps.Client, error) {
 	apiKey := os.Getenv("API_KEY")
 	if apiKey == "" {
-		return nil, errors.New("missing API_KEY for Google Maps")
+		logger.Warn("Missing API Key for Google Maps... Initializing in degraded state...")
+		return nil, nil
 	}
 	c, err := gmaps.NewClient(
 		gmaps.WithAPIKey(apiKey),
@@ -52,9 +52,11 @@ func NewMapsClient() (*gmaps.Client, error) {
 	return c, nil
 }
 
-func NewGeoService(logger *zap.Logger, client *gmaps.Client) (*geo.Service, error) {
-	if client == nil {
-		return nil, errors.New("no maps client")
-	}
-	return geo.NewService(client, otelhttp.DefaultClient), nil
+type GeoServiceParams struct {
+	fx.In
+	GoogleClient *gmaps.Client `optional:"true"`
+}
+
+func NewGeoService(logger *zap.Logger, p GeoServiceParams) (*geo.Service, error) {
+	return geo.NewService(p.GoogleClient, otelhttp.DefaultClient), nil
 }
