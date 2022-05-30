@@ -8,11 +8,6 @@ import (
 	"net/http"
 )
 
-const (
-	addr     = "Melbourne VIC"
-	lat, lng = -37.813611, 144.963056
-)
-
 type Geocoder struct {
 	client *http.Client
 }
@@ -24,7 +19,7 @@ func NewGeocoder(client *http.Client) *Geocoder {
 func (g *Geocoder) ReverseGeocode(ctx context.Context, location maps.LatLng) (*geocode.ReverseGeocodeOutput, error) {
 	geocoder := openstreetmap.Geocoder()
 
-	address, err := geocoder.ReverseGeocode(lat, lng)
+	address, err := geocoder.ReverseGeocode(location.Lat, location.Lng)
 	if err != nil {
 		return nil, err
 	}

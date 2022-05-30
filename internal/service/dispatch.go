@@ -60,7 +60,7 @@ func (s *Service) GetNearestDrivers(
 	for _, result := range results {
 		driverLocations = append(driverLocations, result.GetLocation())
 	}
-	err = s.enrichNearbyDrivers(ctx, results, driverLocations, req.GetPickupLocation())
+	matrixOut, err := s.enrichNearbyDrivers(ctx, results, driverLocations, req.GetPickupLocation())
 	if err != nil {
 		return nil, err
 	}
@@ -75,9 +75,8 @@ func (s *Service) GetNearestDrivers(
 	}
 
 	return &v1beta1.GetNearestDriversResponse{
-		Results: results,
-		// TODO set human-readable address(es)
-		PickupAddress: "",
+		Results:       results,
+		PickupAddress: matrixOut.DestinationAddresses[0],
 	}, nil
 }
 
@@ -123,7 +122,7 @@ func (s *Service) GetNearestTrips(
 	for _, result := range results {
 		pickupLocations = append(pickupLocations, result.GetLocation())
 	}
-	err = s.enrichNearbyTrips(ctx, results, req.GetDriverLocation(), pickupLocations)
+	_, err = s.enrichNearbyTrips(ctx, results, req.GetDriverLocation(), pickupLocations)
 	if err != nil {
 		return nil, err
 	}
@@ -147,7 +146,7 @@ func (s *Service) enrichNearbyDrivers(
 	results []*v1beta1.SearchResult,
 	driverLocations []*v1beta1.LatLng,
 	pickupLocation *v1beta1.LatLng,
-) error {
+) (*distance.MatrixResponse, error) {
 	logger := ctxzap.Extract(ctx)
 
 	out, err := s.distanceSvc.BetweenPoints(ctx, distance.BetweenPointsInput{
@@ -156,7 +155,7 @@ func (s *Service) enrichNearbyDrivers(
 		Destinations: toLatLngs([]*v1beta1.LatLng{pickupLocation}),
 	})
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	for i, row := range out.Rows {
@@ -164,11 +163,11 @@ func (s *Service) enrichNearbyDrivers(
 			logger.Info("Got Distance Matrix element", zap.Any("elem", elem))
 			results[i].Duration = durationpb.New(elem.Duration)
 			results[i].DistanceMeters = float64(elem.Distance)
-			// TODO set human-readable address(es)
+			results[i].Address = out.OriginAddresses[i]
 		}
 	}
 
-	return nil
+	return out, nil
 }
 
 func (s *Service) enrichNearbyTrips(
@@ -176,7 +175,7 @@ func (s *Service) enrichNearbyTrips(
 	results []*v1beta1.SearchResult,
 	driverLocation *v1beta1.LatLng,
 	pickupLocations []*v1beta1.LatLng,
-) error {
+) (*distance.MatrixResponse, error) {
 	logger := ctxzap.Extract(ctx)
 
 	out, err := s.distanceSvc.BetweenPoints(ctx, distance.BetweenPointsInput{
@@ -185,7 +184,7 @@ func (s *Service) enrichNearbyTrips(
 		Destinations: toLatLngs(pickupLocations),
 	})
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	for idx := range results {
@@ -200,11 +199,11 @@ func (s *Service) enrichNearbyTrips(
 			logger.Info("Got Distance Matrix element", zap.Any("elem", elem))
 			results[i].Duration = durationpb.New(elem.Duration)
 			results[i].DistanceMeters = float64(elem.Distance)
-			// TODO set human-readable address
+			results[i].Address = out.DestinationAddresses[i]
 		}
 	}
 
-	return nil
+	return out, nil
 }
 
 func randomTime() time.Time {

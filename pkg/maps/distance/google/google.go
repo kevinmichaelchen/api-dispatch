@@ -46,9 +46,9 @@ func BetweenPoints(
 		return nil, err
 	}
 
-	return toRes(res), nil
-
 	// TODO throw in some reverse-geocoding for origins+destination addresses
+
+	return toRes(res), nil
 }
 
 func BetweenPlaces(ctx context.Context, c *maps.Client, in distance.BetweenPlacesInput) (*maps.DistanceMatrixResponse, error) {

@@ -3,6 +3,7 @@ package google
 import (
 	"context"
 	"errors"
+	"github.com/codingsince1985/geo-golang"
 	maps "github.com/kevinmichaelchen/api-dispatch/pkg/maps"
 	"github.com/kevinmichaelchen/api-dispatch/pkg/maps/geocode"
 	gMaps "googlemaps.github.io/maps"
@@ -40,9 +41,25 @@ func (g *Geocoder) ReverseGeocode(ctx context.Context, location maps.LatLng) (*g
 }
 
 func toReverseGeocodeOutput(in []gMaps.GeocodingResult) *geocode.ReverseGeocodeOutput {
+	// Assuming Google Maps API returns places ordered in such a way that
+	// the first element is the most salient/relevant.
+	bestResult := in[0]
 	return &geocode.ReverseGeocodeOutput{
-		// Assuming Google Maps API returns places ordered in such a way that
-		// the first element is the most salient/relevant.
-		PlaceID: in[0].PlaceID,
+		PlaceID: bestResult.PlaceID,
+		Address: geo.Address{
+			FormattedAddress: bestResult.FormattedAddress,
+			// TODO set other components
+			Street:        "",
+			HouseNumber:   "",
+			Suburb:        "",
+			Postcode:      "",
+			State:         "",
+			StateCode:     "",
+			StateDistrict: "",
+			County:        "",
+			Country:       "",
+			CountryCode:   "",
+			City:          "",
+		},
 	}
 }

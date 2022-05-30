@@ -7,6 +7,8 @@ import (
 	osrm "github.com/gojuno/go.osrm"
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/zap/ctxzap"
 	"github.com/kevinmichaelchen/api-dispatch/pkg/maps/distance"
+	"github.com/kevinmichaelchen/api-dispatch/pkg/maps/geocode"
+	osrm2 "github.com/kevinmichaelchen/api-dispatch/pkg/maps/geocode/osrm"
 	geo "github.com/paulmach/go.geo"
 	"go.uber.org/zap"
 	"net/http"
@@ -22,6 +24,18 @@ func BetweenPoints(
 	httpClient *http.Client,
 	in distance.BetweenPointsInput) (*distance.MatrixResponse, error) {
 	logger := ctxzap.Extract(ctx)
+
+	// Batch reverse-geocode all locations
+	geocoder := osrm2.NewGeocoder(httpClient)
+	parallelizationFactor := 10
+	geocodeOut, err := geocode.BatchReverseGeocode(
+		ctx,
+		geocoder,
+		append(in.Origins, in.Destinations...),
+		parallelizationFactor)
+	if err != nil {
+		return nil, err
+	}
 
 	serverURL := "https://router.project-osrm.org"
 	client := osrm.NewWithConfig(osrm.Config{
@@ -43,10 +57,7 @@ func BetweenPoints(
 		return nil, errFailedRequest
 	}
 
-	// TODO throw in some reverse-geocoding for origins+destination addresses
-	//geocode.BatchReverseGeocode(ctx, osrm2.NewGeocoder(httpClient), append(in.Origins, in.Destinations...), 10)
-
-	return fromTableRes(res), nil
+	return fromTableRes(res, geocodeOut[:len(in.Origins)], geocodeOut[len(in.Origins):]), nil
 }
 
 func toTableReq(in distance.BetweenPointsInput) osrm.TableRequest {
@@ -73,7 +84,11 @@ func makeRange(min, max int) []int {
 	return a
 }
 
-func fromTableRes(res *osrm.TableResponse) *distance.MatrixResponse {
+func fromTableRes(
+	res *osrm.TableResponse,
+	originsOut []*geocode.ReverseGeocodeOutput,
+	destinationsOut []*geocode.ReverseGeocodeOutput,
+) *distance.MatrixResponse {
 	var rows []distance.MatrixElementsRow
 	for i := range res.Durations {
 		origin := res.Durations[i]
@@ -90,9 +105,19 @@ func fromTableRes(res *osrm.TableResponse) *distance.MatrixResponse {
 		}
 		rows = append(rows, distance.MatrixElementsRow{Elements: elements})
 	}
+	var originAddresses []string
+	for idx := range originsOut {
+		geoResults := originsOut[idx]
+		originAddresses = append(originAddresses, geoResults.FormattedAddress)
+	}
+	var destinationAddresses []string
+	for idx := range destinationsOut {
+		geoResults := destinationsOut[idx]
+		destinationAddresses = append(destinationAddresses, geoResults.FormattedAddress)
+	}
 	return &distance.MatrixResponse{
-		OriginAddresses:      nil,
-		DestinationAddresses: nil,
+		OriginAddresses:      originAddresses,
+		DestinationAddresses: destinationAddresses,
 		Rows:                 rows,
 	}
 }
