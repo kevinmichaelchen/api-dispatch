@@ -24,8 +24,6 @@ func (s *Service) GetNearestDrivers(
 	ctx context.Context,
 	req *v1beta1.GetNearestDriversRequest,
 ) (*v1beta1.GetNearestDriversResponse, error) {
-	logger := ctxzap.Extract(ctx)
-
 	err := validate(req, req)
 	if err != nil {
 		return nil, err
@@ -54,33 +52,17 @@ func (s *Service) GetNearestDrivers(
 		results = results[:maxResults]
 	}
 
-	// In the event we have no Google Maps client and are operating in a
-	// degraded state, k-ring-sorting is still pretty good.
+	// The initial sort will be based on H3 resolutions and k-rings
 	results = ranking.SortResultsByKRing(results)
 
-	// Enrich results with distance/duration info from Google Maps API
+	// Enrich results (e.g., with distance/duration info, among other things)
 	var driverLocations []*v1beta1.LatLng
 	for _, result := range results {
 		driverLocations = append(driverLocations, result.GetLocation())
 	}
-	var pickupAddress string
-	if trafficAware {
-		out, err := s.distanceSvc.BetweenPoints(ctx, distance.BetweenPointsInput{
-			// the driver location(s) is/are always the origin(s)
-			Origins:      toLatLngs(driverLocations),
-			Destinations: toLatLngs([]*v1beta1.LatLng{req.GetPickupLocation()}),
-		})
-		if err != nil {
-			return nil, err
-		}
-		for i, info := range out.Info {
-			logger.Info("received distance matrix info", zap.Any("info", info))
-			results[i].Duration = durationpb.New(info.Duration)
-			results[i].DistanceMeters = float64(info.DistanceMeters)
-			// the driver is always the origin
-			results[i].Address = info.OriginAddress
-			pickupAddress = info.DestinationAddress
-		}
+	err = s.enrichNearbyDrivers(ctx, results, driverLocations, req.GetPickupLocation())
+	if err != nil {
+		return nil, err
 	}
 
 	// Final ranking/sorting pass
@@ -93,8 +75,9 @@ func (s *Service) GetNearestDrivers(
 	}
 
 	return &v1beta1.GetNearestDriversResponse{
-		Results:       results,
-		PickupAddress: pickupAddress,
+		Results: results,
+		// TODO set human-readable address(es)
+		PickupAddress: "",
 	}, nil
 }
 
@@ -132,34 +115,18 @@ func (s *Service) GetNearestTrips(
 		results = results[:maxResults]
 	}
 
-	// In the event we have no Google Maps client and are operating in a
-	// degraded state, k-ring-sorting is still pretty good.
+	// The initial sort will be based on H3 resolutions and k-rings
 	results = ranking.SortResultsByKRing(results)
 
-	// Enrich results with distance/duration info from Google Maps API
-	var locations []*v1beta1.LatLng
+	// Enrich results (e.g., with distance/duration info, among other things)
+	var pickupLocations []*v1beta1.LatLng
 	for _, result := range results {
-		locations = append(locations, result.GetLocation())
+		pickupLocations = append(pickupLocations, result.GetLocation())
 	}
-	if trafficAware {
-		out, err := s.distanceSvc.BetweenPoints(ctx, distance.BetweenPointsInput{
-			// the driver location(s) is/are always the origin(s)
-			Origins:      toLatLngs([]*v1beta1.LatLng{req.GetDriverLocation()}),
-			Destinations: toLatLngs(locations),
-		})
-		if err != nil {
-			return nil, err
-		}
-		for i, info := range out.Info {
-			results[i].Duration = durationpb.New(info.Duration)
-			results[i].DistanceMeters = float64(info.DistanceMeters)
-			// the driver is always the origin, the pickup is the destination
-			results[i].Address = info.DestinationAddress
-		}
+	err = s.enrichNearbyTrips(ctx, results, req.GetDriverLocation(), pickupLocations)
+	if err != nil {
+		return nil, err
 	}
-
-	// Enrich results
-	enrichTripsWithFakeData(results)
 
 	// Final ranking/sorting pass
 	results = ranking.RankTrips(results)
@@ -175,13 +142,69 @@ func (s *Service) GetNearestTrips(
 	}, nil
 }
 
-func enrichTripsWithFakeData(in []*v1beta1.SearchResult) {
-	for idx := range in {
-		e := in[idx]
+func (s *Service) enrichNearbyDrivers(
+	ctx context.Context,
+	results []*v1beta1.SearchResult,
+	driverLocations []*v1beta1.LatLng,
+	pickupLocation *v1beta1.LatLng,
+) error {
+	logger := ctxzap.Extract(ctx)
+
+	out, err := s.distanceSvc.BetweenPoints(ctx, distance.BetweenPointsInput{
+		// the driver location(s) is/are always the origin(s)
+		Origins:      toLatLngs(driverLocations),
+		Destinations: toLatLngs([]*v1beta1.LatLng{pickupLocation}),
+	})
+	if err != nil {
+		return err
+	}
+
+	for i, row := range out.Rows {
+		for _, elem := range row.Elements {
+			logger.Info("Got Distance Matrix element", zap.Any("elem", elem))
+			results[i].Duration = durationpb.New(elem.Duration)
+			results[i].DistanceMeters = float64(elem.Distance)
+			// TODO set human-readable address(es)
+		}
+	}
+
+	return nil
+}
+
+func (s *Service) enrichNearbyTrips(
+	ctx context.Context,
+	results []*v1beta1.SearchResult,
+	driverLocation *v1beta1.LatLng,
+	pickupLocations []*v1beta1.LatLng,
+) error {
+	logger := ctxzap.Extract(ctx)
+
+	out, err := s.distanceSvc.BetweenPoints(ctx, distance.BetweenPointsInput{
+		// the driver location(s) is/are always the origin(s)
+		Origins:      toLatLngs([]*v1beta1.LatLng{driverLocation}),
+		Destinations: toLatLngs(pickupLocations),
+	})
+	if err != nil {
+		return err
+	}
+
+	for idx := range results {
+		e := results[idx]
 		t := e.GetTrip()
 		t.ScheduledFor = timestamppb.New(randomTime())
 		t.ExpectedPayment = randomMoney()
 	}
+
+	for _, row := range out.Rows {
+		for i, elem := range row.Elements {
+			logger.Info("Got Distance Matrix element", zap.Any("elem", elem))
+			results[i].Duration = durationpb.New(elem.Duration)
+			results[i].DistanceMeters = float64(elem.Distance)
+			// TODO set human-readable address
+		}
+	}
+
+	return nil
 }
 
 func randomTime() time.Time {
