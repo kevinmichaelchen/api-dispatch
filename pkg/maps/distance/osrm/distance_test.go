@@ -3,25 +3,32 @@ package osrm
 import (
 	"context"
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/zap/ctxzap"
-	"github.com/kevinmichaelchen/api-dispatch/internal/idl/coop/drivers/dispatch/v1beta1"
+	"github.com/kevinmichaelchen/api-dispatch/pkg/maps"
+	"github.com/kevinmichaelchen/api-dispatch/pkg/maps/distance"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap/zaptest"
+	"net/http"
 	"testing"
 	"time"
 )
 
-func TestCalculate(t *testing.T) {
-	a := &v1beta1.LatLng{
-		Latitude:  40.791680675548136,
-		Longitude: -73.9650115649754,
+func TestBetweenPoints(t *testing.T) {
+	a := maps.LatLng{
+		Lat: 40.791680675548136,
+		Lng: -73.9650115649754,
 	}
-	b := &v1beta1.LatLng{
-		Latitude:  40.76866089218841,
-		Longitude: -73.98145413365043,
+	b := maps.LatLng{
+		Lat: 40.76866089218841,
+		Lng: -73.98145413365043,
 	}
 
 	ctx := ctxzap.ToContext(context.Background(), zaptest.NewLogger(t))
-	res, err := Calculate(ctx, a, b)
+	res, err := BetweenPoints(ctx, new(http.Client), distance.BetweenPointsInput{
+		Destinations: []maps.LatLng{a},
+		Origins:      []maps.LatLng{b},
+	})
 	require.NoError(t, err)
-	require.Greater(t, res.Duration, time.Duration(0))
+	require.Len(t, res.Rows, 1)
+	require.Len(t, res.Rows[0].Elements, 1)
+	require.Greater(t, res.Rows[0].Elements[0].Duration, time.Duration(0))
 }

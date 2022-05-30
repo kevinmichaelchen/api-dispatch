@@ -17,7 +17,7 @@ import (
 var Module = fx.Module("service",
 	fx.Provide(
 		NewService,
-		NewDistanceService,
+		NewGeoService,
 		NewMapsClient,
 		NewDataStore,
 	),
@@ -52,9 +52,9 @@ func NewMapsClient() (*gmaps.Client, error) {
 	return c, nil
 }
 
-func NewDistanceService(logger *zap.Logger, client *gmaps.Client) (*geo.Service, error) {
+func NewGeoService(logger *zap.Logger, client *gmaps.Client) (*geo.Service, error) {
 	if client == nil {
 		return nil, errors.New("no maps client")
 	}
-	return geo.NewService(client), nil
+	return geo.NewService(client, otelhttp.DefaultClient), nil
 }

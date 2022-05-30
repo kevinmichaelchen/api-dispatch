@@ -6,9 +6,10 @@ import (
 	"fmt"
 	osrm "github.com/gojuno/go.osrm"
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/zap/ctxzap"
-	"github.com/kevinmichaelchen/api-dispatch/internal/idl/coop/drivers/dispatch/v1beta1"
+	"github.com/kevinmichaelchen/api-dispatch/pkg/maps/distance"
 	geo "github.com/paulmach/go.geo"
 	"go.uber.org/zap"
+	"net/http"
 	"time"
 )
 
@@ -16,25 +17,19 @@ var (
 	errFailedRequest = errors.New("failed OSRM request")
 )
 
-type CalculateOutput struct {
-	Duration       time.Duration
-	DistanceMeters int
-}
-
-func Calculate(ctx context.Context, a, b *v1beta1.LatLng) (*CalculateOutput, error) {
+func BetweenPoints(
+	ctx context.Context,
+	httpClient *http.Client,
+	in distance.BetweenPointsInput) (*distance.MatrixResponse, error) {
 	logger := ctxzap.Extract(ctx)
 
-	client := osrm.NewFromURL("https://router.project-osrm.org")
-
-	res, err := client.Table(ctx, osrm.TableRequest{
-		Profile: "car",
-		Coordinates: osrm.NewGeometryFromPointSet(geo.PointSet{
-			{a.GetLongitude(), a.GetLatitude()},
-			{b.GetLongitude(), b.GetLatitude()},
-		}),
-		Sources:      []int{0},
-		Destinations: []int{1},
+	serverURL := "https://router.project-osrm.org"
+	client := osrm.NewWithConfig(osrm.Config{
+		ServerURL: serverURL,
+		Client:    httpClient,
 	})
+
+	res, err := client.Table(ctx, toTableReq(in))
 
 	if err != nil {
 		return nil, fmt.Errorf("failed OSRM request: %w", err)
@@ -48,8 +43,55 @@ func Calculate(ctx context.Context, a, b *v1beta1.LatLng) (*CalculateOutput, err
 		return nil, errFailedRequest
 	}
 
-	return &CalculateOutput{
-		Duration:       time.Duration(res.Durations[0][0]) * time.Second,
-		DistanceMeters: 0,
-	}, nil
+	// TODO throw in some reverse-geocoding for origins+destination addresses
+
+	return fromTableRes(res), nil
+}
+
+func toTableReq(in distance.BetweenPointsInput) osrm.TableRequest {
+	var pointSet geo.PointSet
+	for _, p := range in.Origins {
+		pointSet = append(pointSet, geo.Point{p.Lng, p.Lat})
+	}
+	for _, p := range in.Destinations {
+		pointSet = append(pointSet, geo.Point{p.Lng, p.Lat})
+	}
+	return osrm.TableRequest{
+		Profile:      "car",
+		Coordinates:  osrm.NewGeometryFromPointSet(pointSet),
+		Sources:      makeRange(0, len(in.Origins)-1),
+		Destinations: makeRange(len(in.Origins), len(in.Origins)+len(in.Destinations)-1),
+	}
+}
+
+func makeRange(min, max int) []int {
+	a := make([]int, max-min+1)
+	for i := range a {
+		a[i] = min + i
+	}
+	return a
+}
+
+func fromTableRes(res *osrm.TableResponse) *distance.MatrixResponse {
+	var rows []distance.MatrixElementsRow
+	for i := range res.Durations {
+		origin := res.Durations[i]
+		var elements []distance.MatrixElement
+		for j := range origin {
+			destination := origin[j]
+			duration := time.Duration(destination) * time.Second
+			elements = append(elements, distance.MatrixElement{
+				Status:            "",
+				Duration:          duration,
+				DurationInTraffic: 0,
+				Distance:          0,
+			})
+		}
+		rows = append(rows, distance.MatrixElementsRow{Elements: elements})
+	}
+	return &distance.MatrixResponse{
+		OriginAddresses:      nil,
+		DestinationAddresses: nil,
+		Rows:                 rows,
+	}
 }

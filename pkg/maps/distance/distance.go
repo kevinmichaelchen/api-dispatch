@@ -10,25 +10,13 @@ type BetweenPointsInput struct {
 	Origins      []maps.LatLng
 }
 
-type BetweenPointsOutput struct {
-	Info []Info
-}
-
-type Info struct {
-	DistanceMeters     int
-	Duration           time.Duration
-	OriginAddress      string
-	DestinationAddress string
-}
-
 type BetweenPlacesInput struct {
 	Origins      []string
 	Destinations []string
 }
 
-// DistanceMatrixResponse represents a Distance Matrix API response.
-type DistanceMatrixResponse struct {
-
+// MatrixResponse represents a Distance Matrix API response.
+type MatrixResponse struct {
 	// OriginAddresses contains an array of addresses as returned by the API from
 	// your original request.
 	OriginAddresses []string `json:"origin_addresses"`
@@ -36,23 +24,23 @@ type DistanceMatrixResponse struct {
 	// from your original request.
 	DestinationAddresses []string `json:"destination_addresses"`
 	// Rows contains an array of elements.
-	Rows []DistanceMatrixElementsRow `json:"rows"`
+	Rows []MatrixElementsRow `json:"rows"`
 }
 
-// DistanceMatrixElementsRow is a row of distance elements.
-type DistanceMatrixElementsRow struct {
-	Elements []*DistanceMatrixElement `json:"elements"`
+// MatrixElementsRow is a row of distance elements.
+type MatrixElementsRow struct {
+	Elements []MatrixElement `json:"elements"`
 }
 
-// DistanceMatrixElement is the travel distance and time for a pair of origin
-// and destination.
-type DistanceMatrixElement struct {
+// MatrixElement is the travel distance and time for a pair of origin and
+// destination.
+type MatrixElement struct {
 	Status string `json:"status"`
 	// Duration is the length of time it takes to travel this route.
 	Duration time.Duration `json:"duration"`
 	// DurationInTraffic is the length of time it takes to travel this route
 	// considering traffic.
 	DurationInTraffic time.Duration `json:"duration_in_traffic"`
-	// Distance is the total distance of this route.
-	Distance Distance `json:"distance"`
+	// Distance is the total distance (in meters) of this route.
+	Distance int `json:"distance"`
 }
