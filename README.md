@@ -24,20 +24,26 @@ and given a known location for a trip pickup, how do we select the nearest
 drivers? Conversely, how do we select the best trips for drivers?
 
 ### The solution
-Combine [Google Maps](https://developers.google.com/maps/documentation/distance-matrix/distance-matrix)
-and [h3](https://h3geo.org/) (a hexagonal hierarchical geospatial indexing system).
+A combination of
+[h3](https://h3geo.org/) (a hexagonal hierarchical geospatial indexing system)
+and distance matrix APIs, such as
+[Google Maps](https://developers.google.com/maps/documentation/distance-matrix/distance-matrix)
+or
+[Open Source Routing Machine](http://project-osrm.org/) (OSRM).
 
 ## Project structure
 
-| Directory                                        | Description                               |
-|--------------------------------------------------|-------------------------------------------|
-| [`./cmd`](./cmd)                                 | CLI for making gRPC requests              |
-| [`./idl`](./idl/coop/drivers/dispatch/v1beta1)   | Protobufs (Interface Definition Language) |
-| [`./internal/app`](./internal/app)               | App dependency injection / initialization |
-| [`./internal/idl`](./internal/idl)               | Auto-generated protobufs                  |
-| [`./internal/models`](./internal/models)         | Auto-generated ORM / models               |
-| [`./internal/service`](./internal/service)       | Service layer / Business logic            |
-| [`./schema`](./schema)                           | SQL migration scripts                     |
+| Directory                                      | Description                                          |
+|------------------------------------------------|------------------------------------------------------|
+| [`./cmd`](./cmd)                               | CLI for making gRPC requests                         |
+| [`./idl`](./idl/coop/drivers/dispatch/v1beta1) | Protobufs (Interface Definition Language)            |
+| [`./internal/app`](./internal/app)             | App dependency injection / initialization            |
+| [`./internal/idl`](./internal/idl)             | Auto-generated protobufs                             |
+| [`./internal/models`](./internal/models)       | Auto-generated ORM / models                          |
+| [`./internal/service`](./internal/service)     | Service layer / Business logic                       |
+| [`./schema`](./schema)                         | SQL migration scripts                                |
+| [`./pkg/grpc`](./pkg/grpc)                     | gRPC interceptors                                    |
+| [`./pkg/maps`](./pkg/maps)                     | Geo-related logic (e.g., geocoding, distance matrix) |
 
 ## How does it work
 
@@ -137,158 +143,6 @@ above those who neighbor the pickup location in lower (coarser) resolutions.
             "longitude": -73.95470131162523
          },
          "address": "941 Manhattan Ave, Brooklyn, NY 11222, USA",
-         "resolution": 9,
-         "kValue": 2
-      },
-      {
-         "driver": {
-            "driverId": "GPT-El-Born",
-            "mostRecentHeartbeat": "0001-01-01T00:00:00Z",
-            "currentLocation": {
-               "latitude": 40.72436580353396,
-               "longitude": -73.95124766347774
-            }
-         },
-         "distanceMeters": 806,
-         "duration": "305s",
-         "location": {
-            "latitude": 40.72436580353396,
-            "longitude": -73.95124766347774
-         },
-         "address": "651 Manhattan Ave, Brooklyn, NY 11222, USA",
-         "resolution": 9,
-         "kValue": 2
-      },
-      {
-         "driver": {
-            "driverId": "GPT-Good-Room",
-            "mostRecentHeartbeat": "0001-01-01T00:00:00Z",
-            "currentLocation": {
-               "latitude": 40.726944958544514,
-               "longitude": -73.95291323476157
-            }
-         },
-         "distanceMeters": 768,
-         "duration": "317s",
-         "location": {
-            "latitude": 40.726944958544514,
-            "longitude": -73.95291323476157
-         },
-         "address": "98 Meserole Ave, Brooklyn, NY 11222, USA",
-         "resolution": 9,
-         "kValue": 2
-      },
-      {
-         "driver": {
-            "driverId": "GPT-Kana-Hashi",
-            "mostRecentHeartbeat": "0001-01-01T00:00:00Z",
-            "currentLocation": {
-               "latitude": 40.732637499546215,
-               "longitude": -73.95488693544799
-            }
-         },
-         "distanceMeters": 843,
-         "duration": "327s",
-         "location": {
-            "latitude": 40.732637499546215,
-            "longitude": -73.95488693544799
-         },
-         "address": "981 Manhattan Ave, Brooklyn, NY 11222, USA",
-         "resolution": 9,
-         "kValue": 2
-      },
-      {
-         "driver": {
-            "driverId": "GPT-Esme",
-            "mostRecentHeartbeat": "0001-01-01T00:00:00Z",
-            "currentLocation": {
-               "latitude": 40.733235412885314,
-               "longitude": -73.95491763917049
-            }
-         },
-         "distanceMeters": 911,
-         "duration": "343s",
-         "location": {
-            "latitude": 40.733235412885314,
-            "longitude": -73.95491763917049
-         },
-         "address": "999 Manhattan Ave, Brooklyn, NY 11222, USA",
-         "resolution": 9,
-         "kValue": 2
-      },
-      {
-         "driver": {
-            "driverId": "GPT-Wenwen",
-            "mostRecentHeartbeat": "0001-01-01T00:00:00Z",
-            "currentLocation": {
-               "latitude": 40.7340094734467,
-               "longitude": -73.95504667163209
-            }
-         },
-         "distanceMeters": 999,
-         "duration": "347s",
-         "location": {
-            "latitude": 40.7340094734467,
-            "longitude": -73.95504667163209
-         },
-         "address": "1029 Manhattan Ave # 1, Brooklyn, NY 11222, USA",
-         "resolution": 9,
-         "kValue": 2
-      },
-      {
-         "driver": {
-            "driverId": "GPT-Lobster-Joint",
-            "mostRecentHeartbeat": "0001-01-01T00:00:00Z",
-            "currentLocation": {
-               "latitude": 40.73541316092886,
-               "longitude": -73.95527626749518
-            }
-         },
-         "distanceMeters": 1132,
-         "duration": "350s",
-         "location": {
-            "latitude": 40.73541316092886,
-            "longitude": -73.95527626749518
-         },
-         "address": "1073 Manhattan Ave, Brooklyn, NY 11222, USA",
-         "resolution": 9,
-         "kValue": 2
-      },
-      {
-         "driver": {
-            "driverId": "WBG-Bernies",
-            "mostRecentHeartbeat": "0001-01-01T00:00:00Z",
-            "currentLocation": {
-               "latitude": 40.721899506693795,
-               "longitude": -73.95055397598824
-            }
-         },
-         "distanceMeters": 1193,
-         "duration": "374s",
-         "location": {
-            "latitude": 40.721899506693795,
-            "longitude": -73.95055397598824
-         },
-         "address": "332 Driggs Ave, Brooklyn, NY 11222, USA",
-         "resolution": 8,
-         "kValue": 2
-      },
-      {
-         "driver": {
-            "driverId": "GPT-Le-Fanfare",
-            "mostRecentHeartbeat": "0001-01-01T00:00:00Z",
-            "currentLocation": {
-               "latitude": 40.73622468817931,
-               "longitude": -73.95551737528102
-            }
-         },
-         "distanceMeters": 1223,
-         "duration": "375s",
-         "location": {
-            "latitude": 40.73622468817931,
-            "longitude": -73.95551737528102
-         },
-         "address": "1103 Manhattan Ave, Brooklyn, NY 11222, USA",
          "resolution": 9,
          "kValue": 2
       }
