@@ -29,16 +29,15 @@ and [h3](https://h3geo.org/) (a hexagonal hierarchical geospatial indexing syste
 
 ## Project structure
 
-| Directory                                           | Description                               |
-|-----------------------------------------------------|-------------------------------------------|
-| [`./cmd`](./cmd)                                    | CLI for making gRPC requests              |
-| [`./idl`](./idl/coop/drivers/dispatch/v1beta1)      | Protobufs (Interface Definition Language) |
-| [`./internal/app`](./internal/app)                  | App dependency injection / initialization |
-| [`./internal/distance`](internal/service/distance)  | Google Maps Distance Matrix logic         |
-| [`./internal/idl`](./internal/idl)                  | Auto-generated protobufs                  |
-| [`./internal/models`](./internal/models)            | Auto-generated ORM / models               |
-| [`./internal/service`](./internal/service)          | Service layer / Business logic            |
-| [`./schema`](./schema)                              | SQL migration scripts                     |
+| Directory                                        | Description                               |
+|--------------------------------------------------|-------------------------------------------|
+| [`./cmd`](./cmd)                                 | CLI for making gRPC requests              |
+| [`./idl`](./idl/coop/drivers/dispatch/v1beta1)   | Protobufs (Interface Definition Language) |
+| [`./internal/app`](./internal/app)               | App dependency injection / initialization |
+| [`./internal/idl`](./internal/idl)               | Auto-generated protobufs                  |
+| [`./internal/models`](./internal/models)         | Auto-generated ORM / models               |
+| [`./internal/service`](./internal/service)       | Service layer / Business logic            |
+| [`./schema`](./schema)                           | SQL migration scripts                     |
 
 ## How does it work
 
