@@ -50,15 +50,31 @@ or
 See [`./docs/ingestion.md`](./docs/ingestion.md).
 
 ### Geospatial Indexing
-See [`./docs/h3.md`](./docs/h3.md).
+
+H3 is covered in more detail in [`./docs/h3.md`](./docs/h3.md).
+
+Briefly, we need a quick way of querying for general "reachability".
+
+([Isochrones](https://en.wikipedia.org/wiki/Isochrone_map) sound appealing, but we
+need a way to query the database; hitting a service like
+[GraphHopper](https://docs.graphhopper.com/#tag/Isochrone-API) would be too slow.
+to get polygons. It looks like PostGIS has some kind of
+[support](https://gis.stackexchange.com/questions/325138/performing-isochrone-in-postgis-by-pgrouting)
+for isochrones which could be potentially combined with [ST_CONTAINS](https://postgis.net/docs/ST_Contains.html), but this needs to be explored further.)
+
+The option I went with for this prototype was to rely on geospatial partitioning.
+Every driver location and trip pickup location is in some cell. We also track what cells are nearby.
 
 ### Querying
 
 There are two sorting/ranking passes.
-The first sorts by k-ring (concentric circle): results that are in tighter 
-concentric circles at finer (more zoomed in) resolutions rank higher.
+The first pass is for general reachability.
+The second pass is to precisely rank results based on distance/duration (and potentially other factors, such as a trip's expected payment, start time, expected duration, etc).
+
+The first sorts by k-ring (concentric circle). Results that are in tighter concentric circles at finer (more zoomed in) resolutions rank higher.
+
 The second pass sorts based on the duration it would take the driver to travel 
-to the pickup point.
+to the pickup point. For this, we use a Distance Matrix request.
 
 ## Getting started
 
