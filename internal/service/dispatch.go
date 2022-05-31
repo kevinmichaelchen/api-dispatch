@@ -74,9 +74,14 @@ func (s *Service) GetNearestDrivers(
 		results = results[:req.GetLimit()]
 	}
 
+	var pickupAddress string
+	if len(matrixOut.DestinationAddresses) > 0 {
+		pickupAddress = matrixOut.DestinationAddresses[0]
+	}
+
 	return &v1beta1.GetNearestDriversResponse{
 		Results:       results,
-		PickupAddress: matrixOut.DestinationAddresses[0],
+		PickupAddress: pickupAddress,
 	}, nil
 }
 
@@ -163,7 +168,9 @@ func (s *Service) enrichNearbyDrivers(
 			logger.Info("Got Distance Matrix element", zap.Any("elem", elem))
 			results[i].Duration = durationpb.New(elem.Duration)
 			results[i].DistanceMeters = float64(elem.Distance)
-			results[i].Address = out.OriginAddresses[i]
+			if i < len(out.OriginAddresses) {
+				results[i].Address = out.OriginAddresses[i]
+			}
 		}
 	}
 
@@ -199,7 +206,9 @@ func (s *Service) enrichNearbyTrips(
 			logger.Info("Got Distance Matrix element", zap.Any("elem", elem))
 			results[i].Duration = durationpb.New(elem.Duration)
 			results[i].DistanceMeters = float64(elem.Distance)
-			results[i].Address = out.DestinationAddresses[i]
+			if i < len(out.DestinationAddresses) {
+				results[i].Address = out.DestinationAddresses[i]
+			}
 		}
 	}
 

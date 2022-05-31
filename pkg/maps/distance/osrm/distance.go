@@ -17,6 +17,8 @@ import (
 
 var (
 	errFailedRequest = errors.New("failed OSRM request")
+
+	geocodingEnabled = false
 )
 
 func BetweenPoints(
@@ -27,14 +29,22 @@ func BetweenPoints(
 
 	// Batch reverse-geocode all locations
 	geocoder := osrm2.NewGeocoder(httpClient)
-	parallelizationFactor := 10
-	geocodeOut, err := geocode.BatchReverseGeocode(
-		ctx,
-		geocoder,
-		append(in.Origins, in.Destinations...),
-		parallelizationFactor)
-	if err != nil {
-		return nil, err
+
+	// Need to comply with Nominatim terms of use (which dictates 1 request per second)
+	// https://operations.osmfoundation.org/policies/nominatim/
+	parallelizationFactor := 1
+
+	var geocodeOut []*geocode.ReverseGeocodeOutput
+	if geocodingEnabled {
+		gg, err := geocode.BatchReverseGeocode(
+			ctx,
+			geocoder,
+			append(in.Origins, in.Destinations...),
+			parallelizationFactor)
+		if err != nil {
+			return nil, err
+		}
+		geocodeOut = gg
 	}
 
 	serverURL := "https://router.project-osrm.org"
@@ -57,7 +67,14 @@ func BetweenPoints(
 		return nil, errFailedRequest
 	}
 
-	return fromTableRes(res, geocodeOut[:len(in.Origins)], geocodeOut[len(in.Origins):]), nil
+	var originsOut []*geocode.ReverseGeocodeOutput
+	var destinationsOut []*geocode.ReverseGeocodeOutput
+	if len(geocodeOut) > 0 {
+		originsOut = geocodeOut[:len(in.Origins)]
+		destinationsOut = geocodeOut[len(in.Origins):]
+	}
+
+	return fromTableRes(res, originsOut, destinationsOut), nil
 }
 
 func toTableReq(in distance.BetweenPointsInput) osrm.TableRequest {
