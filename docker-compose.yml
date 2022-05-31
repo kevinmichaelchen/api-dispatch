@@ -23,6 +23,7 @@ services:
       - "14268:14268"
       - "14269:14269"
       - "9411:9411"
+
   db:
     image: postgis/postgis
     environment:

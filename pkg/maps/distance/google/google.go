@@ -13,29 +13,26 @@ func BetweenPoints(
 	client *maps.Client,
 	in distance.BetweenPointsInput) (*distance.MatrixResponse, error) {
 
-	// Batch reverse-geocode the origins
+	// Batch reverse-geocode all locations
 	geocoder := google.NewGeocoder(client)
-
 	parallelizationFactor := 10
-
-	originsOut, err := geocode.BatchReverseGeocode(ctx, geocoder, in.Origins, parallelizationFactor)
-	if err != nil {
-		return nil, err
-	}
-
-	destinationsOut, err := geocode.BatchReverseGeocode(ctx, geocoder, in.Destinations, parallelizationFactor)
+	geocodeOut, err := geocode.BatchReverseGeocode(
+		ctx,
+		geocoder,
+		append(in.Origins, in.Destinations...),
+		parallelizationFactor)
 	if err != nil {
 		return nil, err
 	}
 
 	var origins []string
-	for _, e := range originsOut {
-		origins = append(origins, e.PlaceID)
-	}
-
 	var destinations []string
-	for _, e := range destinationsOut {
-		destinations = append(destinations, e.PlaceID)
+	for idx, e := range geocodeOut {
+		if idx < len(in.Origins) {
+			origins = append(origins, e.PlaceID)
+		} else {
+			destinations = append(destinations, e.PlaceID)
+		}
 	}
 
 	res, err := BetweenPlaces(ctx, client, distance.BetweenPlacesInput{
@@ -46,9 +43,7 @@ func BetweenPoints(
 		return nil, err
 	}
 
-	// TODO throw in some reverse-geocoding for origins+destination addresses
-
-	return toRes(res), nil
+	return toRes(res, geocodeOut[:len(in.Origins)], geocodeOut[len(in.Origins):]), nil
 }
 
 func BetweenPlaces(ctx context.Context, c *maps.Client, in distance.BetweenPlacesInput) (*maps.DistanceMatrixResponse, error) {
@@ -75,7 +70,11 @@ func BetweenPlaces(ctx context.Context, c *maps.Client, in distance.BetweenPlace
 	})
 }
 
-func toRes(res *maps.DistanceMatrixResponse) *distance.MatrixResponse {
+func toRes(
+	res *maps.DistanceMatrixResponse,
+	originsOut []*geocode.ReverseGeocodeOutput,
+	destinationsOut []*geocode.ReverseGeocodeOutput,
+) *distance.MatrixResponse {
 	var rows []distance.MatrixElementsRow
 	for i := range res.Rows {
 		row := res.Rows[i]
@@ -86,9 +85,19 @@ func toRes(res *maps.DistanceMatrixResponse) *distance.MatrixResponse {
 		}
 		rows = append(rows, distance.MatrixElementsRow{Elements: elements})
 	}
+	var originAddresses []string
+	for idx := range originsOut {
+		geoResults := originsOut[idx]
+		originAddresses = append(originAddresses, geoResults.FormattedAddress)
+	}
+	var destinationAddresses []string
+	for idx := range destinationsOut {
+		geoResults := destinationsOut[idx]
+		destinationAddresses = append(destinationAddresses, geoResults.FormattedAddress)
+	}
 	return &distance.MatrixResponse{
-		OriginAddresses:      nil,
-		DestinationAddresses: nil,
+		OriginAddresses:      originAddresses,
+		DestinationAddresses: destinationAddresses,
 		Rows:                 rows,
 	}
 }

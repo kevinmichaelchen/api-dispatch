@@ -6,6 +6,8 @@ import (
 	"github.com/codingsince1985/geo-golang"
 	maps "github.com/kevinmichaelchen/api-dispatch/pkg/maps"
 	"github.com/kevinmichaelchen/api-dispatch/pkg/maps/geocode"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
 	gMaps "googlemaps.github.io/maps"
 )
 
@@ -20,6 +22,14 @@ func NewGeocoder(client *gMaps.Client) *Geocoder {
 }
 
 func (g *Geocoder) ReverseGeocode(ctx context.Context, location maps.LatLng) (*geocode.ReverseGeocodeOutput, error) {
+	tr := otel.Tracer("")
+	ctx, span := tr.Start(ctx, "ReverseGeocode")
+	span.SetAttributes(
+		attribute.Key("lat").Float64(location.Lat),
+		attribute.Key("lon").Float64(location.Lng),
+	)
+	defer span.End()
+
 	results, err := g.client.ReverseGeocode(ctx, &gMaps.GeocodingRequest{
 		LatLng: &gMaps.LatLng{
 			Lat: location.Lat,
