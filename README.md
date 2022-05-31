@@ -6,14 +6,13 @@
 
 1. [Introduction](#introduction)
    1. [The problem](#the-problem)
-   1. [The solution](#the-solution)
-1. [Project structure](#project-structure)
-1. [How does it work](#how-does-it-work)
-   1. [Ingestion](#ingestion)
-      1. [Geospatial Indexing](#geospatial-indexing)
-   1. [Getting the nearest trips or drivers](#getting-the-nearest-trips-or-drivers)
-      1. [Request](#request)
-      2. [Response](#response)
+   2. [The solution](#the-solution)
+2. [Project structure](#project-structure)
+3. [How does it work](#how-does-it-work)
+   1. [Geospatial Indexing](#geospatial-indexing)
+   2. [Ingestion](#ingestion)
+   3. [Querying](#querying)
+4. [Getting started](#getting-started)
 
 ## Introduction
 A proof-of-concept dispatch service.
@@ -48,45 +47,40 @@ or
 ## How does it work
 
 ### Ingestion
+See [`./docs/ingestion.md`](./docs/ingestion.md).
 
-We expose two [gRPC endpoints](idl/coop/drivers/dispatch/v1beta1/api.proto) to
-ingest:
-1. batches of driver location pings
-2. batches of trips
-
-A driver location ping takes the form:
-```
-(time, driver_id, lat, lng)
-```
-
-A trip takes the form:
-```
-(id, scheduled_for, expected_pay, lat, lng)
-```
-
-**Note about scalability**: Postgres might not be the right tool for this kind
-of time-series data, so maybe we can assume that somewhere downstream these
-locations are persisted to something like
-[RedisTimeSeries](https://redis.io/docs/stack/timeseries/) and periodically
-compacted into Postgres.
-
-#### Geospatial Indexing
+### Geospatial Indexing
 See [`./docs/h3.md`](./docs/h3.md).
 
-### Getting the nearest trips or drivers
+### Querying
 
-Resolution and k-ring value are used for the first round of filtering. If 
-someone isn't in the 1-ring at resolution 7 (pretty zoomed out), they won't 
-appear in search results. After that, we sort by Google Maps-estimated duration
-(time to get to pickup location).
+There are two sorting/ranking passes.
+The first sorts by k-ring (concentric circle): results that are in tighter 
+concentric circles at finer (more zoomed in) resolutions rank higher.
+The second pass sorts based on the duration it would take the driver to travel 
+to the pickup point.
 
-#### Request
+## Getting started
 
-Here we're requesting a pickup at [Key Food Supermarkets](https://goo.gl/maps/xUnzhGm2h1Hpcx6q7)
-(Greenpoint).
+First, spin everything up:
+```bash
+# Step 1: Start containers in detached (background) mode
+docker-compose up -d
 
-You can use the CLI:
+# Step 2: Start app (you can optionally specify a API_KEY env var for Google Maps)
+go run main.go
 
+# Step 3: Create the database schema
+make migrate-up
+
+# Step 4: Seed trips
+go run cmd/dispatch/*.go ingest trips --file seed-trips.json
+
+# Step 5: Seed drivers
+go run cmd/dispatch/*.go ingest drivers --file seed-drivers.json
+```
+
+Finally, hit the API:
 ```bash
 # Get nearest drivers to a specified pickup (passenger) location
 go run cmd/dispatch/*.go nearest drivers --latitude 40.73010864595388 --longitude -73.95094555260256
@@ -95,10 +89,8 @@ go run cmd/dispatch/*.go nearest drivers --latitude 40.73010864595388 --longitud
 go run cmd/dispatch/*.go nearest trips --latitude 40.73010864595388 --longitude -73.95094555260256
 ```
 
-#### Response
-
-Because the pickup is in [Key Food Supermarkets](https://goo.gl/maps/xUnzhGm2h1Hpcx6q7)
-(Greenpoint), drivers in that neighborhood appear above others.
+Here we're requesting a pickup at [Key Food Supermarkets](https://goo.gl/maps/xUnzhGm2h1Hpcx6q7)
+(Greenpoint).
 
 Notice how drivers in neighboring hex cells at higher (finer) resolutions appear
 above those who neighbor the pickup location in lower (coarser) resolutions.

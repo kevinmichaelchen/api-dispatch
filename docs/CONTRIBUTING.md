@@ -1,7 +1,10 @@
 ## Getting started
 ```bash
-docker-compose up
-API_KEY=GOOGLE_MAPS_KEY go run main.go
+# Start containers in detached (background) mode
+docker-compose up -d
+
+# Start app (you can optionally specify a API_KEY env var for Google Maps)
+go run main.go
 ```
 
 ## Telemetry
