@@ -6,6 +6,7 @@ import (
 	"github.com/kevinmichaelchen/api-dispatch/pkg/maps/distance"
 	"github.com/kevinmichaelchen/api-dispatch/pkg/maps/distance/google"
 	"github.com/kevinmichaelchen/api-dispatch/pkg/maps/distance/osrm"
+	"go.opentelemetry.io/otel"
 	gMaps "googlemaps.github.io/maps"
 	"net/http"
 )
@@ -23,6 +24,10 @@ func NewService(client *gMaps.Client, httpClient *http.Client) *Service {
 }
 
 func (s *Service) BetweenPoints(ctx context.Context, in distance.BetweenPointsInput) (*distance.MatrixResponse, error) {
+	tr := otel.Tracer("")
+	ctx, span := tr.Start(ctx, "BetweenPoints")
+	defer span.End()
+
 	err := validate(in)
 	if err != nil {
 		return nil, err

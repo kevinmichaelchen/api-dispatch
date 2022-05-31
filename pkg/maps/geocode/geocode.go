@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/codingsince1985/geo-golang"
 	"github.com/kevinmichaelchen/api-dispatch/pkg/maps"
+	"go.opentelemetry.io/otel"
 	"golang.org/x/sync/errgroup"
 	"strconv"
 	"sync"
@@ -38,6 +39,10 @@ func BatchReverseGeocode(
 	locations []maps.LatLng,
 	parallelizationFactor int,
 ) ([]*ReverseGeocodeOutput, error) {
+	tr := otel.Tracer("")
+	ctx, span := tr.Start(ctx, "BatchReverseGeocode")
+	defer span.End()
+
 	g, ctx := errgroup.WithContext(ctx)
 
 	locationsChan := make(chan maps.LatLng)

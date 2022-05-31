@@ -8,6 +8,7 @@ import (
 	"github.com/kevinmichaelchen/api-dispatch/internal/models"
 	"github.com/kevinmichaelchen/api-dispatch/internal/service/h3"
 	"github.com/volatiletech/sqlboiler/v4/queries"
+	"go.opentelemetry.io/otel"
 )
 
 var (
@@ -32,6 +33,10 @@ type GetNearbyDriverLocationsOutput struct {
 }
 
 func (s *Store) GetNearbyDriverLocations(ctx context.Context, location *v1beta1.LatLng) (*GetNearbyDriverLocationsOutput, error) {
+	tr := otel.Tracer("")
+	ctx, span := tr.Start(ctx, "GetNearbyDriverLocations")
+	defer span.End()
+
 	// TODO parallelize with errgroup
 	r7k1Cells, err := s.getNearbyDriverLocationsHelper(ctx, location, 7, 1)
 	if err != nil {
@@ -111,6 +116,10 @@ type GetNearbyTripsOutput struct {
 }
 
 func (s *Store) GetNearbyTrips(ctx context.Context, location *v1beta1.LatLng) (*GetNearbyTripsOutput, error) {
+	tr := otel.Tracer("")
+	ctx, span := tr.Start(ctx, "GetNearbyTrips")
+	defer span.End()
+
 	// TODO parallelize with errgroup
 	r7k1Cells, err := s.getNearbyTripsHelper(ctx, location, 7, 1)
 	if err != nil {
