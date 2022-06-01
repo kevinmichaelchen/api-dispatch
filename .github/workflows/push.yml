@@ -1,0 +1,21 @@
+on: # Apply to all pushes to `main`
+  push:
+    branches:
+      - main
+jobs:
+  validate-protos:
+    runs-on: ubuntu-latest
+    steps:
+      # Run `git checkout`
+      - uses: actions/checkout@v2
+      # Install the `buf` CLI
+      - uses: bufbuild/buf-setup-action@v1
+      # Run lint only in the `idl` sub-directory
+      - uses: bufbuild/buf-lint-action@v1
+        with:
+          input: idl
+      # Run breaking change detection against the `main` branch
+      - uses: bufbuild/buf-breaking-action@v1
+        with:
+          input: idl
+          against: 'https://github.com/kevinmichaelchen/api-dispatch.git#branch=main,ref=HEAD~1,subdir=idl'
