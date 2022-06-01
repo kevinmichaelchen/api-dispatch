@@ -1,6 +1,7 @@
 on: pull_request # Apply to all pull requests
 jobs:
   validate-protos:
+    runs-on: ubuntu-latest
     steps:
       # Run `git checkout`
       - uses: actions/checkout@v2
