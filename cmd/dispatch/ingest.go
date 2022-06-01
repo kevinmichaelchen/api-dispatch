@@ -3,9 +3,12 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"github.com/Shopify/sarama"
 	"github.com/kevinmichaelchen/api-dispatch/internal/idl/coop/drivers/dispatch/v1beta1"
 	"github.com/kevinmichaelchen/api-dispatch/internal/service/money"
 	"github.com/spf13/cobra"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"io/ioutil"
 	"log"
@@ -70,6 +73,11 @@ func ingestDrivers(cmd *cobra.Command, args []string) {
 		})
 	}
 
+	err = sendLocations(locations)
+	if err != nil {
+		log.Fatalf("Failed to send messages to Kafka: %v", err)
+	}
+
 	log.Printf("Seeding %d driver locations\n", len(locations))
 	req := &v1beta1.UpdateDriverLocationsRequest{Locations: locations}
 	s, err := marshalProto(req)
@@ -93,6 +101,50 @@ func ingestDrivers(cmd *cobra.Command, args []string) {
 		log.Fatalf("Failed to marshal response: %v", err)
 	}
 	log.Println(s)
+}
+
+func sendLocations(locations []*v1beta1.DriverLocation) error {
+	version, err := sarama.ParseKafkaVersion("3.1.1")
+	if err != nil {
+		return err
+	}
+	config := sarama.NewConfig()
+	config.Version = version
+	p, err := sarama.NewSyncProducer([]string{"127.0.0.1:9092"}, config)
+	if err != nil {
+		return err
+	}
+	msgs, err := locationsToMessages(locations)
+	if err != nil {
+		return err
+	}
+	return p.SendMessages(msgs)
+}
+
+func locationsToMessages(locations []*v1beta1.DriverLocation) ([]*sarama.ProducerMessage, error) {
+	var out []*sarama.ProducerMessage
+	for _, e := range locations {
+		m, err := locationToMessage(e)
+		if err != nil {
+			return nil, err
+		}
+		out = append(out, m)
+	}
+	return out, nil
+}
+
+func locationToMessage(location *v1beta1.DriverLocation) (*sarama.ProducerMessage, error) {
+	b, err := proto.Marshal(location)
+	if err != nil {
+		return nil, err
+	}
+
+	key := fmt.Sprintf("%s-%s", location.GetDriverId(), location.GetMostRecentHeartbeat().String())
+	return &sarama.ProducerMessage{
+		Topic: "driver-locations",
+		Key:   sarama.StringEncoder(key),
+		Value: sarama.ByteEncoder(b),
+	}, nil
 }
 
 func ingestTrips(cmd *cobra.Command, args []string) {

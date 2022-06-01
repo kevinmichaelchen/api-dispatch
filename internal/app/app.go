@@ -3,6 +3,7 @@ package app
 import (
 	"github.com/kevinmichaelchen/api-dispatch/internal/app/config"
 	"github.com/kevinmichaelchen/api-dispatch/internal/app/grpc"
+	"github.com/kevinmichaelchen/api-dispatch/internal/app/kafka"
 	"github.com/kevinmichaelchen/api-dispatch/internal/app/logging"
 	"github.com/kevinmichaelchen/api-dispatch/internal/app/metrics"
 	"github.com/kevinmichaelchen/api-dispatch/internal/app/service"
@@ -19,4 +20,5 @@ var Module = fx.Options(
 	service.Module,
 	sql.Module,
 	tracing.Module,
+	kafka.Module,
 )
