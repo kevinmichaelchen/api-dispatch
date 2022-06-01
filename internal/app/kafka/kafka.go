@@ -16,13 +16,13 @@ import (
 
 // Sarama configuration options
 var (
-	brokers  = ""
-	version  = ""
-	group    = ""
-	topics   = ""
-	assignor = ""
-	oldest   = true
-	verbose  = false
+	brokers         = "127.0.0.1:9092"
+	version         = "3.1.1"
+	consumerGroupID = "api-dispatch"
+	topics          = "driver-locations"
+	assignor        = "range" // Consumer group partition assignment strategy (range, roundrobin, sticky)
+	oldest          = true
+	verbose         = false
 )
 
 var Module = fx.Module("kafka",
@@ -32,7 +32,9 @@ var Module = fx.Module("kafka",
 )
 
 // NewConsumerGroup creates a new Kafka consumer group.
-// Inspired by https://github.com/Shopify/sarama/blob/main/examples/consumergroup/main.go
+// Inspired by:
+// https://github.com/Shopify/sarama/blob/main/examples/consumergroup/main.go
+// https://github.com/confluentinc/cp-all-in-one/blob/7.1.0-post/cp-all-in-one-community/docker-compose.yml#L4-L34
 func NewConsumerGroup(logger *zap.Logger, lc fx.Lifecycle) (sarama.ConsumerGroup, error) {
 	keepRunning := true
 	logger.Info("Starting a new Sarama consumer")
@@ -71,7 +73,8 @@ func NewConsumerGroup(logger *zap.Logger, lc fx.Lifecycle) (sarama.ConsumerGroup
 	 * Setup a new Sarama consumer group
 	 */
 	consumer := Consumer{
-		ready: make(chan bool),
+		ready:  make(chan bool),
+		logger: logger,
 	}
 
 	var client sarama.ConsumerGroup
@@ -81,7 +84,7 @@ func NewConsumerGroup(logger *zap.Logger, lc fx.Lifecycle) (sarama.ConsumerGroup
 			ctx, cancel := context.WithCancel(ctx)
 			defer cancel()
 
-			cc, err := sarama.NewConsumerGroup(strings.Split(brokers, ","), group, config)
+			cc, err := sarama.NewConsumerGroup(strings.Split(brokers, ","), consumerGroupID, config)
 			if err != nil {
 				return err
 			}
@@ -155,7 +158,8 @@ func toggleConsumptionFlow(logger *zap.Logger, client sarama.ConsumerGroup, isPa
 
 // Consumer represents a Sarama consumer group consumer
 type Consumer struct {
-	ready chan bool
+	ready  chan bool
+	logger *zap.Logger
 }
 
 // Setup is run at the beginning of a new session, before ConsumeClaim
