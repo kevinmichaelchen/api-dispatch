@@ -5,6 +5,7 @@ all:
 
 .PHONY: gen-proto
 gen-proto:
+	buf breaking idl --against '.git#branch=main,subdir=idl'
 	buf lint idl
 	buf format idl -w
 	buf mod update idl
