@@ -29,6 +29,7 @@ func getUnaryInterceptors(logger *zap.Logger) []grpc.UnaryServerInterceptor {
 
 func getUnaryInterceptorsForConnect(logger *zap.Logger) []connect.Interceptor {
 	return []connect.Interceptor{
+		// TODO wait until the span interceptor and the inject-logger interceptor become community-sourced
 		connectInterceptorForSpan(),
 		connectInterceptorForLogger(logger),
 		// Add trace ID as field on logger

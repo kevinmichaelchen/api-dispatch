@@ -21,26 +21,34 @@ import (
 )
 
 var Module = fx.Module("grpc",
-	fx.Provide(NewGRPCServer, NewConnectGoServer),
-	fx.Invoke(Register),
+	fx.Provide(
+		NewGRPCServer,
+		NewConnectGoServer,
+	),
+	fx.Invoke(
+		RegisterGrpcServer,
+		RegisterConnectGoServer,
+	),
 )
 
-func Register(
-	logger *zap.Logger,
+func RegisterGrpcServer(
 	svc *service.Service,
-	connectSvc *service.ConnectWrapper,
 	server *grpc.Server,
-	mux *http.ServeMux,
 ) {
 	// Register our gRPC server
 	v1beta1.RegisterDispatchServiceServer(server, svc)
 	grpc_health_v1.RegisterHealthServer(server, svc)
 	reflection.Register(server)
+}
 
+func RegisterConnectGoServer(
+	logger *zap.Logger,
+	connectSvc *service.ConnectWrapper,
+	mux *http.ServeMux,
+) {
 	// Register our Connect-Go server
 	path, handler := v1beta1connect.NewDispatchServiceHandler(
 		connectSvc,
-		// TODO interceptors
 		connect.WithInterceptors(getUnaryInterceptorsForConnect(logger)...),
 	)
 	mux.Handle(path, handler)
