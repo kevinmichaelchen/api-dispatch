@@ -53,7 +53,7 @@ See [`./docs/ingestion.md`](./docs/ingestion.md).
 
 H3 is covered in more detail in [`./docs/h3.md`](./docs/h3.md).
 
-Briefly, H3 tessellatees the world into hexagons at various intersections.
+Briefly, H3 tessellatees the world into hexagons at various resolutions.
 We rank by distance using the concept of
 [k-rings](https://h3geo.org/docs/api/traversal/#kring),
 which are akin to [concentric circles](https://en.wikipedia.org/wiki/Concentric_objects).
