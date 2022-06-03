@@ -3,32 +3,67 @@ package grpc
 import (
 	"context"
 	"fmt"
+	"github.com/bufbuild/connect-go"
 	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	"github.com/kevinmichaelchen/api-dispatch/internal/idl/coop/drivers/dispatch/v1beta1"
+	"github.com/kevinmichaelchen/api-dispatch/internal/idl/coop/drivers/dispatch/v1beta1/v1beta1connect"
 	"github.com/kevinmichaelchen/api-dispatch/internal/service"
-	"github.com/kevinmichaelchen/api-dispatch/pkg/grpc/interceptors/stats"
-	"github.com/kevinmichaelchen/api-dispatch/pkg/grpc/interceptors/tracelog"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
+	"golang.org/x/net/http2"
+	"golang.org/x/net/http2/h2c"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/reflection"
 	"net"
+	"net/http"
 )
 
 var Module = fx.Module("grpc",
-	fx.Provide(NewGRPCServer),
+	fx.Provide(NewGRPCServer, NewConnectGoServer),
 	fx.Invoke(Register),
 )
 
 func Register(
-	server *grpc.Server,
+	logger *zap.Logger,
 	svc *service.Service,
+	connectSvc *service.ConnectWrapper,
+	server *grpc.Server,
+	mux *http.ServeMux,
 ) {
+	// Register our gRPC server
 	v1beta1.RegisterDispatchServiceServer(server, svc)
 	grpc_health_v1.RegisterHealthServer(server, svc)
 	reflection.Register(server)
+
+	// Register our Connect-Go server
+	path, handler := v1beta1connect.NewDispatchServiceHandler(
+		connectSvc,
+		// TODO interceptors
+		connect.WithInterceptors(getUnaryInterceptorsForConnect(logger)...),
+	)
+	mux.Handle(path, handler)
+}
+
+func NewConnectGoServer(lc fx.Lifecycle) *http.ServeMux {
+	mux := http.NewServeMux()
+	// TODO make configurable
+	address := fmt.Sprintf(":%d", 8081)
+	srv := &http.Server{
+		Addr: address,
+		// Use h2c so we can serve HTTP/2 without TLS.
+		Handler: h2c.NewHandler(mux, &http2.Server{}),
+	}
+	lc.Append(fx.Hook{
+		OnStart: func(ctx context.Context) error {
+			return srv.ListenAndServe()
+		},
+		OnStop: func(ctx context.Context) error {
+			return srv.Shutdown(ctx)
+		},
+	})
+	return mux
 }
 
 func NewGRPCServer(lc fx.Lifecycle, logger *zap.Logger) (*grpc.Server, error) {
@@ -36,13 +71,7 @@ func NewGRPCServer(lc fx.Lifecycle, logger *zap.Logger) (*grpc.Server, error) {
 	//var opts grpc.ServerOption
 	s := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
-			// TODO is it possible not to sample Health/Check calls?
-			otelgrpc.UnaryServerInterceptor(),
-			grpc_zap.UnaryServerInterceptor(logger),
-			// Add trace ID as field on logger
-			tracelog.UnaryServerInterceptor(),
-			// Response counts (w/ status code as a dimension)
-			stats.UnaryServerInterceptor(),
+			getUnaryInterceptors(logger)...,
 		),
 		grpc.ChainStreamInterceptor(
 			otelgrpc.StreamServerInterceptor(),

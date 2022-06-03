@@ -2,6 +2,7 @@ package stats
 
 import (
 	"context"
+	"github.com/bufbuild/connect-go"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric/global"
 	semconv "go.opentelemetry.io/otel/semconv/v1.10.0"
@@ -18,6 +19,22 @@ func UnaryServerInterceptor() grpc.UnaryServerInterceptor {
 
 		return
 	}
+}
+
+func UnaryServerInterceptorForConnect() connect.UnaryInterceptorFunc {
+	interceptor := func(next connect.UnaryFunc) connect.UnaryFunc {
+		return connect.UnaryFunc(func(
+			ctx context.Context,
+			req connect.AnyRequest,
+		) (connect.AnyResponse, error) {
+			res, err := next(ctx, req)
+
+			handleStatusMetrics(ctx, err)
+
+			return res, err
+		})
+	}
+	return connect.UnaryInterceptorFunc(interceptor)
 }
 
 func handleStatusMetrics(ctx context.Context, err error) {
