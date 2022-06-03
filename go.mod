@@ -4,6 +4,7 @@ go 1.18
 
 require (
 	github.com/XSAM/otelsql v0.14.1
+	github.com/bufbuild/connect-go v0.1.0
 	github.com/codingsince1985/geo-golang v1.8.1
 	github.com/envoyproxy/protoc-gen-validate v0.1.0
 	github.com/friendsofgo/errors v0.9.2
@@ -36,6 +37,7 @@ require (
 	go.opentelemetry.io/otel/trace v1.7.0
 	go.uber.org/fx v1.17.1
 	go.uber.org/zap v1.21.0
+	golang.org/x/net v0.0.0-20220425223048-2871e0cb64e4
 	golang.org/x/sync v0.0.0-20220513210516-0976fa681c29
 	google.golang.org/grpc v1.46.0
 	google.golang.org/protobuf v1.28.0
@@ -45,7 +47,6 @@ require (
 require (
 	github.com/benbjohnson/clock v1.3.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
-	github.com/bufbuild/connect-go v0.1.0 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/ericlagergren/decimal v0.0.0-20181231230500-73749d4874d5 // indirect
@@ -79,7 +80,6 @@ require (
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/dig v1.14.1 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
-	golang.org/x/net v0.0.0-20220425223048-2871e0cb64e4 // indirect
 	golang.org/x/sys v0.0.0-20220429233432-b5fbb4746d32 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/time v0.0.0-20200416051211-89c76fbcd5d1 // indirect
