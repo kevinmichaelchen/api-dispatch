@@ -26,6 +26,8 @@ func (s *Service) GetNearestDrivers(
 	ctx context.Context,
 	req *v1beta1.GetNearestDriversRequest,
 ) (*v1beta1.GetNearestDriversResponse, error) {
+	logger := ctxzap.Extract(ctx)
+
 	err := validate(req, req)
 	if err != nil {
 		return nil, err
@@ -51,6 +53,7 @@ func (s *Service) GetNearestDrivers(
 
 	// Check for 0 results
 	if len(results) == 0 {
+		logger.Warn("No nearby drivers found")
 		return nil, status.Error(codes.NotFound, "no results found")
 	}
 
