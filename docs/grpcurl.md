@@ -2,6 +2,9 @@
 `grpcurl` is pretty useful for testing:
 
 ## Make request
+We can use a [heredoc](https://linuxize.com/post/bash-heredoc/) to pass multiple
+lines of input to the `grpcurl` command. We use the `-plaintext` flag to disable
+TLS. The `-d @` flag means we're piping data from stdin.
 ```bash
 (
 cat << EOF
