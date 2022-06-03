@@ -3,31 +3,37 @@ package grpc
 import (
 	"context"
 	"fmt"
-	"github.com/bufbuild/connect-go"
 	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	"github.com/kevinmichaelchen/api-dispatch/internal/idl/coop/drivers/dispatch/v1beta1"
-	"github.com/kevinmichaelchen/api-dispatch/internal/idl/coop/drivers/dispatch/v1beta1/v1beta1connect"
 	"github.com/kevinmichaelchen/api-dispatch/internal/service"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
-	"golang.org/x/net/http2"
-	"golang.org/x/net/http2/h2c"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/reflection"
 	"net"
-	"net/http"
 )
 
 var Module = fx.Module("grpc",
 	fx.Provide(
+		NewConnectWrapper,
 		NewGRPCServer,
-		NewConnectGoServer,
+		fx.Annotate(
+			NewConnectGoServer,
+			// Because the output of NewConnectGoServer returns a *http.ServeMux
+			// and because we have other DI functions that return that as well,
+			// we have to use ResultTags to disambiguate.
+			fx.ResultTags(`name:"connectGoMux"`),
+		),
 	),
 	fx.Invoke(
 		RegisterGrpcServer,
-		RegisterConnectGoServer,
+		fx.Annotate(
+			RegisterConnectGoServer,
+			// TODO making this positional seems a lot more brittle than just using a struct with annotated fields
+			fx.ParamTags(``, ``, `name:"connectGoMux"`),
+		),
 	),
 )
 
@@ -39,39 +45,6 @@ func RegisterGrpcServer(
 	v1beta1.RegisterDispatchServiceServer(server, svc)
 	grpc_health_v1.RegisterHealthServer(server, svc)
 	reflection.Register(server)
-}
-
-func RegisterConnectGoServer(
-	logger *zap.Logger,
-	connectSvc *service.ConnectWrapper,
-	mux *http.ServeMux,
-) {
-	// Register our Connect-Go server
-	path, handler := v1beta1connect.NewDispatchServiceHandler(
-		connectSvc,
-		connect.WithInterceptors(getUnaryInterceptorsForConnect(logger)...),
-	)
-	mux.Handle(path, handler)
-}
-
-func NewConnectGoServer(lc fx.Lifecycle) *http.ServeMux {
-	mux := http.NewServeMux()
-	// TODO make configurable
-	address := fmt.Sprintf(":%d", 8081)
-	srv := &http.Server{
-		Addr: address,
-		// Use h2c so we can serve HTTP/2 without TLS.
-		Handler: h2c.NewHandler(mux, &http2.Server{}),
-	}
-	lc.Append(fx.Hook{
-		OnStart: func(ctx context.Context) error {
-			return srv.ListenAndServe()
-		},
-		OnStop: func(ctx context.Context) error {
-			return srv.Shutdown(ctx)
-		},
-	})
-	return mux
 }
 
 func NewGRPCServer(lc fx.Lifecycle, logger *zap.Logger) (*grpc.Server, error) {

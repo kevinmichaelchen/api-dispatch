@@ -15,6 +15,6 @@ This lets you use curl (instead of [grpcurl](./grpcurl.md)).
 ```bash
 curl \
     --header "Content-Type: application/json" \
-    --data '{"location": {"latitude": 40.73010864595388, "longitude": -73.95094555260256}}' \
-    localhost:8081/coop.drivers.dispatch.v1beta1.DispatchService/Dispatch
+    --data '{"limit": 5, "pickup_location": {"latitude": 40.73010864595388, "longitude": -73.95094555260256}}' \
+    localhost:8081/coop.drivers.dispatch.v1beta1.DispatchService/GetNearestDrivers
 ```

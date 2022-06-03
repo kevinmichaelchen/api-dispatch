@@ -9,6 +9,8 @@ import (
 	"github.com/kevinmichaelchen/api-dispatch/pkg/maps"
 	"github.com/kevinmichaelchen/api-dispatch/pkg/maps/distance"
 	"go.uber.org/zap"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"math/rand"
@@ -46,6 +48,11 @@ func (s *Service) GetNearestDrivers(
 		MergeDriversInput{Drivers: nearby.R10K1, Res: 10, KValue: 1},
 		MergeDriversInput{Drivers: nearby.R10K2, Res: 10, KValue: 2},
 	)
+
+	// Check for 0 results
+	if len(results) == 0 {
+		return nil, status.Error(codes.NotFound, "no results found")
+	}
 
 	// Apply server-side results limit
 	if len(results) > int(maxResults) {
@@ -113,6 +120,11 @@ func (s *Service) GetNearestTrips(
 		MergeTripsInput{trips: nearby.R10K1, res: 10, kValue: 1},
 		MergeTripsInput{trips: nearby.R10K2, res: 10, kValue: 2},
 	)
+
+	// Check for 0 results
+	if len(results) == 0 {
+		return nil, status.Error(codes.NotFound, "no results found")
+	}
 
 	// Apply server-side results limit
 	if len(results) > int(maxResults) {
