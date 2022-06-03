@@ -1,6 +1,7 @@
 import logo from "./logo.svg";
 import "./App.css";
 import { GoogleMap, LoadScript } from "@react-google-maps/api";
+import mapStyles from "./mapStyles.json";
 
 const containerStyle = {
   width: "min(1200px, 80vw)",
@@ -17,7 +18,14 @@ function MyMap() {
   console.log("apiKey", apiKey);
   return (
     <LoadScript googleMapsApiKey={apiKey}>
-      <GoogleMap mapContainerStyle={containerStyle} center={center} zoom={10}>
+      <GoogleMap
+        options={{
+          styles: mapStyles,
+        }}
+        mapContainerStyle={containerStyle}
+        center={center}
+        zoom={10}
+      >
         {/* Child components, such as markers, info windows, etc. */}
         <></>
       </GoogleMap>
