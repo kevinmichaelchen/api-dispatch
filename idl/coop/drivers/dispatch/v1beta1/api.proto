@@ -22,6 +22,9 @@ service DispatchService {
 
   // Gets the nearest trips to a given driver's location.
   rpc GetNearestTrips(GetNearestTripsRequest) returns (GetNearestTripsResponse) {}
+
+  // Lists drivers.
+  rpc ListDrivers(ListDriversRequest) returns (ListDriversResponse) {}
 }
 
 message UpdateDriverLocationsRequest {
@@ -92,4 +95,17 @@ message SearchResult {
   // match was found.
   int32 k_value = 8;
   double score = 9;
+}
+
+message ListDriversRequest {
+  int32 page_size = 1 [(validate.rules).int32 = {
+    gt: 0,
+    lte: 1000
+  }];
+  string page_token = 2;
+}
+
+message ListDriversResponse {
+  repeated DriverLocation driver_locations = 1;
+  string next_page_token = 2;
 }
