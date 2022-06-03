@@ -79,11 +79,11 @@ First, spin everything up:
 # Step 1: Start containers in detached (background) mode
 docker-compose up -d
 
-# Step 2: Start app (you can optionally specify a API_KEY env var for Google Maps)
-go run main.go
-
-# Step 3: Create the database schema
+# Step 2: Create the database schema
 make migrate-up
+
+# Step 3: Start app (you can optionally specify a API_KEY env var for Google Maps)
+go run main.go
 
 # Step 4: Seed trips
 go run cmd/dispatch/*.go ingest trips --file seed-trips.json

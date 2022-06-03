@@ -1,21 +1,7 @@
-## Getting started
-```bash
-# Start containers in detached (background) mode
-docker-compose up -d
-
-# Start app (you can optionally specify a API_KEY env var for Google Maps)
-go run main.go
-```
-
 ## Telemetry
 Visit the Jaeger UI at http://localhost:16686.
 
 <img src="https://user-images.githubusercontent.com/5129994/168405671-07f3f62e-4cac-4c1a-aab2-da92c0401095.png"/>
-
-## Lines of code
-```bash
-tokei -e models -e idl
-```
 
 ## Dependencies
 We use the following Go dependencies:
