@@ -19,6 +19,11 @@ function MyMap() {
   return (
     <LoadScript googleMapsApiKey={apiKey}>
       <GoogleMap
+        onClick={(e) => {
+          const lat = e.latLng.lat();
+          const lng = e.latLng.lng();
+          console.log(`clicked (${lat}, ${lng})`);
+        }}
         options={{
           styles: mapStyles,
         }}
