@@ -9,13 +9,14 @@ TLS. The `-d @` flag means we're piping data from stdin.
 (
 cat << EOF
 {
-  "location": {
+  "pickup_location": {
     "latitude": 40.73010864595388,
     "longitude": -73.95094555260256
-  }
+  },
+  "limit": 5
 }
 EOF
-) | grpcurl -plaintext -d @ localhost:8080 coop.drivers.dispatch.v1beta1.DispatchService/Dispatch
+) | grpcurl -plaintext -d @ localhost:8080 coop.drivers.dispatch.v1beta1.DispatchService/GetNearestDrivers
 ```
 
 ## Check App Health

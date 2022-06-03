@@ -2,6 +2,7 @@ package metrics
 
 import (
 	"context"
+	"fmt"
 	"go.opentelemetry.io/otel/exporters/prometheus"
 	"go.opentelemetry.io/otel/metric/global"
 	"go.opentelemetry.io/otel/sdk/metric/aggregator/histogram"
@@ -14,12 +15,22 @@ import (
 	"net/http"
 )
 
+const muxName = "metricsMux"
+
 var Module = fx.Module("metrics",
 	fx.Provide(
-		NewMux,
+		fx.Annotate(
+			NewMux,
+			fx.ResultTags(fmt.Sprintf(`name:"%s"`, muxName)),
+		),
 		NewPrometheusExporter,
 	),
-	fx.Invoke(Register),
+	fx.Invoke(
+		fx.Annotate(
+			Register,
+			fx.ParamTags(``, fmt.Sprintf(`name:"%s"`, muxName)),
+		),
+	),
 )
 
 func Register(exporter *prometheus.Exporter, mux *http.ServeMux) {
@@ -30,6 +41,7 @@ func Register(exporter *prometheus.Exporter, mux *http.ServeMux) {
 	mux.HandleFunc("/", exporter.ServeHTTP)
 }
 
+// TODO use https://pkg.go.dev/go.uber.org/fx#hdr-Named_Values
 func NewMux(lc fx.Lifecycle) *http.ServeMux {
 	mux := http.NewServeMux()
 	server := &http.Server{

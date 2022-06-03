@@ -6,8 +6,6 @@ import (
 	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	"github.com/kevinmichaelchen/api-dispatch/internal/idl/coop/drivers/dispatch/v1beta1"
 	"github.com/kevinmichaelchen/api-dispatch/internal/service"
-	"github.com/kevinmichaelchen/api-dispatch/pkg/grpc/interceptors/stats"
-	"github.com/kevinmichaelchen/api-dispatch/pkg/grpc/interceptors/tracelog"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
@@ -18,14 +16,32 @@ import (
 )
 
 var Module = fx.Module("grpc",
-	fx.Provide(NewGRPCServer),
-	fx.Invoke(Register),
+	fx.Provide(
+		NewConnectWrapper,
+		NewGRPCServer,
+		fx.Annotate(
+			NewConnectGoServer,
+			// Because the output of NewConnectGoServer returns a *http.ServeMux
+			// and because we have other DI functions that return that as well,
+			// we have to use ResultTags to disambiguate.
+			fx.ResultTags(`name:"connectGoMux"`),
+		),
+	),
+	fx.Invoke(
+		RegisterGrpcServer,
+		fx.Annotate(
+			RegisterConnectGoServer,
+			// TODO making this positional seems a lot more brittle than just using a struct with annotated fields
+			fx.ParamTags(``, ``, `name:"connectGoMux"`),
+		),
+	),
 )
 
-func Register(
-	server *grpc.Server,
+func RegisterGrpcServer(
 	svc *service.Service,
+	server *grpc.Server,
 ) {
+	// Register our gRPC server
 	v1beta1.RegisterDispatchServiceServer(server, svc)
 	grpc_health_v1.RegisterHealthServer(server, svc)
 	reflection.Register(server)
@@ -36,13 +52,7 @@ func NewGRPCServer(lc fx.Lifecycle, logger *zap.Logger) (*grpc.Server, error) {
 	//var opts grpc.ServerOption
 	s := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
-			// TODO is it possible not to sample Health/Check calls?
-			otelgrpc.UnaryServerInterceptor(),
-			grpc_zap.UnaryServerInterceptor(logger),
-			// Add trace ID as field on logger
-			tracelog.UnaryServerInterceptor(),
-			// Response counts (w/ status code as a dimension)
-			stats.UnaryServerInterceptor(),
+			getUnaryInterceptors(logger)...,
 		),
 		grpc.ChainStreamInterceptor(
 			otelgrpc.StreamServerInterceptor(),
