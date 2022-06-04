@@ -11,8 +11,6 @@ import (
 	"go.opentelemetry.io/otel"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
-	"net/http"
-	"strings"
 )
 
 func getUnaryInterceptors(logger *zap.Logger) []grpc.UnaryServerInterceptor {
@@ -37,25 +35,7 @@ func getUnaryInterceptorsForConnect(logger *zap.Logger) []connect.Interceptor {
 		tracelog.UnaryServerInterceptorForConnect(),
 		// Response counts (w/ status code as a dimension)
 		stats.UnaryServerInterceptorForConnect(),
-		connectInterceptorForCORS(),
 	}
-}
-
-func connectInterceptorForCORS() connect.UnaryInterceptorFunc {
-	interceptor := func(next connect.UnaryFunc) connect.UnaryFunc {
-		return connect.UnaryFunc(func(
-			ctx context.Context,
-			req connect.AnyRequest,
-		) (connect.AnyResponse, error) {
-			out, err := next(ctx, req)
-			// TODO seems like these headers get overridden https://github.com/bufbuild/connect-go/blob/21962261d89fa86b18270e1dcbd8c4b8d26241bd/handler.go#L220-L222
-			methods := strings.Join([]string{http.MethodPost, http.MethodOptions}, ",")
-			out.Header().Set("Access-Control-Allow-Methods", methods)
-			out.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
-			return out, err
-		})
-	}
-	return connect.UnaryInterceptorFunc(interceptor)
 }
 
 func connectInterceptorForSpan() connect.UnaryInterceptorFunc {
