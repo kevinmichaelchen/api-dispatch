@@ -61,14 +61,15 @@ func (s *Store) ListDrivers(ctx context.Context, r *v1beta1.ListDriversRequest) 
 		return nil, err
 	}
 
-	pageTokenOut := PageToken{}
-	if len(drivers) > 0 {
+	var nextPageToken string
+	if len(drivers) == int(r.GetPageSize()) {
 		lastID := drivers[len(drivers)-1].ID
-		pageTokenOut.ID = lastID
-	}
-	nextPageToken, err := pageTokenOut.toRaw()
-	if err != nil {
-		return nil, err
+		pageTokenOut := PageToken{ID: lastID}
+		raw, err := pageTokenOut.toRaw()
+		if err != nil {
+			return nil, err
+		}
+		nextPageToken = raw
 	}
 
 	return &v1beta1.ListDriversResponse{
