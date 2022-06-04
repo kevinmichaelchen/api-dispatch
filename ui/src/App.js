@@ -1,21 +1,22 @@
+import React from "react";
 import logo from "./logo.svg";
 import "./App.css";
-import { GoogleMap, LoadScript } from "@react-google-maps/api";
+import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
 import mapStyles from "./mapStyles.json";
 
 const containerStyle = {
-  width: "min(1200px, 80vw)",
-  height: "min(600px, 80vh)",
+  width: "min(1600px, 90vw)",
+  height: "min(800px, 90vh)",
 };
 
 const center = {
-  lat: 40.730572745064215,
+  lat: 40.710572745064215,
   lng: -73.95191000508696,
 };
 
 function MyMap() {
   const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
-  console.log("apiKey", apiKey);
+  const [points, setPoints] = React.useState([]);
   return (
     <LoadScript googleMapsApiKey={apiKey}>
       <GoogleMap
@@ -23,15 +24,18 @@ function MyMap() {
           const lat = e.latLng.lat();
           const lng = e.latLng.lng();
           console.log(`clicked (${lat}, ${lng})`);
+          setPoints([...points, { lat, lng }]);
         }}
         options={{
           styles: mapStyles,
         }}
         mapContainerStyle={containerStyle}
         center={center}
-        zoom={10}
+        zoom={13}
       >
-        {/* Child components, such as markers, info windows, etc. */}
+        {points.map((p, i) => (
+          <Marker key={i} position={{ lat: p.lat, lng: p.lng }} />
+        ))}
         <></>
       </GoogleMap>
     </LoadScript>
@@ -42,7 +46,7 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <div style={{ marginTop: "100px", marginBottom: "200px" }}>
+        <div style={{ marginTop: "20px", marginBottom: "100px" }}>
           <MyMap />
         </div>
       </header>
