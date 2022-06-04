@@ -13,9 +13,21 @@ const center = {
   lng: -73.95191000508696,
 };
 
+function pointToMarker(p, i) {
+  return (
+    <Marker
+      key={i}
+      title={`(${p.lat}, ${p.lng})`}
+      position={{ lat: p.lat, lng: p.lng }}
+      opacity={0.5}
+    />
+  );
+}
+
 function MyMap() {
   const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
   const [points, setPoints] = React.useState([]);
+  const [clickedPoints, setClickedPoints] = React.useState([]);
   React.useEffect(() => {
     const getDriverLocations = async () => {
       const response = await fetch(
@@ -31,6 +43,12 @@ function MyMap() {
       );
       console.log("response", response);
       const body = await response.json();
+      setPoints(
+        body.driverLocations.map((dl) => ({
+          lat: dl.currentLocation.latitude,
+          lng: dl.currentLocation.longitude,
+        }))
+      );
       console.log("body", body);
     };
 
@@ -43,7 +61,7 @@ function MyMap() {
           const lat = e.latLng.lat();
           const lng = e.latLng.lng();
           console.log(`clicked (${lat}, ${lng})`);
-          setPoints([...points, { lat, lng }]);
+          setClickedPoints([...clickedPoints, { lat, lng }]);
         }}
         options={{
           styles: mapStyles,
@@ -52,13 +70,8 @@ function MyMap() {
         center={center}
         zoom={13}
       >
-        {points.map((p, i) => (
-          <Marker
-            key={i}
-            title={`(${p.lat}, ${p.lng})`}
-            position={{ lat: p.lat, lng: p.lng }}
-          />
-        ))}
+        {points.map((p, i) => pointToMarker(p, i))}
+        {clickedPoints.map((p, i) => pointToMarker(p, i))}
         <></>
       </GoogleMap>
     </LoadScript>
