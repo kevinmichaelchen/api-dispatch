@@ -11,6 +11,8 @@ import (
 	"go.opentelemetry.io/otel"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
+	"net/http"
+	"strings"
 )
 
 func getUnaryInterceptors(logger *zap.Logger) []grpc.UnaryServerInterceptor {
@@ -29,14 +31,30 @@ func getUnaryInterceptors(logger *zap.Logger) []grpc.UnaryServerInterceptor {
 
 func getUnaryInterceptorsForConnect(logger *zap.Logger) []connect.Interceptor {
 	return []connect.Interceptor{
-		// TODO wait until the span interceptor and the inject-logger interceptor become community-sourced
 		connectInterceptorForSpan(),
 		connectInterceptorForLogger(logger),
 		// Add trace ID as field on logger
 		tracelog.UnaryServerInterceptorForConnect(),
 		// Response counts (w/ status code as a dimension)
 		stats.UnaryServerInterceptorForConnect(),
+		connectInterceptorForCORS(),
 	}
+}
+
+func connectInterceptorForCORS() connect.UnaryInterceptorFunc {
+	interceptor := func(next connect.UnaryFunc) connect.UnaryFunc {
+		return connect.UnaryFunc(func(
+			ctx context.Context,
+			req connect.AnyRequest,
+		) (connect.AnyResponse, error) {
+			out, err := next(ctx, req)
+			methods := strings.Join([]string{http.MethodPost, http.MethodOptions}, ",")
+			out.Header().Set("Access-Control-Allow-Methods", methods)
+			out.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
+			return out, err
+		})
+	}
+	return connect.UnaryInterceptorFunc(interceptor)
 }
 
 func connectInterceptorForSpan() connect.UnaryInterceptorFunc {

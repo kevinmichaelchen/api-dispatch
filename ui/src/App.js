@@ -1,5 +1,4 @@
 import React from "react";
-import logo from "./logo.svg";
 import "./App.css";
 import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
 import mapStyles from "./mapStyles.json";
@@ -17,6 +16,28 @@ const center = {
 function MyMap() {
   const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
   const [points, setPoints] = React.useState([]);
+  React.useEffect(() => {
+    const getDriverLocations = async () => {
+      const response = await fetch(
+        "http://localhost:8081/coop.drivers.dispatch.v1beta1.DispatchService/ListDrivers",
+        {
+          method: "POST",
+          mode: "cors",
+          referrerPolicy: "no-referrer",
+          headers: {
+            "Content-Type": "application/json",
+            "Sec-Fetch-Site": "cross-site",
+          },
+          body: JSON.stringify({ limit: 1000 }),
+        }
+      );
+      console.log("response", response);
+      const body = await response.json();
+      console.log("body", body);
+    };
+
+    getDriverLocations().catch(console.error);
+  });
   return (
     <LoadScript googleMapsApiKey={apiKey}>
       <GoogleMap
@@ -34,7 +55,11 @@ function MyMap() {
         zoom={13}
       >
         {points.map((p, i) => (
-          <Marker key={i} position={{ lat: p.lat, lng: p.lng }} />
+          <Marker
+            key={i}
+            title={`(${p.lat}, ${p.lng})`}
+            position={{ lat: p.lat, lng: p.lng }}
+          />
         ))}
         <></>
       </GoogleMap>
