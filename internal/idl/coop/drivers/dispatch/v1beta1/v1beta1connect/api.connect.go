@@ -35,6 +35,8 @@ type DispatchServiceClient interface {
 	GetNearestDrivers(context.Context, *connect_go.Request[v1beta1.GetNearestDriversRequest]) (*connect_go.Response[v1beta1.GetNearestDriversResponse], error)
 	// Gets the nearest trips to a given driver's location.
 	GetNearestTrips(context.Context, *connect_go.Request[v1beta1.GetNearestTripsRequest]) (*connect_go.Response[v1beta1.GetNearestTripsResponse], error)
+	// Lists drivers.
+	ListDrivers(context.Context, *connect_go.Request[v1beta1.ListDriversRequest]) (*connect_go.Response[v1beta1.ListDriversResponse], error)
 }
 
 // NewDispatchServiceClient constructs a client for the
@@ -68,6 +70,11 @@ func NewDispatchServiceClient(httpClient connect_go.HTTPClient, baseURL string, 
 			baseURL+"/coop.drivers.dispatch.v1beta1.DispatchService/GetNearestTrips",
 			opts...,
 		),
+		listDrivers: connect_go.NewClient[v1beta1.ListDriversRequest, v1beta1.ListDriversResponse](
+			httpClient,
+			baseURL+"/coop.drivers.dispatch.v1beta1.DispatchService/ListDrivers",
+			opts...,
+		),
 	}
 }
 
@@ -77,6 +84,7 @@ type dispatchServiceClient struct {
 	createTrips           *connect_go.Client[v1beta1.CreateTripsRequest, v1beta1.CreateTripsResponse]
 	getNearestDrivers     *connect_go.Client[v1beta1.GetNearestDriversRequest, v1beta1.GetNearestDriversResponse]
 	getNearestTrips       *connect_go.Client[v1beta1.GetNearestTripsRequest, v1beta1.GetNearestTripsResponse]
+	listDrivers           *connect_go.Client[v1beta1.ListDriversRequest, v1beta1.ListDriversResponse]
 }
 
 // UpdateDriverLocations calls coop.drivers.dispatch.v1beta1.DispatchService.UpdateDriverLocations.
@@ -99,6 +107,11 @@ func (c *dispatchServiceClient) GetNearestTrips(ctx context.Context, req *connec
 	return c.getNearestTrips.CallUnary(ctx, req)
 }
 
+// ListDrivers calls coop.drivers.dispatch.v1beta1.DispatchService.ListDrivers.
+func (c *dispatchServiceClient) ListDrivers(ctx context.Context, req *connect_go.Request[v1beta1.ListDriversRequest]) (*connect_go.Response[v1beta1.ListDriversResponse], error) {
+	return c.listDrivers.CallUnary(ctx, req)
+}
+
 // DispatchServiceHandler is an implementation of the coop.drivers.dispatch.v1beta1.DispatchService
 // service.
 type DispatchServiceHandler interface {
@@ -110,6 +123,8 @@ type DispatchServiceHandler interface {
 	GetNearestDrivers(context.Context, *connect_go.Request[v1beta1.GetNearestDriversRequest]) (*connect_go.Response[v1beta1.GetNearestDriversResponse], error)
 	// Gets the nearest trips to a given driver's location.
 	GetNearestTrips(context.Context, *connect_go.Request[v1beta1.GetNearestTripsRequest]) (*connect_go.Response[v1beta1.GetNearestTripsResponse], error)
+	// Lists drivers.
+	ListDrivers(context.Context, *connect_go.Request[v1beta1.ListDriversRequest]) (*connect_go.Response[v1beta1.ListDriversResponse], error)
 }
 
 // NewDispatchServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -139,6 +154,11 @@ func NewDispatchServiceHandler(svc DispatchServiceHandler, opts ...connect_go.Ha
 		svc.GetNearestTrips,
 		opts...,
 	))
+	mux.Handle("/coop.drivers.dispatch.v1beta1.DispatchService/ListDrivers", connect_go.NewUnaryHandler(
+		"/coop.drivers.dispatch.v1beta1.DispatchService/ListDrivers",
+		svc.ListDrivers,
+		opts...,
+	))
 	return "/coop.drivers.dispatch.v1beta1.DispatchService/", mux
 }
 
@@ -159,4 +179,8 @@ func (UnimplementedDispatchServiceHandler) GetNearestDrivers(context.Context, *c
 
 func (UnimplementedDispatchServiceHandler) GetNearestTrips(context.Context, *connect_go.Request[v1beta1.GetNearestTripsRequest]) (*connect_go.Response[v1beta1.GetNearestTripsResponse], error) {
 	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("coop.drivers.dispatch.v1beta1.DispatchService.GetNearestTrips is not implemented"))
+}
+
+func (UnimplementedDispatchServiceHandler) ListDrivers(context.Context, *connect_go.Request[v1beta1.ListDriversRequest]) (*connect_go.Response[v1beta1.ListDriversResponse], error) {
+	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("coop.drivers.dispatch.v1beta1.DispatchService.ListDrivers is not implemented"))
 }
