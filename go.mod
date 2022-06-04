@@ -16,6 +16,7 @@ require (
 	github.com/kr/pretty v0.2.0
 	github.com/lib/pq v1.10.5
 	github.com/paulmach/go.geo v0.0.0-20180829195134-22b514266d33
+	github.com/rs/cors v1.8.2
 	github.com/rs/xid v1.4.0
 	github.com/sethvargo/go-envconfig v0.6.0
 	github.com/spf13/cobra v1.4.0

@@ -48,6 +48,7 @@ func connectInterceptorForCORS() connect.UnaryInterceptorFunc {
 			req connect.AnyRequest,
 		) (connect.AnyResponse, error) {
 			out, err := next(ctx, req)
+			// TODO seems like these headers get overridden https://github.com/bufbuild/connect-go/blob/21962261d89fa86b18270e1dcbd8c4b8d26241bd/handler.go#L220-L222
 			methods := strings.Join([]string{http.MethodPost, http.MethodOptions}, ",")
 			out.Header().Set("Access-Control-Allow-Methods", methods)
 			out.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
