@@ -1,12 +1,19 @@
-import React from "react";
+import React, { ReactElement } from "react";
 import "./App.css";
-import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
+import {
+  GoogleMap,
+  InfoWindow,
+  LoadScript,
+  Marker,
+} from "@react-google-maps/api";
 import mapStyles from "./mapStyles.json";
 import { Grid } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
 import { useEffectOnce } from "usehooks-ts";
+import { DirectionsCarFilled } from "@mui/icons-material";
+import { renderToString } from "react-dom/server";
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
@@ -31,13 +38,33 @@ interface Point {
   lng: number;
 }
 
+export function getIconPath(element: ReactElement): string {
+  const iconString = renderToString(element);
+  const parser = new DOMParser();
+  const svgDoc = parser.parseFromString(iconString, "image/svg+xml");
+  const iconPath = svgDoc.querySelector("path")?.getAttribute("d") as string;
+  return iconPath;
+}
+
 function pointToMarker(p: Point, i: number) {
+  const color = "#FFD700";
   return (
     <Marker
       key={i}
       title={`(${p.lat}, ${p.lng})`}
       position={{ lat: p.lat, lng: p.lng }}
-      opacity={0.5}
+      opacity={1}
+      onMouseOver={(e: google.maps.MapMouseEvent) => {
+        console.log(`hovered ${e.latLng?.lat()}, ${e.latLng?.lng()}`);
+      }}
+      icon={{
+        path: getIconPath(<DirectionsCarFilled />),
+        fillColor: color,
+        fillOpacity: 0.9,
+        scale: 0.7,
+        strokeColor: color,
+        strokeWeight: 1,
+      }}
     />
   );
 }
@@ -108,8 +135,13 @@ function MyMap() {
               center={center}
               zoom={13}
             >
-              {points.map((p, i) => pointToMarker(p, i))}
-              {clickedPoints.map((p, i) => pointToMarker(p, i))}
+              {points.map((p: Point, i: number) => pointToMarker(p, i))}
+              {clickedPoints.map((p: Point, i: number) => pointToMarker(p, i))}
+              {/*<InfoWindow position={position}>*/}
+              {/*  <div style={divStyle}>*/}
+              {/*    <h1>InfoWindow</h1>*/}
+              {/*  </div>*/}
+              {/*</InfoWindow>*/}
               <></>
             </GoogleMap>
           </LoadScript>
