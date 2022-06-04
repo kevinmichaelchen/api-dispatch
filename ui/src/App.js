@@ -23,12 +23,10 @@ function MyMap() {
         {
           method: "POST",
           mode: "cors",
-          referrerPolicy: "no-referrer",
           headers: {
             "Content-Type": "application/json",
-            "Sec-Fetch-Site": "cross-site",
           },
-          body: JSON.stringify({ limit: 1000 }),
+          body: JSON.stringify({ page_size: 1000 }),
         }
       );
       console.log("response", response);
