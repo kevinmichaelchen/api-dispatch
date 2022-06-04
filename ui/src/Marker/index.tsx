@@ -1,8 +1,8 @@
 import React from "react";
 import { renderToString } from "react-dom/server";
-import { Point } from "../types";
 import { Marker } from "@react-google-maps/api";
 import { DirectionsCarFilled } from "@mui/icons-material";
+import { DriverLocation, LatLng } from "../types";
 
 function getIconPath(element: React.ReactElement): string {
   const iconString = renderToString(element);
@@ -12,18 +12,19 @@ function getIconPath(element: React.ReactElement): string {
 }
 
 interface MyMarkerProps {
-  point: Point;
+  driverLocation: DriverLocation;
   handleMouseOver?: (e: google.maps.MapMouseEvent) => void;
   cached?: boolean;
 }
 
 export default function MyMarker(props: MyMarkerProps) {
-  const { cached, point: p, handleMouseOver } = props;
+  const { cached, driverLocation, handleMouseOver } = props;
   const color = cached ? "orange" : "#FFD700";
+  const p = driverLocation.currentLocation;
   return (
     <Marker
-      title={`(${p.lat}, ${p.lng})`}
-      position={{ lat: p.lat, lng: p.lng }}
+      title={`(${p.latitude}, ${p.longitude})`}
+      position={{ lat: p.latitude, lng: p.longitude }}
       opacity={1}
       onMouseOver={handleMouseOver}
       icon={{

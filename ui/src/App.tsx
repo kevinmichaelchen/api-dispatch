@@ -5,10 +5,11 @@ import Marker from "./Marker";
 import mapStyles from "./mapStyles.json";
 import { Box, Grid } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import PointList from "./PointList";
+import NewDriverList from "./PointList";
 import Paper from "@mui/material/Paper";
 import { useEffectOnce } from "usehooks-ts";
-import { DriverLocation, Point } from "./types";
+import { DriverLocation, LatLng } from "./types";
+import { faker } from "@faker-js/faker";
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
@@ -28,10 +29,22 @@ const center = {
   lng: -73.95191000508696,
 };
 
+function newDriverName(): string {
+  const firstName = faker.name.firstName();
+  const middleName = faker.name.middleName();
+  const lastName = faker.name.lastName();
+  const fullName = `${firstName}-${middleName}-${lastName}`;
+  return fullName.replaceAll(" ", "-");
+}
+
 function MyMap() {
   const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY as string;
-  const [points, setPoints] = React.useState<Point[]>([]);
-  const [clickedPoints, setClickedPoints] = React.useState<Point[]>([]);
+  const [driverLocations, setDriverLocations] = React.useState<
+    DriverLocation[]
+  >([]);
+  const [newDriverLocations, setNewDriverLocations] = React.useState<
+    DriverLocation[]
+  >([]);
 
   useEffectOnce(() => {
     const getDriverLocations = async () => {
@@ -49,12 +62,7 @@ function MyMap() {
       console.log("response", response);
       const body = await response.json();
       console.log("body", body);
-      setPoints(
-        body.driverLocations.map((dl: DriverLocation) => ({
-          lat: dl.currentLocation.latitude,
-          lng: dl.currentLocation.longitude,
-        }))
-      );
+      setDriverLocations(body.driverLocations);
     };
 
     getDriverLocations().catch(console.error);
@@ -64,7 +72,7 @@ function MyMap() {
     <Grid container spacing={2}>
       <Grid item xs={3}>
         <Item>
-          <PointList points={clickedPoints} />
+          <NewDriverList driverLocations={newDriverLocations} />
         </Item>
       </Grid>
       <Grid item xs={9}>
@@ -75,7 +83,16 @@ function MyMap() {
                 const lat = e.latLng?.lat() ?? 0;
                 const lng = e.latLng?.lng() ?? 0;
                 console.log(`clicked (${lat}, ${lng})`);
-                setClickedPoints([...clickedPoints, { lat, lng }]);
+                setNewDriverLocations([
+                  ...newDriverLocations,
+                  {
+                    driverId: newDriverName(),
+                    currentLocation: {
+                      latitude: lat,
+                      longitude: lng,
+                    },
+                  } as DriverLocation,
+                ]);
               }}
               options={{
                 styles: mapStyles,
@@ -84,11 +101,11 @@ function MyMap() {
               center={center}
               zoom={13}
             >
-              {points.map((p: Point, i: number) => (
-                <Marker key={i} point={p} />
+              {driverLocations.map((dl: DriverLocation, i: number) => (
+                <Marker key={i} driverLocation={dl} />
               ))}
-              {clickedPoints.map((p: Point, i: number) => (
-                <Marker key={i} point={p} cached />
+              {newDriverLocations.map((dl: DriverLocation, i: number) => (
+                <Marker key={i} driverLocation={dl} cached />
               ))}
               <></>
             </GoogleMap>
