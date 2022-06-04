@@ -8,7 +8,14 @@ import { styled } from "@mui/material/styles";
 import NewDriverList from "./PointList";
 import Paper from "@mui/material/Paper";
 import { useEffectOnce } from "usehooks-ts";
-import { DriverLocation, LatLng } from "./types";
+import {
+  addDriverLocationToState,
+  DriverLocation,
+  driverLocationsToState,
+  getDriverLocationsFromState,
+  LatLng,
+  NormalizedDriverLocations,
+} from "./types";
 import { faker } from "@faker-js/faker";
 
 const Item = styled(Paper)(({ theme }) => ({
@@ -39,12 +46,21 @@ function newDriverName(): string {
 
 function MyMap() {
   const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY as string;
-  const [driverLocations, setDriverLocations] = React.useState<
-    DriverLocation[]
-  >([]);
-  const [newDriverLocations, setNewDriverLocations] = React.useState<
-    DriverLocation[]
-  >([]);
+  const [driverLocationsState, setDriverLocationsState] =
+    React.useState<NormalizedDriverLocations>({
+      byId: {},
+      allIds: [],
+    } as NormalizedDriverLocations);
+  const [newDriverLocationsState, setNewDriverLocationsState] =
+    React.useState<NormalizedDriverLocations>({
+      byId: {},
+      allIds: [],
+    } as NormalizedDriverLocations);
+
+  const newDriverLocations = getDriverLocationsFromState(
+    newDriverLocationsState
+  );
+  const driverLocations = getDriverLocationsFromState(driverLocationsState);
 
   useEffectOnce(() => {
     const getDriverLocations = async () => {
@@ -59,10 +75,9 @@ function MyMap() {
           body: JSON.stringify({ page_size: 1000 }),
         }
       );
-      console.log("response", response);
       const body = await response.json();
       console.log("body", body);
-      setDriverLocations(body.driverLocations);
+      setDriverLocationsState(driverLocationsToState(body.driverLocations));
     };
 
     getDriverLocations().catch(console.error);
@@ -83,16 +98,16 @@ function MyMap() {
                 const lat = e.latLng?.lat() ?? 0;
                 const lng = e.latLng?.lng() ?? 0;
                 console.log(`clicked (${lat}, ${lng})`);
-                setNewDriverLocations([
-                  ...newDriverLocations,
-                  {
-                    driverId: newDriverName(),
-                    currentLocation: {
-                      latitude: lat,
-                      longitude: lng,
-                    },
-                  } as DriverLocation,
-                ]);
+                const dl = {
+                  driverId: newDriverName(),
+                  currentLocation: {
+                    latitude: lat,
+                    longitude: lng,
+                  },
+                } as DriverLocation;
+                setNewDriverLocationsState(
+                  addDriverLocationToState(newDriverLocationsState, dl)
+                );
               }}
               options={{
                 styles: mapStyles,
