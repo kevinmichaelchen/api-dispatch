@@ -34,6 +34,14 @@ func validate(m proto.Message, r Validater) error {
 	return nil
 }
 
+func (s *Service) ListDrivers(ctx context.Context, r *v1beta1.ListDriversRequest) (*v1beta1.ListDriversResponse, error) {
+	err := validate(r, r)
+	if err != nil {
+		return nil, err
+	}
+	return s.dataStore.ListDrivers(ctx, r)
+}
+
 func (s *Service) CreateTrips(ctx context.Context, r *v1beta1.CreateTripsRequest) (*v1beta1.CreateTripsResponse, error) {
 	err := validate(r, r)
 	if err != nil {

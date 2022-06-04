@@ -26,6 +26,8 @@ type DispatchServiceClient interface {
 	GetNearestDrivers(ctx context.Context, in *GetNearestDriversRequest, opts ...grpc.CallOption) (*GetNearestDriversResponse, error)
 	// Gets the nearest trips to a given driver's location.
 	GetNearestTrips(ctx context.Context, in *GetNearestTripsRequest, opts ...grpc.CallOption) (*GetNearestTripsResponse, error)
+	// Lists drivers.
+	ListDrivers(ctx context.Context, in *ListDriversRequest, opts ...grpc.CallOption) (*ListDriversResponse, error)
 }
 
 type dispatchServiceClient struct {
@@ -72,6 +74,15 @@ func (c *dispatchServiceClient) GetNearestTrips(ctx context.Context, in *GetNear
 	return out, nil
 }
 
+func (c *dispatchServiceClient) ListDrivers(ctx context.Context, in *ListDriversRequest, opts ...grpc.CallOption) (*ListDriversResponse, error) {
+	out := new(ListDriversResponse)
+	err := c.cc.Invoke(ctx, "/coop.drivers.dispatch.v1beta1.DispatchService/ListDrivers", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // DispatchServiceServer is the server API for DispatchService service.
 // All implementations should embed UnimplementedDispatchServiceServer
 // for forward compatibility
@@ -84,6 +95,8 @@ type DispatchServiceServer interface {
 	GetNearestDrivers(context.Context, *GetNearestDriversRequest) (*GetNearestDriversResponse, error)
 	// Gets the nearest trips to a given driver's location.
 	GetNearestTrips(context.Context, *GetNearestTripsRequest) (*GetNearestTripsResponse, error)
+	// Lists drivers.
+	ListDrivers(context.Context, *ListDriversRequest) (*ListDriversResponse, error)
 }
 
 // UnimplementedDispatchServiceServer should be embedded to have forward compatible implementations.
@@ -101,6 +114,9 @@ func (UnimplementedDispatchServiceServer) GetNearestDrivers(context.Context, *Ge
 }
 func (UnimplementedDispatchServiceServer) GetNearestTrips(context.Context, *GetNearestTripsRequest) (*GetNearestTripsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetNearestTrips not implemented")
+}
+func (UnimplementedDispatchServiceServer) ListDrivers(context.Context, *ListDriversRequest) (*ListDriversResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListDrivers not implemented")
 }
 
 // UnsafeDispatchServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -186,6 +202,24 @@ func _DispatchService_GetNearestTrips_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _DispatchService_ListDrivers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListDriversRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DispatchServiceServer).ListDrivers(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/coop.drivers.dispatch.v1beta1.DispatchService/ListDrivers",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DispatchServiceServer).ListDrivers(ctx, req.(*ListDriversRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // DispatchService_ServiceDesc is the grpc.ServiceDesc for DispatchService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -208,6 +242,10 @@ var DispatchService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetNearestTrips",
 			Handler:    _DispatchService_GetNearestTrips_Handler,
+		},
+		{
+			MethodName: "ListDrivers",
+			Handler:    _DispatchService_ListDrivers_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

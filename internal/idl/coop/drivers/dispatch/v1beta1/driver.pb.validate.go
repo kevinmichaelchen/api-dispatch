@@ -57,6 +57,8 @@ func (m *DriverLocation) validate(all bool) error {
 
 	var errors []error
 
+	// no validation rules for Id
+
 	if utf8.RuneCountInString(m.GetDriverId()) < 1 {
 		err := DriverLocationValidationError{
 			field:  "DriverId",
