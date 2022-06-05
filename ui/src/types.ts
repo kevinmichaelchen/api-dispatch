@@ -46,3 +46,11 @@ export function getDriverLocationsFromState(
 ): DriverLocation[] {
   return Object.entries(s?.byId ?? []).map(([id, dl], i: number) => dl);
 }
+
+export interface GetNearestDriversResponse {
+  results: SearchResult[];
+}
+
+export interface SearchResult {
+  driverLocation: DriverLocation;
+}

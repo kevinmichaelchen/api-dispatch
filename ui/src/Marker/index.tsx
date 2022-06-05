@@ -14,11 +14,12 @@ function getIconPath(element: React.ReactElement): string {
 interface MyMarkerProps {
   driverLocation: DriverLocation;
   handleMouseOver?: (e: google.maps.MapMouseEvent) => void;
+  handleClick?: (e: google.maps.MapMouseEvent) => void;
   cached?: boolean;
 }
 
 export default function MyMarker(props: MyMarkerProps) {
-  const { cached, driverLocation, handleMouseOver } = props;
+  const { cached, driverLocation, handleClick, handleMouseOver } = props;
   const color = cached ? "orange" : "#FFD700";
   const p = driverLocation.currentLocation;
   return (
@@ -26,6 +27,7 @@ export default function MyMarker(props: MyMarkerProps) {
       title={`(${p.latitude}, ${p.longitude})`}
       position={{ lat: p.latitude, lng: p.longitude }}
       opacity={1}
+      onClick={handleClick}
       onMouseOver={handleMouseOver}
       icon={{
         path: getIconPath(<DirectionsCarFilled />),

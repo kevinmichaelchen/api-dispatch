@@ -17,6 +17,8 @@ import {
   NormalizedDriverLocations,
 } from "./types";
 import { faker } from "@faker-js/faker";
+import listDrivers from "./request/listDrivers";
+import getNearestDrivers from "./request/getNearestDrivers";
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
@@ -64,20 +66,8 @@ function MyMap() {
 
   useEffectOnce(() => {
     const getDriverLocations = async () => {
-      const response = await fetch(
-        "http://localhost:8081/coop.drivers.dispatch.v1beta1.DispatchService/ListDrivers",
-        {
-          method: "POST",
-          mode: "cors",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ page_size: 1000 }),
-        }
-      );
-      const body = await response.json();
-      console.log("body", body);
-      setDriverLocationsState(driverLocationsToState(body.driverLocations));
+      const driverLocations = await listDrivers();
+      setDriverLocationsState(driverLocationsToState(driverLocations));
     };
 
     getDriverLocations().catch(console.error);
@@ -117,7 +107,17 @@ function MyMap() {
               zoom={13}
             >
               {driverLocations.map((dl: DriverLocation, i: number) => (
-                <Marker key={i} driverLocation={dl} />
+                <Marker
+                  key={i}
+                  driverLocation={dl}
+                  // TODO move this to Map.onClick, which will AddNewDriver if in Mutation/Ingest Mode, or query/dispatch if in Query/Dispatch Mode
+                  handleClick={(e) =>
+                    getNearestDrivers({
+                      latitude: e.latLng?.lat() ?? 0,
+                      longitude: e.latLng?.lng() ?? 0,
+                    })
+                  }
+                />
               ))}
               {newDriverLocations.map((dl: DriverLocation, i: number) => (
                 <Marker key={i} driverLocation={dl} cached />
