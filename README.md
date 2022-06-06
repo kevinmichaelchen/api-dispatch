@@ -92,13 +92,12 @@ go run cmd/dispatch/*.go ingest trips --file seed-trips.json
 go run cmd/dispatch/*.go ingest drivers --file seed-drivers.json
 ```
 
-Finally, hit the API:
+Finally, hit the API (using [HTTPie](https://httpie.io/))
 ```bash
-# Get nearest drivers to a specified pickup (passenger) location
-go run cmd/dispatch/*.go nearest drivers --latitude 40.73010864595388 --longitude -73.95094555260256
-
-# Get nearest trips to a specified driver location
-go run cmd/dispatch/*.go nearest trips --latitude 40.73010864595388 --longitude -73.95094555260256
+http POST \
+  http://localhost:8081/coop.drivers.dispatch.v1beta1.DispatchService/GetNearestDrivers \
+    limit=2 \
+    pickup_location:='{"latitude": 40.73010864595388, "longitude": -73.95094555260256}'
 ```
 
 Here we're requesting a pickup at [Key Food Supermarkets](https://goo.gl/maps/xUnzhGm2h1Hpcx6q7)

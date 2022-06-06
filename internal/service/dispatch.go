@@ -20,6 +20,7 @@ import (
 const (
 	// TODO probably a way to get the limit programmatically; https://go.dev/blog/protobuf-apiv2
 	maxResults = 1000
+	enrich     = false
 )
 
 func (s *Service) GetNearestDrivers(
@@ -65,28 +66,31 @@ func (s *Service) GetNearestDrivers(
 	// The initial sort will be based on H3 resolutions and k-rings
 	results = ranking.SortResultsByKRing(results)
 
-	// Enrich results (e.g., with distance/duration info, among other things)
-	var driverLocations []*v1beta1.LatLng
-	for _, result := range results {
-		driverLocations = append(driverLocations, result.GetLocation())
-	}
-	matrixOut, err := s.enrichNearbyDrivers(ctx, results, driverLocations, req.GetPickupLocation())
-	if err != nil {
-		return nil, err
-	}
+	var pickupAddress string
 
-	// Final ranking/sorting pass
-	results = ranking.RankDrivers(results)
+	if enrich {
+		// Enrich results (e.g., with distance/duration info, among other things)
+		var driverLocations []*v1beta1.LatLng
+		for _, result := range results {
+			driverLocations = append(driverLocations, result.GetLocation())
+		}
+		matrixOut, err := s.enrichNearbyDrivers(ctx, results, driverLocations, req.GetPickupLocation())
+		if err != nil {
+			return nil, err
+		}
+
+		if len(matrixOut.DestinationAddresses) > 0 {
+			pickupAddress = matrixOut.DestinationAddresses[0]
+		}
+
+		// Final ranking/sorting pass
+		results = ranking.RankDrivers(results)
+	}
 
 	// Apply client-side limits
 	// TODO do not let client exceed server-side max limit
 	if len(results) > int(req.GetLimit()) {
 		results = results[:req.GetLimit()]
-	}
-
-	var pickupAddress string
-	if len(matrixOut.DestinationAddresses) > 0 {
-		pickupAddress = matrixOut.DestinationAddresses[0]
 	}
 
 	return &v1beta1.GetNearestDriversResponse{
