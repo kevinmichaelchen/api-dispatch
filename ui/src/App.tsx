@@ -3,9 +3,17 @@ import "./App.css";
 import { GoogleMap, LoadScript } from "@react-google-maps/api";
 import Marker from "./Marker";
 import mapStyles from "./mapStyles.json";
-import { Box, Grid } from "@mui/material";
+import { ThemeProvider, createTheme } from "@mui/material/styles";
+import {
+  Box,
+  FormControlLabel,
+  FormGroup,
+  Grid,
+  Switch,
+  Typography,
+} from "@mui/material";
 import { styled } from "@mui/material/styles";
-import NewDriverList from "./PointList";
+import DriverList from "./PointList";
 import Paper from "@mui/material/Paper";
 import { useEffectOnce } from "usehooks-ts";
 import {
@@ -19,6 +27,13 @@ import {
 import { faker } from "@faker-js/faker";
 import listDrivers from "./request/listDrivers";
 import getNearestDrivers from "./request/getNearestDrivers";
+import updateDriverLocations from "./request/updateDriverLocations";
+
+const darkTheme = createTheme({
+  palette: {
+    mode: "dark",
+  },
+});
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
@@ -48,6 +63,8 @@ function newDriverName(): string {
 
 function MyMap() {
   const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY as string;
+  const [focusedDriverId, setFocusedDriverId] = React.useState<string>("");
+  const [queryMode, setQueryMode] = React.useState<boolean>(false);
   const [driverLocationsState, setDriverLocationsState] =
     React.useState<NormalizedDriverLocations>({
       byId: {},
@@ -73,32 +90,77 @@ function MyMap() {
     getDriverLocations().catch(console.error);
   });
 
+  const getNearbyDrivers = (e: google.maps.MapMouseEvent) => {
+    const lat = e.latLng?.lat() ?? 0;
+    const lng = e.latLng?.lng() ?? 0;
+
+    // TODO highlight them on map
+    getNearestDrivers({
+      latitude: lat,
+      longitude: lng,
+    });
+  };
+
+  const addNewDriver = (e: google.maps.MapMouseEvent) => {
+    const lat = e.latLng?.lat() ?? 0;
+    const lng = e.latLng?.lng() ?? 0;
+    console.log(`clicked (${lat}, ${lng})`);
+    const dl = {
+      driverId: newDriverName(),
+      currentLocation: {
+        latitude: lat,
+        longitude: lng,
+      },
+    } as DriverLocation;
+    setNewDriverLocationsState(
+      addDriverLocationToState(newDriverLocationsState, dl)
+    );
+  };
+
   return (
     <Grid container spacing={2}>
       <Grid item xs={3}>
+        <FormGroup>
+          <FormControlLabel
+            control={
+              <Switch
+                checked={queryMode}
+                onChange={() => setQueryMode(!queryMode)}
+              />
+            }
+            label="Mode"
+          />
+        </FormGroup>
+      </Grid>
+      <Grid item xs={9}>
+        {queryMode ? (
+          <Typography>Click anywhere to rank nearby drivers</Typography>
+        ) : (
+          <Typography>Click to add new drivers</Typography>
+        )}
+      </Grid>
+      <Grid item xs={3}>
         <Item>
-          <NewDriverList driverLocations={newDriverLocations} />
+          <DriverList
+            buildHandleMouseOver={(driverId: string) => () =>
+              setFocusedDriverId(driverId)}
+            buildHandleMouseOut={(driverId: string) => () =>
+              setFocusedDriverId("")}
+            queryMode={queryMode}
+            onUpload={() =>
+              updateDriverLocations(
+                getDriverLocationsFromState(newDriverLocationsState)
+              )
+            }
+            driverLocations={newDriverLocations}
+          />
         </Item>
       </Grid>
       <Grid item xs={9}>
         <Item>
           <LoadScript googleMapsApiKey={apiKey}>
             <GoogleMap
-              onClick={(e: google.maps.MapMouseEvent) => {
-                const lat = e.latLng?.lat() ?? 0;
-                const lng = e.latLng?.lng() ?? 0;
-                console.log(`clicked (${lat}, ${lng})`);
-                const dl = {
-                  driverId: newDriverName(),
-                  currentLocation: {
-                    latitude: lat,
-                    longitude: lng,
-                  },
-                } as DriverLocation;
-                setNewDriverLocationsState(
-                  addDriverLocationToState(newDriverLocationsState, dl)
-                );
-              }}
+              onClick={queryMode ? getNearbyDrivers : addNewDriver}
               options={{
                 styles: mapStyles,
               }}
@@ -133,22 +195,23 @@ function MyMap() {
 
 function App() {
   return (
-    <Box
-      sx={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        height: "100vh",
-        backgroundColor: "#282c34",
-        px: {
-          xs: "5px",
-          sm: "10px",
-          md: "20px",
-        },
-      }}
-    >
-      <MyMap />
-    </Box>
+    <ThemeProvider theme={darkTheme}>
+      <Item
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+          px: {
+            xs: "5px",
+            sm: "10px",
+            md: "20px",
+          },
+        }}
+      >
+        <MyMap />
+      </Item>
+    </ThemeProvider>
   );
 }
 
