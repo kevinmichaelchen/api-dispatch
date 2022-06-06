@@ -1,4 +1,4 @@
-import React from "react";
+import React, { MouseEventHandler } from "react";
 import {
   Box,
   Button,
@@ -49,16 +49,21 @@ function stringAvatar(name: string) {
 
 interface ItemProps {
   driverLocation: DriverLocation;
+  buildHandleMouseOver?: (driverId: string) => MouseEventHandler;
+  buildHandleMouseOut?: (driverId: string) => MouseEventHandler;
 }
 
 function Item(props: ItemProps) {
-  const { driverLocation: dl } = props;
+  const {
+    driverLocation: dl,
+    buildHandleMouseOver,
+    buildHandleMouseOut,
+  } = props;
   const { driverId } = dl;
   return (
     <ListItem
-      onMouseOver={(e) => {
-        console.log("hovered over list item", e);
-      }}
+      onMouseOver={buildHandleMouseOver && buildHandleMouseOver(driverId)}
+      onMouseOut={buildHandleMouseOut && buildHandleMouseOut(driverId)}
     >
       <Stack direction="row" spacing={2} alignItems="center">
         <Avatar alt={`Driver: ${driverId}`} {...stringAvatar(driverId)} />
@@ -68,28 +73,52 @@ function Item(props: ItemProps) {
   );
 }
 
-interface NewDriverListProps {
+interface DriverListProps {
   driverLocations: DriverLocation[];
+  onUpload?: MouseEventHandler;
+  /**
+   * Whether the list is showing nearby ranked drivers (Query Mode) or cached drivers that will be created (Mutate Mode)
+   */
+  queryMode: boolean;
+  buildHandleMouseOver?: (driverId: string) => MouseEventHandler;
+  buildHandleMouseOut?: (driverId: string) => MouseEventHandler;
 }
 
-export default function NewDriverList(props: NewDriverListProps) {
-  const { driverLocations } = props;
+export default function DriverList(props: DriverListProps) {
+  const {
+    driverLocations,
+    onUpload: handleClick,
+    queryMode,
+    buildHandleMouseOver,
+    buildHandleMouseOut,
+  } = props;
   return (
     <Stack spacing={1} px="20px" py="20px">
       <Typography variant="h5" component="div">
-        New Drivers List
+        {queryMode ? "Drivers List" : "New Drivers List"}
       </Typography>
       <Divider />
       <List>
         {driverLocations.map((p: DriverLocation, i: number) => (
-          <Item driverLocation={p} key={i} />
+          <Item
+            key={i}
+            driverLocation={p}
+            buildHandleMouseOver={buildHandleMouseOver}
+            buildHandleMouseOut={buildHandleMouseOut}
+          />
         ))}
       </List>
-      <Stack justifyContent="center" alignItems="center">
-        <Button sx={{ maxWidth: "100px" }} variant="outlined">
-          Submit
-        </Button>
-      </Stack>
+      {!queryMode && (
+        <Stack justifyContent="center" alignItems="center">
+          <Button
+            onClick={handleClick}
+            sx={{ maxWidth: "100px" }}
+            variant="outlined"
+          >
+            Submit
+          </Button>
+        </Stack>
+      )}
     </Stack>
   );
 }

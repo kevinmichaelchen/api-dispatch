@@ -52,5 +52,6 @@ export interface GetNearestDriversResponse {
 }
 
 export interface SearchResult {
-  driverLocation: DriverLocation;
+  driver: DriverLocation;
+  distance_meters: number;
 }
