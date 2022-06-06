@@ -16,11 +16,13 @@ interface MyMarkerProps {
   handleMouseOver?: (e: google.maps.MapMouseEvent) => void;
   handleClick?: (e: google.maps.MapMouseEvent) => void;
   cached?: boolean;
+  isNear: boolean;
 }
 
 export default function MyMarker(props: MyMarkerProps) {
-  const { cached, driverLocation, handleClick, handleMouseOver } = props;
-  const color = cached ? "orange" : "#FFD700";
+  const { cached, isNear, driverLocation, handleClick, handleMouseOver } =
+    props;
+  const color = isNear ? "green" : cached ? "orange" : "#FFD700";
   const p = driverLocation.currentLocation;
   return (
     <Marker

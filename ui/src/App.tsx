@@ -23,6 +23,7 @@ import {
   getDriverLocationsFromState,
   LatLng,
   NormalizedDriverLocations,
+  SearchResult,
 } from "./types";
 import { faker } from "@faker-js/faker";
 import listDrivers from "./request/listDrivers";
@@ -75,6 +76,7 @@ function MyMap() {
       byId: {},
       allIds: [],
     } as NormalizedDriverLocations);
+  const [searchResults, setSearchResults] = React.useState<SearchResult[]>([]);
 
   const newDriverLocations = getDriverLocationsFromState(
     newDriverLocationsState
@@ -90,15 +92,15 @@ function MyMap() {
     getDriverLocations().catch(console.error);
   });
 
-  const getNearbyDrivers = (e: google.maps.MapMouseEvent) => {
+  const getNearbyDrivers = async (e: google.maps.MapMouseEvent) => {
     const lat = e.latLng?.lat() ?? 0;
     const lng = e.latLng?.lng() ?? 0;
 
-    // TODO highlight them on map
-    getNearestDrivers({
+    const res = await getNearestDrivers({
       latitude: lat,
       longitude: lng,
-    });
+    } as LatLng);
+    setSearchResults(res?.results ?? []);
   };
 
   const addNewDriver = (e: google.maps.MapMouseEvent) => {
@@ -172,13 +174,9 @@ function MyMap() {
                 <Marker
                   key={i}
                   driverLocation={dl}
-                  // TODO move this to Map.onClick, which will AddNewDriver if in Mutation/Ingest Mode, or query/dispatch if in Query/Dispatch Mode
-                  handleClick={(e) =>
-                    getNearestDrivers({
-                      latitude: e.latLng?.lat() ?? 0,
-                      longitude: e.latLng?.lng() ?? 0,
-                    })
-                  }
+                  isNear={searchResults
+                    .map((sr) => sr.driver.driverId)
+                    .includes(dl.driverId)}
                 />
               ))}
               {newDriverLocations.map((dl: DriverLocation, i: number) => (
