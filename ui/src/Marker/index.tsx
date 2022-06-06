@@ -16,7 +16,7 @@ interface MyMarkerProps {
   handleMouseOver?: (e: google.maps.MapMouseEvent) => void;
   handleClick?: (e: google.maps.MapMouseEvent) => void;
   cached?: boolean;
-  isNear: boolean;
+  isNear?: boolean;
 }
 
 export default function MyMarker(props: MyMarkerProps) {
