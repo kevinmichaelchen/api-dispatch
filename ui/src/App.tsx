@@ -6,6 +6,7 @@ import mapStyles from "./mapStyles.json";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import {
   Box,
+  Stack,
   FormControlLabel,
   FormGroup,
   Grid,
@@ -29,6 +30,9 @@ import { faker } from "@faker-js/faker";
 import listDrivers from "./request/listDrivers";
 import getNearestDrivers from "./request/getNearestDrivers";
 import updateDriverLocations from "./request/updateDriverLocations";
+import { getPolygons } from "./getPolygons";
+import ResolutionControl from "./ResolutionControl";
+import Hexagons from "./Hexagons";
 
 const darkTheme = createTheme({
   palette: {
@@ -77,6 +81,11 @@ function MyMap() {
       allIds: [],
     } as NormalizedDriverLocations);
   const [searchResults, setSearchResults] = React.useState<SearchResult[]>([]);
+  const [resolution, setResolution] = React.useState<number>(7);
+  const [pickupLocation, setPickupLocation] = React.useState<LatLng>({
+    latitude: 40.72106092795603,
+    longitude: -73.95246141893465,
+  } as LatLng);
 
   const newDriverLocations = getDriverLocationsFromState(
     newDriverLocationsState
@@ -96,10 +105,12 @@ function MyMap() {
     const lat = e.latLng?.lat() ?? 0;
     const lng = e.latLng?.lng() ?? 0;
 
-    const res = await getNearestDrivers({
+    const point: LatLng = {
       latitude: lat,
       longitude: lng,
-    } as LatLng);
+    };
+    setPickupLocation(point);
+    const res = await getNearestDrivers(point);
     setSearchResults(res?.results ?? []);
   };
 
@@ -120,74 +131,83 @@ function MyMap() {
   };
 
   return (
-    <Grid container spacing={2}>
-      <Grid item xs={3}>
-        <FormGroup>
-          <FormControlLabel
-            control={
-              <Switch
-                checked={queryMode}
-                onChange={() => setQueryMode(!queryMode)}
-              />
-            }
-            label="Mode"
-          />
-        </FormGroup>
-      </Grid>
-      <Grid item xs={9}>
-        {queryMode ? (
-          <Typography>Click anywhere to rank nearby drivers</Typography>
-        ) : (
-          <Typography>Click to add new drivers</Typography>
-        )}
-      </Grid>
-      <Grid item xs={3}>
-        <Item>
-          <DriverList
-            buildHandleMouseOver={(driverId: string) => () =>
-              setFocusedDriverId(driverId)}
-            buildHandleMouseOut={(driverId: string) => () =>
-              setFocusedDriverId("")}
-            queryMode={queryMode}
-            onUpload={() =>
-              updateDriverLocations(
-                getDriverLocationsFromState(newDriverLocationsState)
-              )
-            }
-            driverLocations={newDriverLocations}
-          />
-        </Item>
-      </Grid>
-      <Grid item xs={9}>
-        <Item>
-          <LoadScript googleMapsApiKey={apiKey}>
-            <GoogleMap
-              onClick={queryMode ? getNearbyDrivers : addNewDriver}
-              options={{
-                styles: mapStyles,
-              }}
-              mapContainerStyle={containerStyle}
-              center={center}
-              zoom={13}
-            >
-              {driverLocations.map((dl: DriverLocation, i: number) => (
-                <Marker
-                  key={i}
-                  driverLocation={dl}
-                  isNear={searchResults
-                    .map((sr) => sr.driver.driverId)
-                    .includes(dl.driverId)}
+    <Stack>
+      <ResolutionControl
+        resolution={resolution}
+        setResolution={setResolution}
+      />
+      <Grid container spacing={2}>
+        <Grid item xs={3}>
+          <FormGroup>
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={queryMode}
+                  onChange={() => setQueryMode(!queryMode)}
                 />
-              ))}
-              {newDriverLocations.map((dl: DriverLocation, i: number) => (
-                <Marker key={i} driverLocation={dl} cached />
-              ))}
-              <></>
-            </GoogleMap>
-          </LoadScript>
-        </Item>
+              }
+              label="Mode"
+            />
+          </FormGroup>
+        </Grid>
+        <Grid item xs={9}>
+          {queryMode ? (
+            <Typography>Click anywhere to rank nearby drivers</Typography>
+          ) : (
+            <Typography>Click to add new drivers</Typography>
+          )}
+        </Grid>
+        <Grid item xs={3}>
+          <Item>
+            <DriverList
+              buildHandleMouseOver={(driverId: string) => () =>
+                setFocusedDriverId(driverId)}
+              buildHandleMouseOut={(driverId: string) => () =>
+                setFocusedDriverId("")}
+              queryMode={queryMode}
+              onUpload={() =>
+                updateDriverLocations(
+                  getDriverLocationsFromState(newDriverLocationsState)
+                )
+              }
+              driverLocations={newDriverLocations}
+            />
+          </Item>
+        </Grid>
+        <Grid item xs={9}>
+          <Item>
+            <LoadScript googleMapsApiKey={apiKey}>
+              <GoogleMap
+                onClick={queryMode ? getNearbyDrivers : addNewDriver}
+                options={{
+                  styles: mapStyles,
+                }}
+                mapContainerStyle={containerStyle}
+                center={center}
+                zoom={13}
+              >
+                {driverLocations.map((dl: DriverLocation, i: number) => (
+                  <Marker
+                    key={i}
+                    driverLocation={dl}
+                    isNear={searchResults
+                      .map((sr) => sr.driver.driverId)
+                      .includes(dl.driverId)}
+                  />
+                ))}
+                {newDriverLocations.map((dl: DriverLocation, i: number) => (
+                  <Marker key={i} driverLocation={dl} cached />
+                ))}
+                <Hexagons
+                  pickupLocation={pickupLocation}
+                  resolution={resolution}
+                />
+              </GoogleMap>
+            </LoadScript>
+          </Item>
+        </Grid>
       </Grid>
-    </Grid>
+    </Stack>
   );
 }
 
