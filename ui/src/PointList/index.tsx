@@ -9,7 +9,7 @@ import {
   Divider,
   Avatar,
 } from "@mui/material";
-import { DriverLocation } from "../types";
+import { DriverLocation, SearchResult } from "../types";
 
 function stringToColor(string: string) {
   let hash = 0;
@@ -74,6 +74,7 @@ function Item(props: ItemProps) {
 }
 
 interface DriverListProps {
+  searchResults: SearchResult[];
   driverLocations: DriverLocation[];
   onUpload?: MouseEventHandler;
   /**
@@ -86,6 +87,7 @@ interface DriverListProps {
 
 export default function DriverList(props: DriverListProps) {
   const {
+    searchResults,
     driverLocations,
     onUpload: handleClick,
     queryMode,
@@ -95,18 +97,28 @@ export default function DriverList(props: DriverListProps) {
   return (
     <Stack spacing={1} px="20px" py="20px">
       <Typography variant="h5" component="div">
-        {queryMode ? "Drivers List" : "New Drivers List"}
+        {queryMode ? "Nearby Drivers List" : "New Drivers List"}
       </Typography>
       <Divider />
       <List>
-        {driverLocations.map((p: DriverLocation, i: number) => (
-          <Item
-            key={i}
-            driverLocation={p}
-            buildHandleMouseOver={buildHandleMouseOver}
-            buildHandleMouseOut={buildHandleMouseOut}
-          />
-        ))}
+        {queryMode &&
+          searchResults.map((sr: SearchResult, i: number) => (
+            <Item
+              key={i}
+              driverLocation={sr.driver}
+              buildHandleMouseOver={buildHandleMouseOver}
+              buildHandleMouseOut={buildHandleMouseOut}
+            />
+          ))}
+        {!queryMode &&
+          driverLocations.map((p: DriverLocation, i: number) => (
+            <Item
+              key={i}
+              driverLocation={p}
+              buildHandleMouseOver={buildHandleMouseOver}
+              buildHandleMouseOut={buildHandleMouseOut}
+            />
+          ))}
       </List>
       {!queryMode && (
         <Stack justifyContent="center" alignItems="center">

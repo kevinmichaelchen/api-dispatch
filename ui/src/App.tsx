@@ -69,7 +69,7 @@ function newDriverName(): string {
 function MyMap() {
   const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY as string;
   const [focusedDriverId, setFocusedDriverId] = React.useState<string>("");
-  const [queryMode, setQueryMode] = React.useState<boolean>(false);
+  const [queryMode, setQueryMode] = React.useState<boolean>(true);
   const [driverLocationsState, setDriverLocationsState] =
     React.useState<NormalizedDriverLocations>({
       byId: {},
@@ -81,7 +81,7 @@ function MyMap() {
       allIds: [],
     } as NormalizedDriverLocations);
   const [searchResults, setSearchResults] = React.useState<SearchResult[]>([]);
-  const [resolution, setResolution] = React.useState<number>(7);
+  const [resolution, setResolution] = React.useState<number>(9);
   const [pickupLocation, setPickupLocation] = React.useState<LatLng>({
     latitude: 40.72106092795603,
     longitude: -73.95246141893465,
@@ -131,7 +131,7 @@ function MyMap() {
   };
 
   return (
-    <Stack>
+    <Stack width={"100%"}>
       <ResolutionControl
         resolution={resolution}
         setResolution={setResolution}
@@ -170,6 +170,7 @@ function MyMap() {
                   getDriverLocationsFromState(newDriverLocationsState)
                 )
               }
+              searchResults={searchResults}
               driverLocations={newDriverLocations}
             />
           </Item>
@@ -189,15 +190,18 @@ function MyMap() {
                 {driverLocations.map((dl: DriverLocation, i: number) => (
                   <Marker
                     key={i}
-                    driverLocation={dl}
+                    location={dl.currentLocation}
                     isNear={searchResults
-                      .map((sr) => sr.driver.driverId)
+                      .map((sr: SearchResult) => sr.driver.driverId)
                       .includes(dl.driverId)}
                   />
                 ))}
                 {newDriverLocations.map((dl: DriverLocation, i: number) => (
-                  <Marker key={i} driverLocation={dl} cached />
+                  <Marker key={i} location={dl.currentLocation} cached />
                 ))}
+                {pickupLocation && (
+                  <Marker location={pickupLocation} pickupLocation />
+                )}
                 <Hexagons
                   pickupLocation={pickupLocation}
                   resolution={resolution}
