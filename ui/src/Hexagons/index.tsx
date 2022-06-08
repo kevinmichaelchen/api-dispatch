@@ -1,13 +1,13 @@
-import { getPolygons } from "../getPolygons";
+import React from "react";
+import { getPolygons, getPolygonsOutput } from "../getPolygons";
 import { LatLng } from "../types";
 import { Polygon } from "@react-google-maps/api";
 
 interface HexagonsProps {
-  pickupLocation: LatLng;
-  resolution: number;
+  polyOut: getPolygonsOutput;
 }
 
-function buildOptions(k: number): google.maps.PolygonOptions {
+export function buildOptions(k: number): google.maps.PolygonOptions {
   const fillColor = k === 0 ? "lightblue" : k === 1 ? "lightblue" : "lightblue";
   return {
     fillColor,
@@ -23,40 +23,38 @@ function buildOptions(k: number): google.maps.PolygonOptions {
   } as google.maps.PolygonOptions;
 }
 
-export default function Hexagons(props: HexagonsProps) {
-  const { pickupLocation, resolution } = props;
-  const out = getPolygons(pickupLocation, resolution);
+export default function Hexagons({ polyOut }: HexagonsProps) {
   const onLoad = (polygon: google.maps.Polygon) => {
     console.log("polygon: ", polygon);
   };
   return (
     <>
-      {out.ring0.map((points: LatLng[]) => (
+      {polyOut?.ring0.map((points: LatLng[]) => (
         <Polygon
           onLoad={onLoad}
           paths={pointsToPaths(points)}
           options={buildOptions(0)}
         />
-      ))}
-      {out.ring1.map((points: LatLng[]) => (
+      )) ?? null}
+      {polyOut?.ring1.map((points: LatLng[]) => (
         <Polygon
           onLoad={onLoad}
           paths={pointsToPaths(points)}
           options={buildOptions(1)}
         />
-      ))}
-      {out.ring2.map((points: LatLng[]) => (
+      )) ?? null}
+      {polyOut?.ring2.map((points: LatLng[]) => (
         <Polygon
           onLoad={onLoad}
           paths={pointsToPaths(points)}
           options={buildOptions(2)}
         />
-      ))}
+      )) ?? null}
     </>
   );
 }
 
-function pointsToPaths(points: LatLng[]): google.maps.LatLngLiteral[] {
+export function pointsToPaths(points: LatLng[]): google.maps.LatLngLiteral[] {
   return points.map(
     (p: LatLng) =>
       ({ lat: p.latitude, lng: p.longitude } as google.maps.LatLngLiteral)

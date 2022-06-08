@@ -1,6 +1,6 @@
 import React, { ReactElement } from "react";
 import "./App.css";
-import { GoogleMap, LoadScript } from "@react-google-maps/api";
+import { GoogleMap, LoadScript, Polygon } from "@react-google-maps/api";
 import Marker from "./Marker";
 import mapStyles from "./mapStyles.json";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
@@ -30,9 +30,9 @@ import { faker } from "@faker-js/faker";
 import listDrivers from "./request/listDrivers";
 import getNearestDrivers from "./request/getNearestDrivers";
 import updateDriverLocations from "./request/updateDriverLocations";
-import { getPolygons } from "./getPolygons";
+import { getPolygons, getPolygonsOutput } from "./getPolygons";
 import ResolutionControl from "./ResolutionControl";
-import Hexagons from "./Hexagons";
+import Hexagons, { pointsToPaths, buildOptions } from "./Hexagons";
 
 const darkTheme = createTheme({
   palette: {
@@ -101,6 +101,7 @@ function MyMap() {
     getDriverLocations().catch(console.error);
   });
 
+  const [polyOut, setPolyOut] = React.useState<getPolygonsOutput | undefined>();
   const getNearbyDrivers = async (e: google.maps.MapMouseEvent) => {
     const lat = e.latLng?.lat() ?? 0;
     const lng = e.latLng?.lng() ?? 0;
@@ -110,6 +111,7 @@ function MyMap() {
       longitude: lng,
     };
     setPickupLocation(point);
+    setPolyOut(getPolygons(pickupLocation, resolution));
     const res = await getNearestDrivers(point);
     setSearchResults(res?.results ?? []);
   };
@@ -128,6 +130,10 @@ function MyMap() {
     setNewDriverLocationsState(
       addDriverLocationToState(newDriverLocationsState, dl)
     );
+  };
+
+  const onLoad = (polygon: google.maps.Polygon) => {
+    console.log("polygon: ", polygon);
   };
 
   return (
@@ -202,10 +208,7 @@ function MyMap() {
                 {pickupLocation && (
                   <Marker location={pickupLocation} pickupLocation />
                 )}
-                <Hexagons
-                  pickupLocation={pickupLocation}
-                  resolution={resolution}
-                />
+                {polyOut && <Hexagons polyOut={polyOut} />}
               </GoogleMap>
             </LoadScript>
           </Item>
