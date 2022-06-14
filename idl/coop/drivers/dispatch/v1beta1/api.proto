@@ -47,7 +47,7 @@ message CreateTripsResponse {}
 
 message GetNearestDriversRequest {
   // trip pickup location
-  google.type.LatLng pickup_location = 1;
+  google.type.LatLng pickup_location = 1 [(validate.rules).message.required = true];
   int32 limit = 2 [(validate.rules).int32 = {
     gt: 0,
     lte: 1000
