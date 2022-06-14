@@ -3,6 +3,7 @@ package ranking
 import (
 	"github.com/kevinmichaelchen/api-dispatch/internal/idl/coop/drivers/dispatch/v1beta1"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/genproto/googleapis/type/latlng"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"testing"
@@ -44,7 +45,7 @@ func newSearchResult(timeUntilTripStart time.Duration, timeForDriverToArrive tim
 		},
 		DistanceMeters: 100,
 		Duration:       durationpb.New(timeForDriverToArrive),
-		Location: &v1beta1.LatLng{
+		Location: &latlng.LatLng{
 			Latitude:  10,
 			Longitude: 10,
 		},

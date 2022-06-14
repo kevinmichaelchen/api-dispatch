@@ -4,13 +4,14 @@ import (
 	"context"
 	"github.com/kevinmichaelchen/api-dispatch/internal/idl/coop/drivers/dispatch/v1beta1"
 	"github.com/spf13/cobra"
+	"google.golang.org/genproto/googleapis/type/latlng"
 	"log"
 )
 
 func getNearestDrivers(cmd *cobra.Command, args []string) {
 	// Create request
 	req := &v1beta1.GetNearestDriversRequest{
-		PickupLocation: &v1beta1.LatLng{
+		PickupLocation: &latlng.LatLng{
 			Latitude:  latitude,
 			Longitude: longitude,
 		},
@@ -36,7 +37,7 @@ func getNearestTrips(cmd *cobra.Command, args []string) {
 	// Create request
 	req := &v1beta1.GetNearestTripsRequest{
 		Driver: &v1beta1.GetNearestTripsRequest_DriverLocation{
-			DriverLocation: &v1beta1.LatLng{
+			DriverLocation: &latlng.LatLng{
 				Latitude:  latitude,
 				Longitude: longitude,
 			},

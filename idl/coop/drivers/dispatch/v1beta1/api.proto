@@ -3,9 +3,9 @@ syntax = "proto3";
 package coop.drivers.dispatch.v1beta1;
 
 import "coop/drivers/dispatch/v1beta1/driver.proto";
-import "coop/drivers/dispatch/v1beta1/latlng.proto";
 import "coop/drivers/dispatch/v1beta1/trip.proto";
 import "google/protobuf/duration.proto";
+import "google/type/latlng.proto";
 import "validate/validate.proto";
 
 option go_package = "github.com/kevinmichaelchen/api-dispatch/internal/idl/coop/drivers/dispatch/v1beta1";
@@ -47,7 +47,7 @@ message CreateTripsResponse {}
 
 message GetNearestDriversRequest {
   // trip pickup location
-  LatLng pickup_location = 1;
+  google.type.LatLng pickup_location = 1;
   int32 limit = 2 [(validate.rules).int32 = {
     gt: 0,
     lte: 1000
@@ -64,7 +64,7 @@ message GetNearestTripsRequest {
     option (validate.required) = true;
 
     string driver_id = 1;
-    LatLng driver_location = 2;
+    google.type.LatLng driver_location = 2;
   }
   int32 limit = 3 [(validate.rules).int32 = {
     gt: 0,
@@ -86,7 +86,7 @@ message SearchResult {
   // Time it takes driver to go to pickup
   google.protobuf.Duration duration = 4;
   // The match's location.
-  LatLng location = 5;
+  google.type.LatLng location = 5;
   // Human-readable location
   string address = 6;
   // The highest (finest) H3 resolution in which the match was found.

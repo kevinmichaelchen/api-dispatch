@@ -5,10 +5,11 @@ all:
 
 .PHONY: gen-proto
 gen-proto:
+	rm -rf internal/idl
 	buf breaking idl --against '.git#branch=main,subdir=idl'
+	buf mod update idl
 	buf lint idl
 	buf format idl -w
-	buf mod update idl
 	buf generate idl
 
 .PHONY: gen-models

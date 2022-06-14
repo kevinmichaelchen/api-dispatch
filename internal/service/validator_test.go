@@ -3,13 +3,14 @@ package service
 import (
 	"github.com/kevinmichaelchen/api-dispatch/internal/idl/coop/drivers/dispatch/v1beta1"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/genproto/googleapis/type/latlng"
 	"testing"
 )
 
 func Test_validateGetNearestDriversRequest(t *testing.T) {
 	buildValid := func() *v1beta1.GetNearestDriversRequest {
 		return &v1beta1.GetNearestDriversRequest{
-			PickupLocation: &v1beta1.LatLng{
+			PickupLocation: &latlng.LatLng{
 				Latitude:  40.2,
 				Longitude: -73.3,
 			},

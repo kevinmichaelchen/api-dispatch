@@ -118,6 +118,7 @@ dispatch=# select driver_id from driver_location ;
 ## JetBrains Protobuf Import Paths
 In `Languages & Frameworks > Protocol Buffers`, import the `./idl` directory.
 
+### Envoy
 Install envoyproxy/protoc-gen-validate into your `GOPATH`.
 ```
 $ go env -json GOPATH GOROOT                
@@ -130,3 +131,7 @@ $ go install github.com/envoyproxy/protoc-gen-validate@latest
 ```
 
 Add an import path for `${GOPATH}/pkg/mod/github.com/envoyproxy/protoc-gen-validate@v0.6.7`.
+
+### googleapis
+Clone [googleapis](https://github.com/googleapis/googleapis) and add an import 
+path to it.

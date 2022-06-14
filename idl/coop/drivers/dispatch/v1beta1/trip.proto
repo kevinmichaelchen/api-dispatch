@@ -2,8 +2,8 @@ syntax = "proto3";
 
 package coop.drivers.dispatch.v1beta1;
 
-import "coop/drivers/dispatch/v1beta1/latlng.proto";
 import "google/protobuf/timestamp.proto";
+import "google/type/latlng.proto";
 import "validate/validate.proto";
 
 option go_package = "github.com/kevinmichaelchen/api-dispatch/internal/idl/coop/drivers/dispatch/v1beta1";
@@ -11,7 +11,7 @@ option go_package = "github.com/kevinmichaelchen/api-dispatch/internal/idl/coop/
 message Trip {
   string id = 1 [(validate.rules).string.min_len = 1];
   // where
-  LatLng pickup_location = 2 [(validate.rules).message.required = true];
+  google.type.LatLng pickup_location = 2 [(validate.rules).message.required = true];
   // when
   google.protobuf.Timestamp scheduled_for = 3 [(validate.rules).timestamp.required = true];
   // how much $$$

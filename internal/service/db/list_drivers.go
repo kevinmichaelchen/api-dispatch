@@ -7,6 +7,7 @@ import (
 	"github.com/kevinmichaelchen/api-dispatch/internal/idl/coop/drivers/dispatch/v1beta1"
 	"github.com/kevinmichaelchen/api-dispatch/internal/models"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
+	"google.golang.org/genproto/googleapis/type/latlng"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -91,7 +92,7 @@ func driverLocationToProto(in *models.DriverLocation) *v1beta1.DriverLocation {
 		Id:                  in.ID,
 		DriverId:            in.DriverID,
 		MostRecentHeartbeat: timestamppb.New(in.CreatedAt),
-		CurrentLocation: &v1beta1.LatLng{
+		CurrentLocation: &latlng.LatLng{
 			Latitude:  in.Latitude,
 			Longitude: in.Longitude,
 		},

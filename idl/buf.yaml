@@ -1,6 +1,7 @@
 version: v1
 deps:
   - buf.build/envoyproxy/protoc-gen-validate:0e25aabb25c0709aff19aea176a1da13328b12fb
+  - buf.build/googleapis/googleapis:2c4adef7af3d4b74b8a224260cf10cb9
 breaking:
   use:
     - FILE
