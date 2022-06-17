@@ -3,13 +3,14 @@ package service
 import (
 	"github.com/kevinmichaelchen/api-dispatch/internal/idl/coop/drivers/dispatch/v1beta1"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/genproto/googleapis/type/latlng"
 	"testing"
 )
 
 func Test_validateGetNearestDriversRequest(t *testing.T) {
 	buildValid := func() *v1beta1.GetNearestDriversRequest {
 		return &v1beta1.GetNearestDriversRequest{
-			PickupLocation: &v1beta1.LatLng{
+			PickupLocation: &latlng.LatLng{
 				Latitude:  40.2,
 				Longitude: -73.3,
 			},
@@ -53,7 +54,7 @@ func Test_validateGetNearestDriversRequest(t *testing.T) {
 				return p
 			},
 			expect: func(t *testing.T, err error) {
-				require.EqualError(t, err, `invalid GetNearestDriversRequest.PickupLocation: embedded message failed validation | caused by: invalid LatLng.Latitude: value must be inside range [-90, 90]`)
+				require.EqualError(t, err, `PickupLocation: (latitude: must be no less than -90.).`)
 			},
 		},
 		"Latitude too high": {
@@ -63,7 +64,7 @@ func Test_validateGetNearestDriversRequest(t *testing.T) {
 				return p
 			},
 			expect: func(t *testing.T, err error) {
-				require.EqualError(t, err, `invalid GetNearestDriversRequest.PickupLocation: embedded message failed validation | caused by: invalid LatLng.Latitude: value must be inside range [-90, 90]`)
+				require.EqualError(t, err, `PickupLocation: (latitude: must be no greater than 90.).`)
 			},
 		},
 		"Longitude too low": {
@@ -73,7 +74,7 @@ func Test_validateGetNearestDriversRequest(t *testing.T) {
 				return p
 			},
 			expect: func(t *testing.T, err error) {
-				require.EqualError(t, err, `invalid GetNearestDriversRequest.PickupLocation: embedded message failed validation | caused by: invalid LatLng.Longitude: value must be inside range [-180, 180]`)
+				require.EqualError(t, err, `PickupLocation: (longitude: must be no less than -180.).`)
 			},
 		},
 		"Longitude too high": {
@@ -83,14 +84,14 @@ func Test_validateGetNearestDriversRequest(t *testing.T) {
 				return p
 			},
 			expect: func(t *testing.T, err error) {
-				require.EqualError(t, err, `invalid GetNearestDriversRequest.PickupLocation: embedded message failed validation | caused by: invalid LatLng.Longitude: value must be inside range [-180, 180]`)
+				require.EqualError(t, err, `PickupLocation: (longitude: must be no greater than 180.).`)
 			},
 		},
 	}
 	for testName, tc := range cases {
 		t.Run(testName, func(t *testing.T) {
 			r := tc.build()
-			err := r.Validate()
+			err := validateGetNearestDriversRequest(r)
 			tc.expect(t, err)
 		})
 	}

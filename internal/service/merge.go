@@ -5,6 +5,7 @@ import (
 	"github.com/kevinmichaelchen/api-dispatch/internal/models"
 	"github.com/kevinmichaelchen/api-dispatch/internal/service/h3"
 	"github.com/kevinmichaelchen/api-dispatch/internal/service/money"
+	"google.golang.org/genproto/googleapis/type/latlng"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -14,7 +15,7 @@ type MergeDriversInput struct {
 	KValue  int
 }
 
-func MergeDrivers(location *v1beta1.LatLng, in ...MergeDriversInput) []*v1beta1.SearchResult {
+func MergeDrivers(location *latlng.LatLng, in ...MergeDriversInput) []*v1beta1.SearchResult {
 	cache := make(map[string]*v1beta1.SearchResult)
 	for _, mi := range in {
 		for _, dl := range mi.Drivers {
@@ -34,7 +35,7 @@ func MergeDrivers(location *v1beta1.LatLng, in ...MergeDriversInput) []*v1beta1.
 					}
 				}
 			}
-			latLng := &v1beta1.LatLng{
+			latLng := &latlng.LatLng{
 				Latitude:  dl.Latitude,
 				Longitude: dl.Longitude,
 			}
@@ -67,7 +68,7 @@ type MergeTripsInput struct {
 	kValue int
 }
 
-func MergeTrips(location *v1beta1.LatLng, in ...MergeTripsInput) []*v1beta1.SearchResult {
+func MergeTrips(location *latlng.LatLng, in ...MergeTripsInput) []*v1beta1.SearchResult {
 	cache := make(map[string]*v1beta1.SearchResult)
 	for _, mi := range in {
 		for _, e := range mi.trips {
@@ -87,7 +88,7 @@ func MergeTrips(location *v1beta1.LatLng, in ...MergeTripsInput) []*v1beta1.Sear
 					}
 				}
 			}
-			latLng := &v1beta1.LatLng{
+			latLng := &latlng.LatLng{
 				Latitude:  e.Latitude,
 				Longitude: e.Longitude,
 			}

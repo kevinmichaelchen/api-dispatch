@@ -6,6 +6,7 @@ import (
 	"github.com/kevinmichaelchen/api-dispatch/internal/idl/coop/drivers/dispatch/v1beta1"
 	"github.com/kevinmichaelchen/api-dispatch/internal/service/money"
 	"github.com/spf13/cobra"
+	"google.golang.org/genproto/googleapis/type/latlng"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"io/ioutil"
 	"log"
@@ -63,7 +64,7 @@ func ingestDrivers(cmd *cobra.Command, args []string) {
 		locations = append(locations, &v1beta1.DriverLocation{
 			DriverId:            e.DriverID,
 			MostRecentHeartbeat: timestamppb.Now(),
-			CurrentLocation: &v1beta1.LatLng{
+			CurrentLocation: &latlng.LatLng{
 				Latitude:  e.LatLng.Latitude,
 				Longitude: e.LatLng.Longitude,
 			},
@@ -123,7 +124,7 @@ func ingestTrips(cmd *cobra.Command, args []string) {
 		trips = append(trips, &v1beta1.Trip{
 			Id:           e.Id,
 			ScheduledFor: timestamppb.New(e.ScheduledFor),
-			PickupLocation: &v1beta1.LatLng{
+			PickupLocation: &latlng.LatLng{
 				Latitude:  e.LatLng.Latitude,
 				Longitude: e.LatLng.Longitude,
 			},

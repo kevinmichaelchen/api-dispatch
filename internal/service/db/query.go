@@ -4,11 +4,11 @@ import (
 	"context"
 	"fmt"
 	"github.com/friendsofgo/errors"
-	"github.com/kevinmichaelchen/api-dispatch/internal/idl/coop/drivers/dispatch/v1beta1"
 	"github.com/kevinmichaelchen/api-dispatch/internal/models"
 	"github.com/kevinmichaelchen/api-dispatch/internal/service/h3"
 	"github.com/volatiletech/sqlboiler/v4/queries"
 	"go.opentelemetry.io/otel"
+	"google.golang.org/genproto/googleapis/type/latlng"
 )
 
 var (
@@ -32,7 +32,7 @@ type GetNearbyDriverLocationsOutput struct {
 	R10K2 models.DriverLocationSlice
 }
 
-func (s *Store) GetNearbyDriverLocations(ctx context.Context, location *v1beta1.LatLng) (*GetNearbyDriverLocationsOutput, error) {
+func (s *Store) GetNearbyDriverLocations(ctx context.Context, location *latlng.LatLng) (*GetNearbyDriverLocationsOutput, error) {
 	tr := otel.Tracer("")
 	ctx, span := tr.Start(ctx, "GetNearbyDriverLocations")
 	defer span.End()
@@ -77,7 +77,7 @@ func (s *Store) GetNearbyDriverLocations(ctx context.Context, location *v1beta1.
 	}, nil
 }
 
-func (s *Store) getNearbyDriverLocationsHelper(ctx context.Context, l *v1beta1.LatLng, res int, k int) (models.DriverLocationSlice, error) {
+func (s *Store) getNearbyDriverLocationsHelper(ctx context.Context, l *latlng.LatLng, res int, k int) (models.DriverLocationSlice, error) {
 	// TODO filter out offline drivers or busy (currently-on-a-trip) drivers
 	if k < 1 || k > 2 {
 		return nil, errUnsupportedKValue
@@ -115,7 +115,7 @@ type GetNearbyTripsOutput struct {
 	R10K2 models.TripSlice
 }
 
-func (s *Store) GetNearbyTrips(ctx context.Context, location *v1beta1.LatLng) (*GetNearbyTripsOutput, error) {
+func (s *Store) GetNearbyTrips(ctx context.Context, location *latlng.LatLng) (*GetNearbyTripsOutput, error) {
 	tr := otel.Tracer("")
 	ctx, span := tr.Start(ctx, "GetNearbyTrips")
 	defer span.End()
@@ -161,7 +161,7 @@ func (s *Store) GetNearbyTrips(ctx context.Context, location *v1beta1.LatLng) (*
 }
 
 // TODO trips that are too far in the past (or in a terminal state) should be filtered out
-func (s *Store) getNearbyTripsHelper(ctx context.Context, l *v1beta1.LatLng, res int, k int) (models.TripSlice, error) {
+func (s *Store) getNearbyTripsHelper(ctx context.Context, l *latlng.LatLng, res int, k int) (models.TripSlice, error) {
 	if k < 1 || k > 2 {
 		return nil, errUnsupportedKValue
 	}

@@ -9,6 +9,7 @@ import (
 	"github.com/kevinmichaelchen/api-dispatch/pkg/maps"
 	"github.com/kevinmichaelchen/api-dispatch/pkg/maps/distance"
 	"go.uber.org/zap"
+	"google.golang.org/genproto/googleapis/type/latlng"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/durationpb"
@@ -70,7 +71,7 @@ func (s *Service) GetNearestDrivers(
 
 	if enrich {
 		// Enrich results (e.g., with distance/duration info, among other things)
-		var driverLocations []*v1beta1.LatLng
+		var driverLocations []*latlng.LatLng
 		for _, result := range results {
 			driverLocations = append(driverLocations, result.GetLocation())
 		}
@@ -92,6 +93,12 @@ func (s *Service) GetNearestDrivers(
 	if len(results) > int(req.GetLimit()) {
 		results = results[:req.GetLimit()]
 	}
+
+	var resultIDs []string
+	for _, e := range results {
+		resultIDs = append(resultIDs, e.GetDriver().GetDriverId())
+	}
+	logger.Info("Nearest drivers", zap.Strings("driverIDs", resultIDs))
 
 	return &v1beta1.GetNearestDriversResponse{
 		Results:       results,
@@ -142,7 +149,7 @@ func (s *Service) GetNearestTrips(
 	results = ranking.SortResultsByKRing(results)
 
 	// Enrich results (e.g., with distance/duration info, among other things)
-	var pickupLocations []*v1beta1.LatLng
+	var pickupLocations []*latlng.LatLng
 	for _, result := range results {
 		pickupLocations = append(pickupLocations, result.GetLocation())
 	}
@@ -168,15 +175,15 @@ func (s *Service) GetNearestTrips(
 func (s *Service) enrichNearbyDrivers(
 	ctx context.Context,
 	results []*v1beta1.SearchResult,
-	driverLocations []*v1beta1.LatLng,
-	pickupLocation *v1beta1.LatLng,
+	driverLocations []*latlng.LatLng,
+	pickupLocation *latlng.LatLng,
 ) (*distance.MatrixResponse, error) {
 	logger := ctxzap.Extract(ctx)
 
 	out, err := s.distanceSvc.BetweenPoints(ctx, distance.BetweenPointsInput{
 		// the driver location(s) is/are always the origin(s)
 		Origins:      toLatLngs(driverLocations),
-		Destinations: toLatLngs([]*v1beta1.LatLng{pickupLocation}),
+		Destinations: toLatLngs([]*latlng.LatLng{pickupLocation}),
 	})
 	if err != nil {
 		return nil, err
@@ -199,14 +206,14 @@ func (s *Service) enrichNearbyDrivers(
 func (s *Service) enrichNearbyTrips(
 	ctx context.Context,
 	results []*v1beta1.SearchResult,
-	driverLocation *v1beta1.LatLng,
-	pickupLocations []*v1beta1.LatLng,
+	driverLocation *latlng.LatLng,
+	pickupLocations []*latlng.LatLng,
 ) (*distance.MatrixResponse, error) {
 	logger := ctxzap.Extract(ctx)
 
 	out, err := s.distanceSvc.BetweenPoints(ctx, distance.BetweenPointsInput{
 		// the driver location(s) is/are always the origin(s)
-		Origins:      toLatLngs([]*v1beta1.LatLng{driverLocation}),
+		Origins:      toLatLngs([]*latlng.LatLng{driverLocation}),
 		Destinations: toLatLngs(pickupLocations),
 	})
 	if err != nil {
@@ -247,7 +254,7 @@ func randomMoney() *v1beta1.Money {
 	return money.ConvertFloatToMoney(f)
 }
 
-func toLatLngs(in []*v1beta1.LatLng) []maps.LatLng {
+func toLatLngs(in []*latlng.LatLng) []maps.LatLng {
 	var out []maps.LatLng
 	for _, e := range in {
 		out = append(out, maps.LatLng{

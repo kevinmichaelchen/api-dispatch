@@ -557,6 +557,17 @@ func (m *GetNearestDriversRequest) validate(all bool) error {
 
 	var errors []error
 
+	if m.GetPickupLocation() == nil {
+		err := GetNearestDriversRequestValidationError{
+			field:  "PickupLocation",
+			reason: "value is required",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
 	if all {
 		switch v := interface{}(m.GetPickupLocation()).(type) {
 		case interface{ ValidateAll() error }:
