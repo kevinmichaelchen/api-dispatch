@@ -6,8 +6,6 @@ import "coop/drivers/dispatch/v1beta1/latlng.proto";
 import "google/protobuf/timestamp.proto";
 import "validate/validate.proto";
 
-option go_package = "github.com/kevinmichaelchen/api-dispatch/internal/idl/coop/drivers/dispatch/v1beta1";
-
 message DriverLocation {
   string id = 1;
   string driver_id = 2 [(validate.rules).string.min_len = 1];

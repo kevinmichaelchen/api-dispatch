@@ -21,7 +21,7 @@ We use the following Go dependencies:
 ## Protobufs
 To regenerate protobufs, run 
 ```bash
-make gen-proto
+make buf-gen
 ```
 
 ## Schema
