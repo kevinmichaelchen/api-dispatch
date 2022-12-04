@@ -1,6 +1,6 @@
 # api-dispatch
 
-[![Lines Of Code](https://tokei.rs/b1/github/kevinmichaelchen/api-dispatch?category=code)](https://github.com/kevinmichaelchen/api-dispatch)
+[![Lines Of Code](https://aschey.tech/tokei/github/kevinmichaelchen/api-dispatch?category=code&style=for-the-badge)](https://github.com/kevinmichaelchen/api-dispatch)
 
 ## Table of Contents
 
