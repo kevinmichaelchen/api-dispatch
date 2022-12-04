@@ -1,20 +1,22 @@
 version: v1
+managed:
+  enabled: true
+  go_package_prefix:
+    default: github.com/kevinmichaelchen/api-dispatch/internal/idl
+    except:
+      - buf.build/googleapis/googleapis
+      - buf.build/envoyproxy/protoc-gen-validate
 plugins:
-  - name: go
+  - plugin: buf.build/protocolbuffers/go:v1.28.1
     out: internal/idl
     opt:
       - paths=source_relative
-  - name: connect-go
+  - plugin: buf.build/grpc/go:v1.2.0
     out: internal/idl
     opt:
       - paths=source_relative
-  - name: go-grpc
-    out: internal/idl
-    opt:
       - require_unimplemented_servers=false
-      - paths=source_relative
-  - remote: buf.build/jirkad/plugins/protoc-gen-validate:v0.6.7
+  - plugin: buf.build/bufbuild/validate-go:v0.9.0
     out: internal/idl
     opt:
       - paths=source_relative
-      - lang=go

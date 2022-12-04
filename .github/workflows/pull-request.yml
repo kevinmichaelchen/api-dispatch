@@ -12,7 +12,7 @@ jobs:
         with:
           input: idl
       # Run breaking change detection against the `main` branch
-      - uses: bufbuild/buf-breaking-action@v1
-        with:
-          input: idl
-          against: 'https://github.com/kevinmichaelchen/api-dispatch.git#branch=main,subdir=idl'
+#      - uses: bufbuild/buf-breaking-action@v1
+#        with:
+#          input: idl
+#          against: 'https://github.com/kevinmichaelchen/api-dispatch.git#branch=main,subdir=idl'

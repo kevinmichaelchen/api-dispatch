@@ -4,8 +4,6 @@ package coop.drivers.dispatch.v1beta1;
 
 import "validate/validate.proto";
 
-option go_package = "github.com/kevinmichaelchen/api-dispatch/internal/idl/coop/drivers/dispatch/v1beta1";
-
 // An object that represents a latitude/longitude pair. This is expressed as a
 // pair of doubles to represent degrees latitude and degrees longitude. Unless
 // specified otherwise, this must conform to the
