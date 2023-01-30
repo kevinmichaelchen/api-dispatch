@@ -12,32 +12,60 @@ function getIconPath(element: React.ReactElement): string {
 }
 
 interface MyMarkerProps {
-  driverLocation: DriverLocation;
+  /**
+   * The marker's location
+   */
+  location: LatLng;
   handleMouseOver?: (e: google.maps.MapMouseEvent) => void;
+  handleMouseOut?: (e: google.maps.MapMouseEvent) => void;
   handleClick?: (e: google.maps.MapMouseEvent) => void;
+
+  /**
+   * Whether the marker is for the requested pickup location
+   */
+  pickupLocation?: boolean;
+  /**
+   * Whether the marker is for a new driver location that will be created in bulk.
+   */
   cached?: boolean;
+  /**
+   * Whether the marker represents a nearby driver to the requested pickup location.
+   */
   isNear?: boolean;
 }
 
 export default function MyMarker(props: MyMarkerProps) {
-  const { cached, isNear, driverLocation, handleClick, handleMouseOver } =
-    props;
-  const color = isNear ? "green" : cached ? "orange" : "#FFD700";
-  const p = driverLocation.currentLocation;
+  const {
+    pickupLocation,
+    cached,
+    isNear,
+    location: p,
+    handleClick,
+    handleMouseOver,
+    handleMouseOut,
+  } = props;
+  let color = "#FFD700";
+  if (isNear) color = "green";
+  if (cached) color = "orange";
+  if (pickupLocation) color = "purple";
+  if (pickupLocation)
+    console.log("rendering marker for pickup", pickupLocation, p);
   return (
     <Marker
+      onUnmount={(marker: google.maps.Marker) => console.log("marker unmount")}
       title={`(${p.latitude}, ${p.longitude})`}
       position={{ lat: p.latitude, lng: p.longitude }}
       opacity={1}
       onClick={handleClick}
       onMouseOver={handleMouseOver}
+      onMouseOut={handleMouseOut}
       icon={{
         path: getIconPath(<DirectionsCarFilled />),
         fillColor: color,
         fillOpacity: 0.9,
         scale: 0.7,
         strokeColor: color,
-        strokeWeight: 1,
+        strokeWeight: 0.5,
       }}
     />
   );

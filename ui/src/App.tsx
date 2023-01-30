@@ -1,11 +1,12 @@
 import React, { ReactElement } from "react";
 import "./App.css";
-import { GoogleMap, LoadScript } from "@react-google-maps/api";
+import { GoogleMap, LoadScript, Polygon } from "@react-google-maps/api";
 import Marker from "./Marker";
 import mapStyles from "./mapStyles.json";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import {
   Box,
+  Stack,
   FormControlLabel,
   FormGroup,
   Grid,
@@ -29,6 +30,9 @@ import { faker } from "@faker-js/faker";
 import listDrivers from "./request/listDrivers";
 import getNearestDrivers from "./request/getNearestDrivers";
 import updateDriverLocations from "./request/updateDriverLocations";
+import { getPolygons, getPolygonsOutput } from "./getPolygons";
+import ResolutionControl from "./ResolutionControl";
+import Hexagons, { pointsToPaths, buildOptions } from "./Hexagons";
 
 const darkTheme = createTheme({
   palette: {
@@ -65,7 +69,7 @@ function newDriverName(): string {
 function MyMap() {
   const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY as string;
   const [focusedDriverId, setFocusedDriverId] = React.useState<string>("");
-  const [queryMode, setQueryMode] = React.useState<boolean>(false);
+  const [queryMode, setQueryMode] = React.useState<boolean>(true);
   const [driverLocationsState, setDriverLocationsState] =
     React.useState<NormalizedDriverLocations>({
       byId: {},
@@ -77,6 +81,11 @@ function MyMap() {
       allIds: [],
     } as NormalizedDriverLocations);
   const [searchResults, setSearchResults] = React.useState<SearchResult[]>([]);
+  const [resolution, setResolution] = React.useState<number>(9);
+  const [pickupLocation, setPickupLocation] = React.useState<LatLng>({
+    latitude: 40.72106092795603,
+    longitude: -73.95246141893465,
+  } as LatLng);
 
   const newDriverLocations = getDriverLocationsFromState(
     newDriverLocationsState
@@ -92,14 +101,18 @@ function MyMap() {
     getDriverLocations().catch(console.error);
   });
 
+  const [polyOut, setPolyOut] = React.useState<getPolygonsOutput | undefined>();
   const getNearbyDrivers = async (e: google.maps.MapMouseEvent) => {
     const lat = e.latLng?.lat() ?? 0;
     const lng = e.latLng?.lng() ?? 0;
 
-    const res = await getNearestDrivers({
+    const point: LatLng = {
       latitude: lat,
       longitude: lng,
-    } as LatLng);
+    };
+    setPickupLocation(point);
+    setPolyOut(getPolygons(pickupLocation, resolution));
+    const res = await getNearestDrivers(point);
     setSearchResults(res?.results ?? []);
   };
 
@@ -119,75 +132,89 @@ function MyMap() {
     );
   };
 
+  const onLoad = (polygon: google.maps.Polygon) => {
+    console.log("polygon: ", polygon);
+  };
+
   return (
-    <Grid container spacing={2}>
-      <Grid item xs={3}>
-        <FormGroup>
-          <FormControlLabel
-            control={
-              <Switch
-                checked={queryMode}
-                onChange={() => setQueryMode(!queryMode)}
-              />
-            }
-            label="Mode"
-          />
-        </FormGroup>
-      </Grid>
-      <Grid item xs={9}>
-        {queryMode ? (
-          <Typography>Click anywhere to rank nearby drivers</Typography>
-        ) : (
-          <Typography>Click to add new drivers</Typography>
-        )}
-      </Grid>
-      <Grid item xs={3}>
-        <Item>
-          <DriverList
-            buildHandleMouseOver={(driverId: string) => () =>
-              setFocusedDriverId(driverId)}
-            buildHandleMouseOut={(driverId: string) => () =>
-              setFocusedDriverId("")}
-            queryMode={queryMode}
-            onUpload={() =>
-              updateDriverLocations(
-                getDriverLocationsFromState(newDriverLocationsState)
-              )
-            }
-            driverLocations={newDriverLocations}
-          />
-        </Item>
-      </Grid>
-      <Grid item xs={9}>
-        <Item>
-          <LoadScript googleMapsApiKey={apiKey}>
-            <GoogleMap
-              onClick={queryMode ? getNearbyDrivers : addNewDriver}
-              options={{
-                styles: mapStyles,
-              }}
-              mapContainerStyle={containerStyle}
-              center={center}
-              zoom={13}
-            >
-              {driverLocations.map((dl: DriverLocation, i: number) => (
-                <Marker
-                  key={i}
-                  driverLocation={dl}
-                  isNear={searchResults
-                    .map((sr) => sr.driver.driverId)
-                    .includes(dl.driverId)}
+    <Stack width={"100%"}>
+      <ResolutionControl
+        resolution={resolution}
+        setResolution={setResolution}
+      />
+      <Grid container spacing={2}>
+        <Grid item xs={3}>
+          <FormGroup>
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={queryMode}
+                  onChange={() => setQueryMode(!queryMode)}
                 />
-              ))}
-              {newDriverLocations.map((dl: DriverLocation, i: number) => (
-                <Marker key={i} driverLocation={dl} cached />
-              ))}
-              <></>
-            </GoogleMap>
-          </LoadScript>
-        </Item>
+              }
+              label="Mode"
+            />
+          </FormGroup>
+        </Grid>
+        <Grid item xs={9}>
+          {queryMode ? (
+            <Typography>Click anywhere to rank nearby drivers</Typography>
+          ) : (
+            <Typography>Click to add new drivers</Typography>
+          )}
+        </Grid>
+        <Grid item xs={3}>
+          <Item>
+            <DriverList
+              buildHandleMouseOver={(driverId: string) => () =>
+                setFocusedDriverId(driverId)}
+              buildHandleMouseOut={(driverId: string) => () =>
+                setFocusedDriverId("")}
+              queryMode={queryMode}
+              onUpload={() =>
+                updateDriverLocations(
+                  getDriverLocationsFromState(newDriverLocationsState)
+                )
+              }
+              searchResults={searchResults}
+              driverLocations={newDriverLocations}
+            />
+          </Item>
+        </Grid>
+        <Grid item xs={9}>
+          <Item>
+            <LoadScript googleMapsApiKey={apiKey}>
+              <GoogleMap
+                onClick={queryMode ? getNearbyDrivers : addNewDriver}
+                options={{
+                  styles: mapStyles,
+                }}
+                mapContainerStyle={containerStyle}
+                center={center}
+                zoom={13}
+              >
+                {driverLocations.map((dl: DriverLocation, i: number) => (
+                  <Marker
+                    key={i}
+                    location={dl.currentLocation}
+                    isNear={searchResults
+                      .map((sr: SearchResult) => sr.driver.driverId)
+                      .includes(dl.driverId)}
+                  />
+                ))}
+                {newDriverLocations.map((dl: DriverLocation, i: number) => (
+                  <Marker key={i} location={dl.currentLocation} cached />
+                ))}
+                {pickupLocation && (
+                  <Marker location={pickupLocation} pickupLocation />
+                )}
+                {polyOut && <Hexagons polyOut={polyOut} />}
+              </GoogleMap>
+            </LoadScript>
+          </Item>
+        </Grid>
       </Grid>
-    </Grid>
+    </Stack>
   );
 }
 
